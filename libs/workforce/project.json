@@ -1,0 +1,27 @@
+{
+  "name": "workforce",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/workforce/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/workforce",
+        "main": "libs/workforce/src/index.ts",
+        "tsConfig": "libs/workforce/tsconfig.lib.json",
+        "assets": ["libs/workforce/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/workforce/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

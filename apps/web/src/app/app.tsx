@@ -23,6 +23,9 @@ import { MpsDashboardPage } from '../pages/mps/dashboard';
 import { MrpProcurementPage } from '../pages/mrp/procurement';
 import { PurchaseOrdersPage } from '../pages/procurement/purchase-orders';
 import { VendorScorecardPage } from '../pages/procurement/scorecard';
+import { WorkforceSchedulePage } from '../pages/workforce/schedule';
+import { TimeClockPage } from '../pages/workforce/time-clock';
+import { LaborCostPage } from '../pages/workforce/labor-cost';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -66,6 +69,9 @@ export function App() {
         <Route path="mrp/procurement" element={<MrpProcurementPage />} />
         <Route path="procurement/purchase-orders" element={<PurchaseOrdersPage />} />
         <Route path="procurement/scorecard" element={<VendorScorecardPage />} />
+        <Route path="workforce/schedule" element={<WorkforceSchedulePage />} />
+        <Route path="workforce/time-clock" element={<TimeClockPage />} />
+        <Route path="workforce/labor-cost" element={<LaborCostPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

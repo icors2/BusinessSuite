@@ -24,6 +24,7 @@ import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
 import { MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
+import { WorkforceService } from 'workforce';
 import { StorageService } from 'storage';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -104,6 +105,7 @@ describe('PLM Integration', () => {
       mpsService: app.get(MpsService),
       mrpService: app.get(MrpService),
       procurementService: app.get(ProcurementService),
+      workforceService: app.get(WorkforceService),
     });
 
     const adminLogin = await request(app.getHttpServer())

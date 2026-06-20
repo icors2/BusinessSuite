@@ -23,6 +23,9 @@ const navItems = [
   { to: '/mrp/procurement', label: 'Procurement' },
   { to: '/procurement/purchase-orders', label: 'Purchase Orders' },
   { to: '/procurement/scorecard', label: 'Scorecard' },
+  { to: '/workforce/schedule', label: 'Schedule' },
+  { to: '/workforce/time-clock', label: 'Time Clock' },
+  { to: '/workforce/labor-cost', label: 'Labor Cost' },
 ];
 
 export function AppLayout() {

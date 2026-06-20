@@ -253,6 +253,7 @@ async function main(): Promise<void> {
   await seedMps(prisma);
   await seedMrp(prisma);
   await seedProcurement(prisma);
+  await seedWorkforce(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -1037,6 +1038,97 @@ async function seedProcurement(client: PrismaClient): Promise<void> {
       poId: po.id,
       confirmedDeliveryDate: expectedDelivery,
       note: 'Seed vendor acknowledgment',
+    },
+  });
+}
+
+/** Phase 11 — sample employee, shift, assignment, and closed time entry. */
+async function seedWorkforce(client: PrismaClient): Promise<void> {
+  const existing = await client.employee.findUnique({
+    where: { employeeNumber: 'EMP-0001' },
+  });
+  if (existing) return;
+
+  const employee = await client.employee.create({
+    data: {
+      employeeNumber: 'EMP-0001',
+      firstName: 'Alex',
+      lastName: 'Assembler',
+      department: 'Assembly',
+      badgeCode: 'BADGE-0001',
+      laborRate: 22.5,
+      status: 'ACTIVE',
+    },
+  });
+
+  const shift = await client.shift.upsert({
+    where: { code: 'DAY' },
+    create: {
+      code: 'DAY',
+      name: 'Day Shift',
+      startTime: '07:00',
+      endTime: '15:00',
+      daysOfWeek: [1, 2, 3, 4, 5],
+      active: true,
+    },
+    update: {},
+  });
+
+  const start = new Date();
+  start.setUTCHours(0, 0, 0, 0);
+  start.setUTCDate(start.getUTCDate() + 1);
+
+  let workingDay: Date | null = null;
+  for (let i = 0; i < 14; i++) {
+    const candidate = new Date(start);
+    candidate.setUTCDate(candidate.getUTCDate() + i);
+    const calendarDay = await client.factoryCalendarDay.findUnique({
+      where: { date: candidate },
+    });
+    if (calendarDay?.isWorkingDay && shift.daysOfWeek.includes(candidate.getUTCDay())) {
+      workingDay = candidate;
+      break;
+    }
+  }
+
+  if (workingDay) {
+    await client.shiftAssignment.upsert({
+      where: {
+        employeeId_date_shiftId: {
+          employeeId: employee.id,
+          date: workingDay,
+          shiftId: shift.id,
+        },
+      },
+      create: {
+        employeeId: employee.id,
+        shiftId: shift.id,
+        date: workingDay,
+      },
+      update: {},
+    });
+  }
+
+  const workOrder = await client.workOrder.findFirst({
+    where: { woNumber: { contains: 'SEED' } },
+  });
+  if (!workOrder) return;
+
+  const clockIn = new Date();
+  clockIn.setUTCHours(8, 0, 0, 0);
+  clockIn.setUTCDate(clockIn.getUTCDate() - 1);
+  const clockOut = new Date(clockIn);
+  clockOut.setUTCHours(12, 0, 0, 0);
+
+  await client.timeEntry.create({
+    data: {
+      employeeId: employee.id,
+      clockIn,
+      clockOut,
+      durationMinutes: 240,
+      workOrderId: workOrder.id,
+      department: employee.department,
+      status: 'CLOSED',
     },
   });
 }

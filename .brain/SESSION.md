@@ -12,37 +12,37 @@
 
 ## Current Focus
 
-Phase 10 — Procurement & Vendor Integration **complete**.
+Phase 11 — Workforce Management **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 11 (Workforce Management)._
+_None — ready for Phase 12 (MES)._
 
 ---
 
 ## Recent Progress
 
-- Prisma procurement schema: PurchaseOrder, lines, PoReceipt, VendorAcknowledgment, ASN; migration `20260620122441_add_procurement`
-- Created `libs/procurement` — consolidation, scorecard, ProcurementService, EVENTS.md
-- tRPC `procurement` router; ProcurementModule wired (WmsModule)
-- UI: `/procurement/purchase-orders` + `/procurement/scorecard`
-- Seed: PO-2026-SEED1 with sample PoReceipt for scorecard
-- 5 procurement unit tests + 6 procurement integration tests; full suite green (17 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 10 ✅ COMPLETE)
+- Prisma workforce schema: Employee, Shift, ShiftAssignment, TimeEntry, EmployeeUnavailability; migration `20260620124005_add_workforce`
+- Created `libs/workforce` — clock validation, labor cost roll-up, availability, EMP-#### numbering, EVENTS.md
+- tRPC `workforce` router; WorkforceModule wired in API
+- UI: `/workforce/schedule`, `/workforce/time-clock`, `/workforce/labor-cost`
+- Seed: EMP-0001, DAY shift, assignment, closed time entry on seeded WO
+- 7 workforce unit tests + 9 workforce integration tests; full suite green (18 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 11 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 11 — Workforce Management** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 12 — MES (Production Execution)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Approved requisitions consolidate into one PO per vendor
-- Vendor ack/ASN is staff-on-behalf via editorProcedure (EDI/portal plug-in noted in service)
-- receiveAgainstPo creates PoReceipt + delegates on-hand to InventoryService.receive
-- Scorecard: on-time rate from receipt date vs expected; qty accuracy from qtyReceived vs ordered
+- Employee model is standalone with optional `userId` link (floor workers without ERP accounts)
+- Kiosk time clock uses shared editorProcedure session; employees pick from roster or enter badge code
+- Clock-out flags crosses-midnight and over-max-shift (16h default) as FLAGGED, not rejected
+- assignShift requires working FactoryCalendarDay and rejects unavailable employees

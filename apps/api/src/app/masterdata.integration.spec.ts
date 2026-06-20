@@ -25,6 +25,7 @@ import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
 import { MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
+import { WorkforceService } from 'workforce';
 import { AppModule } from './app.module';
 
 const DATABASE_URL =
@@ -95,6 +96,7 @@ describe('Masterdata tRPC Integration', () => {
       mpsService: app.get(MpsService),
       mrpService: app.get(MrpService),
       procurementService: app.get(ProcurementService),
+      workforceService: app.get(WorkforceService),
     });
 
     const adminLogin = await request(app.getHttpServer())

@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 10 complete — PO issuance, vendor intake, receive-against-PO, scorecards |
+| **Repo status** | Phase 11 complete — employees, shifts, time clock, labor cost roll-up |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,22 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 10 complete |
-| **Next phase** | **Phase 11 — Workforce Management (Time & Scheduling)** |
+| **Active phase** | None — Phase 11 complete |
+| **Next phase** | **Phase 12 — MES (Production Execution)** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 11 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 11](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-11--workforce-management-time--scheduling--complete)
+
+- [x] Prisma schema: Employee (optional userId), Shift, ShiftAssignment, TimeEntry, EmployeeUnavailability; EmploymentStatus/TimeEntryStatus enums
+- [x] `libs/workforce` — clock validation, labor cost roll-up, availability check, EMP-#### numbering
+- [x] WorkforceService: employee/shift CRUD, assignShift, markUnavailable, clockIn/clockOut, getLaborCostReport
+- [x] tRPC `workforce` router; WorkforceModule wired in API
+- [x] UI: `/workforce/schedule`, `/workforce/time-clock`, `/workforce/labor-cost`
+- [x] Events: `workforce.shift.assigned`, `workforce.clock.in`, `workforce.clock.out`
+- [x] Unit + integration tests (clock edge cases, labor roll-up, PTO block, Viewer block)
+- [x] Seed: EMP-0001, DAY shift, assignment on next working day, closed time entry on seeded WO
 
 ### Phase 10 Definition of Done
 
@@ -204,6 +217,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | MRP UI | `apps/web/src/pages/mrp/*` | Created (Phase 9) |
 | Procurement lib | `libs/procurement` | Created (Phase 10) |
 | Procurement UI | `apps/web/src/pages/procurement/*` | Created (Phase 10) |
+| Workforce lib | `libs/workforce` | Created (Phase 11) |
+| Workforce UI | `apps/web/src/pages/workforce/*` | Created (Phase 11) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -400,6 +415,9 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `procurement.po.issued` | procurement | 10 | `{ purchaseOrderId, poNumber, vendorId, total }` |
 | `procurement.po.acknowledged` | procurement | 10 | `{ purchaseOrderId, poNumber, acknowledgmentId, confirmedDeliveryDate }` |
 | `procurement.asn.received` | procurement | 10 | `{ purchaseOrderId, asnId, expectedArrival, lineCount }` |
+| `workforce.shift.assigned` | workforce | 11 | `{ assignmentId, shiftId, employeeId, date }` |
+| `workforce.clock.in` | workforce | 11 | `{ timeEntryId, employeeId, clockIn, workOrderId }` |
+| `workforce.clock.out` | workforce | 11 | `{ timeEntryId, employeeId, clockOut, durationMinutes, status, flagReason }` |
 
 ---
 

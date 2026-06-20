@@ -15,6 +15,7 @@ import { SalesModule } from 'sales';
 import { MpsModule } from 'mps';
 import { MrpModule } from 'mrp';
 import { ProcurementModule } from 'procurement';
+import { WorkforceModule } from 'workforce';
 import { AppController } from './app.controller';
 import { DocumentsController } from './documents.controller';
 
@@ -37,6 +38,7 @@ const config = loadAppConfig();
     MpsModule,
     MrpModule,
     ProcurementModule,
+    WorkforceModule,
   ],
   controllers: [AppController, DocumentsController],
 })

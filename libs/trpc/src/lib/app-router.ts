@@ -13,6 +13,7 @@ import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
 import { MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
+import { WorkforceService } from 'workforce';
 import { createAccountRouter } from './routers/account.router';
 import { createBillRouter } from './routers/bill.router';
 import { createDocumentRouter } from './routers/document.router';
@@ -22,6 +23,7 @@ import { createSalesOrderRouter } from './routers/sales-order.router';
 import { createMpsRouter } from './routers/mps.router';
 import { createMrpRouter } from './routers/mrp.router';
 import { createProcurementRouter } from './routers/procurement.router';
+import { createWorkforceRouter } from './routers/workforce.router';
 import { createInvoiceRouter } from './routers/invoice.router';
 import { createJournalRouter } from './routers/journal.router';
 import { createReportRouter } from './routers/report.router';
@@ -54,6 +56,7 @@ export interface AppRouterDependencies {
   mpsService: MpsService;
   mrpService: MrpService;
   procurementService: ProcurementService;
+  workforceService: WorkforceService;
 }
 
 export function createAppRouter(deps: AppRouterDependencies) {
@@ -77,6 +80,7 @@ export function createAppRouter(deps: AppRouterDependencies) {
     mps: createMpsRouter(deps.mpsService),
     mrp: createMrpRouter(deps.mrpService),
     procurement: createProcurementRouter(deps.procurementService),
+    workforce: createWorkforceRouter(deps.workforceService),
   });
 }
 

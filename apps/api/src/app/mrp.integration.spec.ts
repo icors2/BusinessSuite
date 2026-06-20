@@ -23,6 +23,7 @@ import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
 import { MRP_EVENTS, MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
+import { WorkforceService } from 'workforce';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -110,6 +111,7 @@ describe('MRP tRPC Integration', () => {
       mpsService: app.get(MpsService),
       mrpService: app.get(MrpService),
       procurementService: app.get(ProcurementService),
+      workforceService: app.get(WorkforceService),
     });
 
     const adminLogin = await import('supertest').then((m) =>

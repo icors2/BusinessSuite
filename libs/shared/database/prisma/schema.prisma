@@ -17,6 +17,7 @@ model User {
   roles        UserRole[]
   refreshTokens RefreshToken[]
   auditLogs    AuditLog[]     @relation("AuditActor")
+  employee     Employee?
 }
 
 model Role {
@@ -736,6 +737,7 @@ model WorkOrder {
 
   product Product         @relation(fields: [productId], references: [id])
   line    ProductionLine? @relation(fields: [lineId], references: [id], onDelete: SetNull)
+  timeEntries TimeEntry[]
 
   @@index([status])
   @@index([productId])
@@ -944,6 +946,113 @@ model AsnLine {
   product Product               @relation(fields: [productId], references: [id])
 
   @@index([asnId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 11 — Workforce Management (Time & Scheduling)
+//
+// Employees (optional User link), shift assignments aligned to the factory
+// calendar, time entries with clock-in/out validation, and unavailability
+// for scheduling conflict prevention.
+// ---------------------------------------------------------------------------
+
+enum EmploymentStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+}
+
+enum TimeEntryStatus {
+  OPEN
+  CLOSED
+  FLAGGED
+}
+
+model Employee {
+  id             String            @id @default(uuid())
+  employeeNumber String            @unique
+  firstName      String
+  lastName       String
+  department     String?
+  badgeCode      String?           @unique
+  laborRate      Decimal           @default(0) @db.Decimal(18, 2)
+  status         EmploymentStatus  @default(ACTIVE)
+  userId         String?           @unique
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  user             User?                    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  assignments      ShiftAssignment[]
+  timeEntries      TimeEntry[]
+  unavailability   EmployeeUnavailability[]
+
+  @@index([status])
+  @@index([department])
+}
+
+model Shift {
+  id         String   @id @default(uuid())
+  code       String   @unique
+  name       String
+  startTime  String
+  endTime    String
+  daysOfWeek Int[]
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  assignments ShiftAssignment[]
+
+  @@index([active])
+}
+
+model ShiftAssignment {
+  id         String   @id @default(uuid())
+  shiftId    String
+  employeeId String
+  date       DateTime @db.Date
+  createdAt  DateTime @default(now())
+
+  shift    Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date, shiftId])
+  @@index([date])
+  @@index([shiftId])
+}
+
+model TimeEntry {
+  id              String          @id @default(uuid())
+  employeeId      String
+  clockIn         DateTime
+  clockOut        DateTime?
+  durationMinutes Int?
+  workOrderId     String?
+  department      String?
+  status          TimeEntryStatus @default(OPEN)
+  flagReason      String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  employee  Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  workOrder WorkOrder? @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([workOrderId])
+}
+
+model EmployeeUnavailability {
+  id         String   @id @default(uuid())
+  employeeId String
+  fromDate   DateTime @db.Date
+  toDate     DateTime @db.Date
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
 }
 
 // ---------------------------------------------------------------------------

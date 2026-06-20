@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 10 Procurement & Vendor Integration complete.
+Integrated manufacturing operations platform — Phase 11 Workforce Management complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 10 Procurement & Vendor I
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times), and procurement seed data (issued PO PO-2026-SEED1 with sample receipt for scorecard) are seeded after migration.
+Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times), procurement seed data (issued PO PO-2026-SEED1 with sample receipt for scorecard), and workforce seed data (EMP-0001, DAY shift, assignment, closed time entry on seeded work order) are seeded after migration.
 
 ## API endpoints
 
@@ -202,6 +202,22 @@ Purchase orders from approved requisitions, vendor acknowledgment/ASN intake, re
 | `/procurement/purchase-orders` | PO creation from approved requisitions, issue/acknowledge/ASN/receive actions |
 | `/procurement/scorecard` | Vendor on-time delivery and quantity-accuracy metrics |
 
+### tRPC (Workforce — Phase 11)
+
+Shift scheduling, kiosk time clock, and labor cost roll-up by work order and department.
+
+| Router | Procedures |
+|--------|------------|
+| `workforce` | createEmployee, updateEmployee, upsertShift, assignShift, markUnavailable, clockIn, clockOut, listEmployees, listShifts, listAssignments, listOpenTimeEntries, getLaborCostReport |
+
+## ERP Admin UI (Workforce pages)
+
+| Route | Description |
+|-------|-------------|
+| `/workforce/schedule` | Shift grid, assign employees, coverage gaps, mark unavailable |
+| `/workforce/time-clock` | Tablet-friendly kiosk — roster tap or badge code clock in/out |
+| `/workforce/labor-cost` | Labor cost roll-up by work order and department |
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -279,6 +295,7 @@ libs/sales        Sales orders, WMS allocation, fulfillment, invoice-on-ship
 libs/mps          Master Production Schedule, work orders, factory calendar
 libs/mrp          Material Requirements Planning, BOM explosion, requisitions
 libs/procurement  Purchase orders, vendor intake, receive-against-PO, scorecards
+libs/workforce    Employees, shifts, time clock, labor cost roll-up
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -321,4 +338,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 8 status:** Complete  
 **Phase 9 status:** Complete  
 **Phase 10 status:** Complete  
-**Next phase:** Phase 11 — Workforce Management (Time & Scheduling)
+**Phase 11 status:** Complete  
+**Next phase:** Phase 12 — MES (Production Execution)
