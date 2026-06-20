@@ -24,6 +24,7 @@ import { MpsService } from 'mps';
 import { MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
 import { WorkforceService } from 'workforce';
+import { MesService } from 'mes';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -118,6 +119,7 @@ describe('CPQ tRPC Integration', () => {
       mrpService: app.get(MrpService),
       procurementService: app.get(ProcurementService),
       workforceService: app.get(WorkforceService),
+      mesService: app.get(MesService),
     });
 
     const adminLogin = await import('supertest').then((m) =>

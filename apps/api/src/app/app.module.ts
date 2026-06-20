@@ -16,6 +16,8 @@ import { MpsModule } from 'mps';
 import { MrpModule } from 'mrp';
 import { ProcurementModule } from 'procurement';
 import { WorkforceModule } from 'workforce';
+import { MesModule } from 'mes';
+import { MesVerificationController } from './mes-verification.controller';
 import { AppController } from './app.controller';
 import { DocumentsController } from './documents.controller';
 
@@ -39,7 +41,8 @@ const config = loadAppConfig();
     MrpModule,
     ProcurementModule,
     WorkforceModule,
+    MesModule,
   ],
-  controllers: [AppController, DocumentsController],
+  controllers: [AppController, DocumentsController, MesVerificationController],
 })
 export class AppModule {}

@@ -37,5 +37,39 @@ const isEditor = t.middleware(({ ctx, next }) => {
   return next({ ctx: { ...ctx, user: ctx.user } });
 });
 
+const isOperator = t.middleware(({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Authentication required' });
+  }
+  const allowed = ctx.user.roles.some((role) =>
+    ['Admin', 'Manager', 'Supervisor', 'Operator'].includes(role),
+  );
+  if (!allowed) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Operator role or higher required',
+    });
+  }
+  return next({ ctx: { ...ctx, user: ctx.user } });
+});
+
+const isSupervisor = t.middleware(({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Authentication required' });
+  }
+  const allowed = ctx.user.roles.some((role) =>
+    ['Admin', 'Supervisor'].includes(role),
+  );
+  if (!allowed) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Supervisor role required',
+    });
+  }
+  return next({ ctx: { ...ctx, user: ctx.user } });
+});
+
 export const protectedProcedure = publicProcedure.use(isAuthenticated);
 export const editorProcedure = publicProcedure.use(isEditor);
+export const operatorProcedure = publicProcedure.use(isOperator);
+export const supervisorProcedure = publicProcedure.use(isSupervisor);

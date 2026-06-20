@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 11 complete — employees, shifts, time clock, labor cost roll-up |
+| **Repo status** | Phase 12 complete — MES workstations, operations, cycles, verification, real-time gateway |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,23 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 11 complete |
-| **Next phase** | **Phase 12 — MES (Production Execution)** |
+| **Active phase** | None — Phase 12 complete |
+| **Next phase** | **Phase 13 — QMS (Quality Management)** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 12 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 12](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-12--mes-production-execution--complete)
+
+- [x] Prisma schema: Workstation, WorkOrderOperation, CycleRecord, WorkOrderVerification; WorkstationStatus/OperationStatus enums; WorkOrderStatus extended (AWAITING_VERIFICATION, VERIFIED)
+- [x] `libs/mes` — cycle duration/efficiency, Code128 placard HTML, operation guards, EVENTS.md
+- [x] MesService: workstation/operation CRUD, generateOperations, startOperation (clock-in gate), stopOperation, verifyWorkOrder, getDashboard, getPlacard
+- [x] MesGateway: Socket.IO `/mes` namespace, JWT handshake, Redis `mes.*` subscription (consumer group `mes-realtime`); `SKIP_MES_GATEWAY` in API Jest setup
+- [x] tRPC `mes` router with operatorProcedure/supervisorProcedure; MesVerificationController for MinIO photo upload
+- [x] UI: `/mes/operator-console`, `/mes/supervisor`, `/mes/scheduling`, `/mes/placard` + `useMesSocket` hook
+- [x] Events: `mes.operation.started`, `mes.operation.completed`, `mes.cycle.recorded`, `mes.workorder.verified`
+- [x] Unit + integration tests (start/stop/verify flow, RBAC, gateway broadcast)
+- [x] Seed: WS-LASER, 2 ops on seeded WO, closed CycleRecord for EMP-0001; Operator/Supervisor roles + users
 
 ### Phase 11 Definition of Done
 
@@ -219,6 +233,9 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Procurement UI | `apps/web/src/pages/procurement/*` | Created (Phase 10) |
 | Workforce lib | `libs/workforce` | Created (Phase 11) |
 | Workforce UI | `apps/web/src/pages/workforce/*` | Created (Phase 11) |
+| MES lib | `libs/mes` | Created (Phase 12) |
+| MES UI | `apps/web/src/pages/mes/*` | Created (Phase 12) |
+| MES verification REST | `apps/api/src/app/mes-verification.controller.ts` | Created (Phase 12) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -316,7 +333,8 @@ Do not start UI work until the service layer has passing tests.
 
 - **Phase 0 roles:** Admin, Manager (seeded in `prisma/seed.ts`)
 - **Phase 1 role:** Viewer (read-only; authenticated reads, no writes)
-- **Write gating:** Admin and Manager for master data mutations (tRPC `editorProcedure`)
+- **Phase 12 roles:** Operator (start/stop operations), Supervisor (verify work orders)
+- **Write gating:** Admin and Manager for master data mutations (tRPC `editorProcedure`); Operator+ for floor actions (`operatorProcedure`); Supervisor+ for verification (`supervisorProcedure`)
 - **Extension rule:** New personas extend the role table — do not create parallel permission systems
 
 ### Testing
@@ -324,6 +342,7 @@ Do not start UI work until the service layer has passing tests.
 - Every service needs unit tests for business logic and integration tests for tRPC endpoints against a test database
 - Do not mark a phase complete until tests pass in CI, not just locally
 - `SKIP_MASTERDATA_EVENT_LOG=true` in API Jest setup to avoid Redis subscriber hangs in tests
+- `SKIP_MES_GATEWAY=true` in API Jest setup — MesGateway Redis subscriptions skipped; gateway broadcast tested directly
 
 ### Documentation
 
@@ -355,8 +374,8 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 8 | MPS — production scheduling | **Complete** |
 | 9 | MRP — material planning | **Complete** |
 | 10 | Procurement & vendor integration | **Complete** |
-| 11 | Workforce management (time & scheduling) | Not started |
-| 12 | MES — production execution | Not started |
+| 11 | Workforce management (time & scheduling) | **Complete** |
+| 12 | MES — production execution | **Complete** |
 | 13 | QMS — quality management | Not started |
 | 14 | CMMS — maintenance management | Not started |
 | 15 | Returns & RMA management | Not started |
@@ -418,6 +437,10 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `workforce.shift.assigned` | workforce | 11 | `{ assignmentId, shiftId, employeeId, date }` |
 | `workforce.clock.in` | workforce | 11 | `{ timeEntryId, employeeId, clockIn, workOrderId }` |
 | `workforce.clock.out` | workforce | 11 | `{ timeEntryId, employeeId, clockOut, durationMinutes, status, flagReason }` |
+| `mes.operation.started` | mes | 12 | `{ cycleId, operationId, workOrderId, employeeId, startedAt }` |
+| `mes.operation.completed` | mes | 12 | `{ cycleId, operationId, workOrderId, durationMinutes, quantityCompleted }` |
+| `mes.cycle.recorded` | mes | 12 | `{ cycleId, operationId, employeeId, durationMinutes, quantityCompleted, quantityScrapped }` |
+| `mes.workorder.verified` | mes | 12 | `{ workOrderId, verifiedByUserId, photoObjectKey }` |
 
 ---
 

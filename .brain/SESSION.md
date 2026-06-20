@@ -12,37 +12,37 @@
 
 ## Current Focus
 
-Phase 11 — Workforce Management **complete**.
+Phase 12 — MES (Production Execution) **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 12 (MES)._
+_None — ready for Phase 13 (QMS)._
 
 ---
 
 ## Recent Progress
 
-- Prisma workforce schema: Employee, Shift, ShiftAssignment, TimeEntry, EmployeeUnavailability; migration `20260620124005_add_workforce`
-- Created `libs/workforce` — clock validation, labor cost roll-up, availability, EMP-#### numbering, EVENTS.md
-- tRPC `workforce` router; WorkforceModule wired in API
-- UI: `/workforce/schedule`, `/workforce/time-clock`, `/workforce/labor-cost`
-- Seed: EMP-0001, DAY shift, assignment, closed time entry on seeded WO
-- 7 workforce unit tests + 9 workforce integration tests; full suite green (18 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 11 ✅ COMPLETE)
+- Prisma MES schema: Workstation, WorkOrderOperation, CycleRecord, WorkOrderVerification; migration `20260620125310_add_mes`
+- Created `libs/mes` — cycle/placard pure functions, MesService, MesGateway (Socket.IO `/mes`), EVENTS.md
+- tRPC `mes` router with operatorProcedure/supervisorProcedure; MesVerificationController for photo upload
+- UI: operator-console, supervisor (live dashboard), scheduling board, placard print view
+- Seed: WS-LASER, 2 ops on seeded WO, closed cycle for EMP-0001; Operator/Supervisor users
+- 7 mes unit tests + 8 mes integration tests; full suite green (19 projects)
+- API Jest: `SKIP_MES_GATEWAY=true` + 60s timeout to avoid Redis subscriber bootstrap hangs
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 12 — MES (Production Execution)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 13 — QMS (Quality Management)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Employee model is standalone with optional `userId` link (floor workers without ERP accounts)
-- Kiosk time clock uses shared editorProcedure session; employees pick from roster or enter badge code
-- Clock-out flags crosses-midnight and over-max-shift (16h default) as FLAGGED, not rejected
-- assignShift requires working FactoryCalendarDay and rejects unavailable employees
+- startOperation requires open TimeEntry (Phase 11 clock-in); operator attributed from employeeId/badge
+- verifyWorkOrder blocked until all operations COMPLETED; sets WO AWAITING_VERIFICATION → VERIFIED
+- Real-time: MesGateway subscribes to `mes.*` on Redis event bus and emits `mes.event` to Socket.IO clients
+- Placards: server-rendered HTML with dependency-free Code128 SVG encoding woNumber

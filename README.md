@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 11 Workforce Management complete.
+Integrated manufacturing operations platform — Phase 12 MES (Production Execution) complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 11 Workforce Management c
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times), procurement seed data (issued PO PO-2026-SEED1 with sample receipt for scorecard), and workforce seed data (EMP-0001, DAY shift, assignment, closed time entry on seeded work order) are seeded after migration.
+Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times), procurement seed data (issued PO PO-2026-SEED1 with sample receipt for scorecard), workforce seed data (EMP-0001, DAY shift, assignment, closed time entry on seeded work order), and MES seed data (WS-LASER workstation, 2 sequential operations on seeded WO, closed cycle for EMP-0001) are seeded after migration.
 
 ## API endpoints
 
@@ -218,6 +218,25 @@ Shift scheduling, kiosk time clock, and labor cost roll-up by work order and dep
 | `/workforce/time-clock` | Tablet-friendly kiosk — roster tap or badge code clock in/out |
 | `/workforce/labor-cost` | Labor cost roll-up by work order and department |
 
+### tRPC (MES — Phase 12)
+
+Shop floor execution: workstations, sequential work-order operations, cycle records attributed to clocked-in operators, supervisor verification, placards.
+
+| Router | Procedures |
+|--------|------------|
+| `mes` | upsertWorkstation, upsertOperation, generateOperations, startOperation, stopOperation, verifyWorkOrder, listWorkstations, listOperations, listOpenCycles, getDashboard, getPlacard |
+
+## ERP Admin UI (MES pages)
+
+| Route | Description |
+|-------|-------------|
+| `/mes/operator-console` | Tablet kiosk — start/stop operations, qty entry, operator from clocked-in roster |
+| `/mes/supervisor` | Live floor dashboard (Socket.IO `/mes`) + verification with photo upload |
+| `/mes/scheduling` | Operations-by-workstation board with live updates |
+| `/mes/placard` | Printable work-order traveler with Code128 barcode |
+
+Real-time updates use a NestJS Socket.IO gateway (`/mes` namespace) fed by `mes.*` events on the Redis event bus.
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -296,6 +315,7 @@ libs/mps          Master Production Schedule, work orders, factory calendar
 libs/mrp          Material Requirements Planning, BOM explosion, requisitions
 libs/procurement  Purchase orders, vendor intake, receive-against-PO, scorecards
 libs/workforce    Employees, shifts, time clock, labor cost roll-up
+libs/mes          Workstations, operations, cycles, verification, placards, Socket.IO gateway
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -303,7 +323,7 @@ libs/shared/
   event-bus       Redis Streams pub/sub
   audit           Audit logging to Postgres
   health          /health watchdog
-  auth            JWT + RBAC (Admin, Manager, Viewer)
+  auth            JWT + RBAC (Admin, Manager, Viewer, Operator, Supervisor)
   storage         MinIO/S3 object storage wrapper
 ```
 
@@ -339,4 +359,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 9 status:** Complete  
 **Phase 10 status:** Complete  
 **Phase 11 status:** Complete  
-**Next phase:** Phase 12 — MES (Production Execution)
+**Phase 12 status:** Complete  
+**Next phase:** Phase 13 — QMS (Quality Management)

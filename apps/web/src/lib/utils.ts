@@ -8,3 +8,13 @@ export function cn(...inputs: ClassValue[]) {
 export function canEdit(roles: string[]): boolean {
   return roles.some((role) => role === 'Admin' || role === 'Manager');
 }
+
+export function canOperate(roles: string[]): boolean {
+  return roles.some((role) =>
+    ['Admin', 'Manager', 'Supervisor', 'Operator'].includes(role),
+  );
+}
+
+export function canVerify(roles: string[]): boolean {
+  return roles.some((role) => ['Admin', 'Supervisor'].includes(role));
+}

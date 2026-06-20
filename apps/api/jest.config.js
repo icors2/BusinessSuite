@@ -25,6 +25,7 @@ module.exports = {
     '^mrp$': '<rootDir>/../../libs/mrp/src/index.ts',
     '^procurement$': '<rootDir>/../../libs/procurement/src/index.ts',
     '^workforce$': '<rootDir>/../../libs/workforce/src/index.ts',
+    '^mes$': '<rootDir>/../../libs/mes/src/index.ts',
     '^storage$': '<rootDir>/../../libs/shared/storage/src/index.ts',
     '^trpc$': '<rootDir>/../../libs/trpc/src/index.ts',
   },

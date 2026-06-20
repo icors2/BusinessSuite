@@ -23,9 +23,17 @@ import { MpsDashboardPage } from '../pages/mps/dashboard';
 import { MrpProcurementPage } from '../pages/mrp/procurement';
 import { PurchaseOrdersPage } from '../pages/procurement/purchase-orders';
 import { VendorScorecardPage } from '../pages/procurement/scorecard';
+import { MesOperatorConsolePage } from '../pages/mes/operator-console';
+import { MesSupervisorPage } from '../pages/mes/supervisor';
+import { MesSchedulingPage } from '../pages/mes/scheduling';
+import { MesPlacardPage } from '../pages/mes/placard';
 import { WorkforceSchedulePage } from '../pages/workforce/schedule';
 import { TimeClockPage } from '../pages/workforce/time-clock';
 import { LaborCostPage } from '../pages/workforce/labor-cost';
+import { MesOperatorConsolePage } from '../pages/mes/operator-console';
+import { MesSupervisorPage } from '../pages/mes/supervisor';
+import { MesSchedulingPage } from '../pages/mes/scheduling';
+import { MesPlacardPage } from '../pages/mes/placard';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -72,6 +80,10 @@ export function App() {
         <Route path="workforce/schedule" element={<WorkforceSchedulePage />} />
         <Route path="workforce/time-clock" element={<TimeClockPage />} />
         <Route path="workforce/labor-cost" element={<LaborCostPage />} />
+        <Route path="mes/operator-console" element={<MesOperatorConsolePage />} />
+        <Route path="mes/supervisor" element={<MesSupervisorPage />} />
+        <Route path="mes/scheduling" element={<MesSchedulingPage />} />
+        <Route path="mes/placard" element={<MesPlacardPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

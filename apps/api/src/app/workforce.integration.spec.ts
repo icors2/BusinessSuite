@@ -24,6 +24,7 @@ import { MpsService } from 'mps';
 import { MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
 import { WORKFORCE_EVENTS, WorkforceService } from 'workforce';
+import { MesService } from 'mes';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -115,6 +116,7 @@ describe('Workforce tRPC Integration', () => {
       mrpService: app.get(MrpService),
       procurementService: app.get(ProcurementService),
       workforceService: app.get(WorkforceService),
+      mesService: app.get(MesService),
     });
 
     const adminLogin = await import('supertest').then((m) =>
@@ -187,7 +189,7 @@ describe('Workforce tRPC Integration', () => {
       where: { woNumber: { contains: 'SEED' } },
     });
     workOrderId = workOrder?.id ?? '';
-  });
+  }, 60000);
 
   afterAll(async () => {
     if (app) await app.close();

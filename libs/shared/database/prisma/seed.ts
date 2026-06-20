@@ -23,6 +23,18 @@ async function main(): Promise<void> {
     create: { name: 'Viewer' },
   });
 
+  const operatorRole = await prisma.role.upsert({
+    where: { name: 'Operator' },
+    update: {},
+    create: { name: 'Operator' },
+  });
+
+  const supervisorRole = await prisma.role.upsert({
+    where: { name: 'Supervisor' },
+    update: {},
+    create: { name: 'Supervisor' },
+  });
+
   const passwordHash = await bcrypt.hash('Admin123!', 12);
 
   const adminUser = await prisma.user.upsert({
@@ -61,6 +73,34 @@ async function main(): Promise<void> {
       passwordHash: viewerPasswordHash,
       roles: {
         create: [{ roleId: viewerRole.id }],
+      },
+    },
+  });
+
+  const operatorPasswordHash = await bcrypt.hash('Operator123!', 12);
+
+  await prisma.user.upsert({
+    where: { email: 'operator@arcncode.local' },
+    update: {},
+    create: {
+      email: 'operator@arcncode.local',
+      passwordHash: operatorPasswordHash,
+      roles: {
+        create: [{ roleId: operatorRole.id }],
+      },
+    },
+  });
+
+  const supervisorPasswordHash = await bcrypt.hash('Supervisor123!', 12);
+
+  await prisma.user.upsert({
+    where: { email: 'supervisor@arcncode.local' },
+    update: {},
+    create: {
+      email: 'supervisor@arcncode.local',
+      passwordHash: supervisorPasswordHash,
+      roles: {
+        create: [{ roleId: supervisorRole.id }],
       },
     },
   });
@@ -254,6 +294,7 @@ async function main(): Promise<void> {
   await seedMrp(prisma);
   await seedProcurement(prisma);
   await seedWorkforce(prisma);
+  await seedMes(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -1129,6 +1170,71 @@ async function seedWorkforce(client: PrismaClient): Promise<void> {
       workOrderId: workOrder.id,
       department: employee.department,
       status: 'CLOSED',
+    },
+  });
+}
+
+/** Phase 12 — workstation, operations, and sample cycle on seeded work order. */
+async function seedMes(client: PrismaClient): Promise<void> {
+  const existing = await client.workstation.findUnique({
+    where: { code: 'WS-LASER' },
+  });
+  if (existing) return;
+
+  const workstation = await client.workstation.create({
+    data: {
+      code: 'WS-LASER',
+      name: 'Laser Cutting Station',
+      description: 'Primary laser workstation',
+      status: 'ACTIVE',
+    },
+  });
+
+  const workOrder = await client.workOrder.findFirst({
+    where: { woNumber: { contains: 'SEED' } },
+  });
+  const employee = await client.employee.findUnique({
+    where: { employeeNumber: 'EMP-0001' },
+  });
+  if (!workOrder || !employee) return;
+
+  const op1 = await client.workOrderOperation.create({
+    data: {
+      workOrderId: workOrder.id,
+      workstationId: workstation.id,
+      sequence: 1,
+      name: 'Laser Cut',
+      status: 'COMPLETED',
+      standardMinutes: 30,
+    },
+  });
+
+  await client.workOrderOperation.create({
+    data: {
+      workOrderId: workOrder.id,
+      workstationId: workstation.id,
+      sequence: 2,
+      name: 'Deburr',
+      status: 'PENDING',
+      standardMinutes: 15,
+    },
+  });
+
+  const startedAt = new Date();
+  startedAt.setUTCHours(9, 0, 0, 0);
+  startedAt.setUTCDate(startedAt.getUTCDate() - 1);
+  const endedAt = new Date(startedAt);
+  endedAt.setUTCMinutes(endedAt.getUTCMinutes() + 25);
+
+  await client.cycleRecord.create({
+    data: {
+      operationId: op1.id,
+      employeeId: employee.id,
+      startedAt,
+      endedAt,
+      durationMinutes: 25,
+      quantityCompleted: 10,
+      quantityScrapped: 0,
     },
   });
 }

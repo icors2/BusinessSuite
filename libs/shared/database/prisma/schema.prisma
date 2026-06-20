@@ -691,6 +691,8 @@ enum WorkOrderStatus {
   PROPOSED
   FIRM
   IN_PROGRESS
+  AWAITING_VERIFICATION
+  VERIFIED
   COMPLETED
   CANCELLED
 }
@@ -738,6 +740,8 @@ model WorkOrder {
   product Product         @relation(fields: [productId], references: [id])
   line    ProductionLine? @relation(fields: [lineId], references: [id], onDelete: SetNull)
   timeEntries TimeEntry[]
+  operations WorkOrderOperation[]
+  verification WorkOrderVerification?
 
   @@index([status])
   @@index([productId])
@@ -985,6 +989,7 @@ model Employee {
   assignments      ShiftAssignment[]
   timeEntries      TimeEntry[]
   unavailability   EmployeeUnavailability[]
+  cycleRecords     CycleRecord[]
 
   @@index([status])
   @@index([department])
@@ -1053,6 +1058,93 @@ model EmployeeUnavailability {
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 12 — MES (Production Execution)
+//
+// Workstations, sequential work-order operations, cycle records attributed
+// to clocked-in operators, and supervisor verification with photo evidence.
+// ---------------------------------------------------------------------------
+
+enum WorkstationStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum OperationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Workstation {
+  id          String            @id @default(uuid())
+  code        String            @unique
+  name        String
+  description String?
+  status      WorkstationStatus @default(ACTIVE)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  operations WorkOrderOperation[]
+
+  @@index([status])
+}
+
+model WorkOrderOperation {
+  id              String          @id @default(uuid())
+  workOrderId     String
+  workstationId   String?
+  sequence        Int
+  name            String
+  status          OperationStatus @default(PENDING)
+  standardMinutes Int?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  workOrder   WorkOrder    @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  workstation Workstation? @relation(fields: [workstationId], references: [id], onDelete: SetNull)
+  cycles      CycleRecord[]
+
+  @@unique([workOrderId, sequence])
+  @@index([workOrderId])
+  @@index([workstationId])
+  @@index([status])
+}
+
+model CycleRecord {
+  id                String    @id @default(uuid())
+  operationId       String
+  employeeId        String
+  startedAt         DateTime
+  endedAt           DateTime?
+  durationMinutes   Int?
+  quantityCompleted Decimal   @default(0) @db.Decimal(18, 4)
+  quantityScrapped  Decimal   @default(0) @db.Decimal(18, 4)
+  createdAt         DateTime  @default(now())
+
+  operation WorkOrderOperation @relation(fields: [operationId], references: [id], onDelete: Cascade)
+  employee  Employee           @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([operationId])
+  @@index([employeeId])
+}
+
+model WorkOrderVerification {
+  id                  String   @id @default(uuid())
+  workOrderId         String   @unique
+  verifiedByUserId    String
+  verifiedByEmployeeId String?
+  notes               String?
+  photoObjectKey      String?
+  photoFileName       String?
+  verifiedAt          DateTime @default(now())
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([verifiedByUserId])
 }
 
 // ---------------------------------------------------------------------------

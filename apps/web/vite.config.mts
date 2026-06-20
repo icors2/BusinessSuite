@@ -11,8 +11,9 @@ export default defineConfig(() => ({
     port: 4200,
     host: 'localhost',
     proxy: {
-      '/api': { target: 'http://localhost:3000', changeOrigin: true },
+      '/api': { target: 'http://localhost:3000', changeOrigin: true, ws: true },
       '/trpc': { target: 'http://localhost:3000', changeOrigin: true },
+      '/mes': { target: 'http://localhost:3000', changeOrigin: true, ws: true },
     },
   },
   preview: {

@@ -26,6 +26,10 @@ const navItems = [
   { to: '/workforce/schedule', label: 'Schedule' },
   { to: '/workforce/time-clock', label: 'Time Clock' },
   { to: '/workforce/labor-cost', label: 'Labor Cost' },
+  { to: '/mes/operator-console', label: 'Operator' },
+  { to: '/mes/supervisor', label: 'Floor' },
+  { to: '/mes/scheduling', label: 'Scheduling' },
+  { to: '/mes/placard', label: 'Placard' },
 ];
 
 export function AppLayout() {
