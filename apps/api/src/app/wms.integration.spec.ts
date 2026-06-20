@@ -27,6 +27,7 @@ import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { CmmsService } from 'cmms';
 import { ReturnsService } from 'returns';
+import { AnalyticsService } from 'analytics';
 import { QmsService } from 'qms';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
@@ -107,6 +108,7 @@ describe('WMS tRPC Integration', () => {
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
       returnsService: app.get(ReturnsService),
+      analyticsService: app.get(AnalyticsService),
     });
 
     const adminLogin = await import('supertest').then((m) =>

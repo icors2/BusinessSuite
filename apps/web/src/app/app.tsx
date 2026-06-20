@@ -34,6 +34,10 @@ import { CmmsAssetsPage } from '../pages/cmms/assets';
 import { CmmsWorkOrdersPage } from '../pages/cmms/work-orders';
 import { ReturnsQueuePage } from '../pages/returns/queue';
 import { ReturnsDetailPage } from '../pages/returns/detail';
+import { AnalyticsDashboardPage } from '../pages/analytics/dashboard';
+import { AnalyticsAskPage } from '../pages/analytics/ask';
+import { AnalyticsBottlenecksPage } from '../pages/analytics/bottlenecks';
+import { AnalyticsForecastPage } from '../pages/analytics/forecast';
 import { WorkforceSchedulePage } from '../pages/workforce/schedule';
 import { TimeClockPage } from '../pages/workforce/time-clock';
 import { LaborCostPage } from '../pages/workforce/labor-cost';
@@ -94,6 +98,10 @@ export function App() {
         <Route path="cmms/work-orders" element={<CmmsWorkOrdersPage />} />
         <Route path="returns/queue" element={<ReturnsQueuePage />} />
         <Route path="returns/:id" element={<ReturnsDetailPage />} />
+        <Route path="analytics/dashboard" element={<AnalyticsDashboardPage />} />
+        <Route path="analytics/ask" element={<AnalyticsAskPage />} />
+        <Route path="analytics/bottlenecks" element={<AnalyticsBottlenecksPage />} />
+        <Route path="analytics/forecast" element={<AnalyticsForecastPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

@@ -27,6 +27,7 @@ import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { QmsService } from 'qms';
 import { ReturnsService } from 'returns';
+import { AnalyticsService } from 'analytics';
 import { CMMS_EVENTS, CmmsService } from 'cmms';
 import { EVENT_BUS } from 'event-bus';
 import { createAppRouter } from 'trpc';
@@ -151,6 +152,7 @@ describe('CMMS tRPC Integration', () => {
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
       returnsService: app.get(ReturnsService),
+      analyticsService: app.get(AnalyticsService),
     });
 
     const login = async (email: string, password: string) => {

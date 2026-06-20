@@ -18,6 +18,7 @@ import { MesService } from 'mes';
 import { QmsService } from 'qms';
 import { CmmsService } from 'cmms';
 import { ReturnsService } from 'returns';
+import { AnalyticsService } from 'analytics';
 import { createAccountRouter } from './routers/account.router';
 import { createBillRouter } from './routers/bill.router';
 import { createDocumentRouter } from './routers/document.router';
@@ -32,6 +33,7 @@ import { createMesRouter } from './routers/mes.router';
 import { createQmsRouter } from './routers/qms.router';
 import { createCmmsRouter } from './routers/cmms.router';
 import { createReturnsRouter } from './routers/returns.router';
+import { createAnalyticsRouter } from './routers/analytics.router';
 import { createInvoiceRouter } from './routers/invoice.router';
 import { createJournalRouter } from './routers/journal.router';
 import { createReportRouter } from './routers/report.router';
@@ -69,6 +71,7 @@ export interface AppRouterDependencies {
   qmsService: QmsService;
   cmmsService: CmmsService;
   returnsService: ReturnsService;
+  analyticsService: AnalyticsService;
 }
 
 export function createAppRouter(deps: AppRouterDependencies) {
@@ -97,6 +100,7 @@ export function createAppRouter(deps: AppRouterDependencies) {
     qms: createQmsRouter(deps.qmsService),
     cmms: createCmmsRouter(deps.cmmsService),
     returns: createReturnsRouter(deps.returnsService),
+    analytics: createAnalyticsRouter(deps.analyticsService),
   });
 }
 

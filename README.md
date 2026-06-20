@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 15 Returns & RMA complete.
+Integrated manufacturing operations platform — Phase 16 Analytics & AI complete.
 
 ## Prerequisites
 
@@ -291,6 +291,25 @@ Support role (or Supervisor/Manager/Admin) required for lifecycle mutations; rea
 
 Default returns bin: `RET-01` in `RETURNS` location (seeded). Refund resolution posts a `CreditMemo` (DR Revenue 4000, CR AR 1100).
 
+### tRPC (Analytics — Phase 16)
+
+Event ingestion, deterministic natural-language querying, MES bottleneck detection, and inventory demand forecasting.
+
+| Router | Procedures |
+|--------|------------|
+| `analytics` | ask, getEventVolume, getScrapRate, getBottlenecks, getForecasts, getIngestionStatus, recomputeForecasts |
+
+**Data freshness:** events ingested in real-time via `AnalyticsIngestionSubscriber` (consumer group `analytics-ingest`); scrap/bottleneck metrics are near-real-time from operational tables; forecasts are batch-computed on demand.
+
+## ERP Admin UI (Analytics pages)
+
+| Route | Description |
+|-------|-------------|
+| `/analytics/dashboard` | Event volume, scrap rate, ingestion status with freshness labels |
+| `/analytics/ask` | Natural-language Q&A (deterministic offline parser) |
+| `/analytics/bottlenecks` | WIP pileup by workstation (Supervisor+) |
+| `/analytics/forecast` | Inventory depletion/reorder projections (Editor+ recompute) |
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -373,6 +392,7 @@ libs/mes          Workstations, operations, cycles, verification, placards, Sock
 libs/qms          Inspection templates, records, non-conformance, hold enforcement
 libs/cmms         Assets, PM trigger rules, maintenance work orders, cycle subscriber
 libs/returns      RMA lifecycle, return window, WMS receive, QMS NC, credit memo refund
+libs/analytics    Event ingestion, NLQ, bottleneck detection, inventory forecasting
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -420,4 +440,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 13 status:** Complete  
 **Phase 14 status:** Complete  
 **Phase 15 status:** Complete  
-**Next phase:** Phase 16 — Analytics & AI
+**Phase 16 status:** Complete  
+**Next phase:** Phase 17 — Training, UAT & Change Management

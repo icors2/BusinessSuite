@@ -27,6 +27,7 @@ import { MesService } from 'mes';
 import { QmsService } from 'qms';
 import { CmmsService } from 'cmms';
 import { ReturnsService } from 'returns';
+import { AnalyticsService } from 'analytics';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -59,6 +60,7 @@ async function bootstrap() {
   const qmsService = app.get(QmsService);
   const cmmsService = app.get(CmmsService);
   const returnsService = app.get(ReturnsService);
+  const analyticsService = app.get(AnalyticsService);
 
   const appRouter = createAppRouter({
     productService,
@@ -84,6 +86,7 @@ async function bootstrap() {
     qmsService,
     cmmsService,
     returnsService,
+    analyticsService,
   });
 
   app.use(

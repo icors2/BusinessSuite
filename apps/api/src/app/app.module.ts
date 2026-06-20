@@ -20,6 +20,7 @@ import { MesModule } from 'mes';
 import { QmsModule } from 'qms';
 import { CmmsModule } from 'cmms';
 import { ReturnsModule } from 'returns';
+import { AnalyticsModule } from 'analytics';
 import { MesVerificationController } from './mes-verification.controller';
 import { QmsInspectionController } from './qms-inspection.controller';
 import { AppController } from './app.controller';
@@ -49,6 +50,7 @@ const config = loadAppConfig();
     QmsModule,
     CmmsModule,
     ReturnsModule,
+    AnalyticsModule,
   ],
   controllers: [
     AppController,

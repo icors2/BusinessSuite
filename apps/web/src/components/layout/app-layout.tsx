@@ -36,6 +36,10 @@ const navItems = [
   { to: '/cmms/assets', label: 'Assets' },
   { to: '/cmms/work-orders', label: 'Maintenance' },
   { to: '/returns/queue', label: 'Returns' },
+  { to: '/analytics/dashboard', label: 'Analytics' },
+  { to: '/analytics/ask', label: 'Ask' },
+  { to: '/analytics/bottlenecks', label: 'Bottlenecks' },
+  { to: '/analytics/forecast', label: 'Forecast' },
 ];
 
 export function AppLayout() {

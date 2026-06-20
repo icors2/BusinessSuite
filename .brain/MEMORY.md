@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 15 complete — Returns & RMA, credit memos, Support role, RET-01 bin |
+| **Repo status** | Phase 16 complete — Analytics ingestion, NLQ, bottlenecks, inventory forecasting |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,25 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 15 complete |
-| **Next phase** | **Phase 16 — Analytics & AI** |
+| **Active phase** | None — Phase 16 complete |
+| **Next phase** | **Phase 17 — Training, UAT & Change Management** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 16 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 16](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-16--analytics--ai--complete)
+
+- [x] Prisma schema: AnalyticsEvent, InventoryForecast; migration `add_analytics`
+- [x] `libs/analytics` — ingestion subscriber, forecasting/bottleneck/NLQ pure helpers, AnalyticsService, EVENTS.md
+- [x] Ingest all Phase 1–15 topics via `AnalyticsIngestionSubscriber` (group `analytics-ingest`, idempotent dedupeKey)
+- [x] Deterministic offline NLQ intent parser (no external LLM)
+- [x] tRPC `analytics` router; AnalyticsModule wired in API
+- [x] UI: `/analytics/dashboard`, `/analytics/ask`, `/analytics/bottlenecks`, `/analytics/forecast` (recharts)
+- [x] Events: `analytics.forecast.computed`
+- [x] Unit + integration tests (ingestion completeness, bottleneck WIP pileup, forecast direction, NLQ, RBAC)
+- [x] Seed: sample AnalyticsEvent rows, WIP pileup on WS-LASER, SKU-001 forecast
+
+**Decisions:** Deterministic NLQ (on-prem-safe, fully testable); analytics tables in public Postgres schema; recharts for charts; MRP auto-consumption of forecasts left as documented stub.
 
 ### Phase 15 Definition of Done
 
@@ -431,9 +447,9 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 11 | Workforce management (time & scheduling) | **Complete** |
 | 12 | MES — production execution | **Complete** |
 | 13 | QMS — quality management | **Complete** |
-| 14 | CMMS — maintenance management | Not started |
-| 15 | Returns & RMA management | Not started |
-| 16 | Analytics & AI | Not started |
+| 14 | CMMS — maintenance management | **Complete** |
+| 15 | Returns & RMA management | **Complete** |
+| 16 | Analytics & AI | **Complete** |
 | 17 | Training, UAT & change management | Not started |
 
 ---
@@ -507,6 +523,7 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `returns.rma.resolved` | returns | 15 | `{ rmaId, rmaNumber, resolutionType, creditMemoId? }` |
 | `finance.creditmemo.created` | finance | 15 | `{ creditMemoId, creditMemoNumber, customerId, total }` |
 | `finance.creditmemo.posted` | finance | 15 | `{ creditMemoId, creditMemoNumber, total, journalEntryId }` |
+| `analytics.forecast.computed` | analytics | 16 | `{ count, asOfDate }` |
 
 ---
 

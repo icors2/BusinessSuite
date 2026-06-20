@@ -91,6 +91,7 @@ model Product {
   preferredVendor   Vendor?               @relation("ProductPreferredVendor", fields: [preferredVendorId], references: [id], onDelete: SetNull)
   inspectionTemplates InspectionTemplate[]
   nonConformances   NonConformanceRecord[]
+  forecasts         InventoryForecast[]
 
   @@index([active])
   @@index([category])
@@ -1509,6 +1510,46 @@ model CreditMemoLine {
   creditMemo CreditMemo @relation(fields: [creditMemoId], references: [id], onDelete: Cascade)
 
   @@index([creditMemoId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 16 — Analytics & AI
+//
+// Ingested event store for cross-module analytics, plus computed inventory
+// forecasts. Events are deduplicated by dedupeKey for idempotent ingestion.
+// ---------------------------------------------------------------------------
+
+model AnalyticsEvent {
+  id         String   @id @default(uuid())
+  topic      String
+  module     String
+  entityId   String
+  actorId    String?
+  occurredAt DateTime
+  payload    Json
+  ingestedAt DateTime @default(now())
+  dedupeKey  String   @unique
+
+  @@index([topic])
+  @@index([module])
+  @@index([occurredAt])
+}
+
+model InventoryForecast {
+  id                      String    @id @default(uuid())
+  productId               String
+  asOfDate                DateTime  @db.Date
+  avgDailyDemand          Decimal   @db.Decimal(18, 4)
+  onHand                  Decimal   @db.Decimal(18, 4)
+  projectedDepletionDate  DateTime? @db.Date
+  recommendedReorderDate  DateTime? @db.Date
+  leadTimeDays            Int
+  computedAt              DateTime  @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, asOfDate])
+  @@index([productId])
 }
 
 // ---------------------------------------------------------------------------

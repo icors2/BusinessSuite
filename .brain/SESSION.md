@@ -12,39 +12,37 @@
 
 ## Current Focus
 
-Phase 15 — Returns & RMA Management **complete**.
+Phase 16 — Analytics & AI **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 16 (Analytics & AI)._
+_None — ready for Phase 17 (Training, UAT & Change Management)._
 
 ---
 
 ## Recent Progress
 
-- Prisma returns schema: Rma, CreditMemo, CreditMemoLine; migration `20260620141211_add_returns`
-- Created `libs/returns` — return window, RMA numbering, ReturnsService, EVENTS.md
-- CreditMemoService in finance with `finance.creditmemo.*` events
-- Support RBAC + `supportProcedure`; `canSupport()` web helper
-- tRPC `returns` router; ReturnsModule wired in API
-- UI: `/returns/queue`, `/returns/:id`
-- Seed: Support user, RETURNS/RET-01, sample RMA on SO-SEED-001 shipped line
-- 4 returns unit tests + 5 returns integration tests; full suite green (22 projects)
-- Fixed MWO/RMA numbering to max numeric sequence (ignores `-SEED` suffix rows)
+- Prisma analytics schema: AnalyticsEvent, InventoryForecast; migration `20260620144050_add_analytics`
+- Created `libs/analytics` — ingestion subscriber, NLQ, forecasting, bottlenecks, AnalyticsService, EVENTS.md
+- tRPC `analytics` router; AnalyticsModule wired in API
+- UI: `/analytics/dashboard`, `/analytics/ask`, `/analytics/bottlenecks`, `/analytics/forecast` + recharts
+- Seed: sample events, WIP pileup on WS-LASER, SKU-001 forecast
+- 8 analytics unit tests + 6 analytics integration tests; full suite green (23 projects)
+- Committed and pushed Phase 16
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 16 — Analytics & AI** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 17 — Training, UAT & Change Management** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Refund resolution creates + posts CreditMemo (DR Revenue 4000, CR AR 1100)
-- Quality returns call `QmsService.raiseReturnNonConformance` with source RETURN on receive
-- Default return window: 30 days (`RETURN_WINDOW_DAYS` env)
-- No returns event subscriber — all flows tRPC-driven
+- Event ingestion: `AnalyticsIngestionSubscriber` subscribes to all 63 Phase 1–15 topics (group `analytics-ingest`)
+- NLQ: deterministic curated intent parser — no external LLM/API keys
+- Data freshness: real-time ingest vs near-real-time MES metrics vs batch forecasts
+- Forecast reorder dates are advisory; MRP auto-consumption documented as stub

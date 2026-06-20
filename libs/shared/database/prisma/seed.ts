@@ -358,6 +358,7 @@ async function main(): Promise<void> {
   await seedQms(prisma);
   await seedCmms(prisma);
   await seedReturns(prisma, adminUser.id);
+  await seedAnalytics(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -1520,6 +1521,93 @@ async function seedReturns(
       requestedByUserId: supportUser?.id ?? adminUserId,
     },
   });
+}
+
+/** Phase 16 — analytics events, WIP pileup demo, sample inventory forecast. */
+async function seedAnalytics(client: PrismaClient): Promise<void> {
+  const guard = await client.analyticsEvent.findUnique({
+    where: { dedupeKey: 'SEED-ANALYTICS-GUARD' },
+  });
+  if (guard) return;
+
+  const now = new Date();
+  const sampleTopics = [
+    'masterdata.product.created',
+    'sales.order.shipped',
+    'mes.cycle.recorded',
+    'qms.scrap.reported',
+    'returns.rma.requested',
+    'finance.invoice.posted',
+  ];
+
+  for (const topic of sampleTopics) {
+    const module = topic.split('.')[0] ?? 'unknown';
+    await client.analyticsEvent.create({
+      data: {
+        topic,
+        module,
+        entityId: `seed-${topic}`,
+        occurredAt: now,
+        payload: { seed: true },
+        dedupeKey:
+          topic === sampleTopics[0]
+            ? 'SEED-ANALYTICS-GUARD'
+            : `SEED-ANALYTICS-${topic}`,
+      },
+    });
+  }
+
+  const workstation = await client.workstation.findUnique({
+    where: { code: 'WS-LASER' },
+  });
+  if (workstation) {
+    const workOrders = await client.workOrder.findMany({ take: 4 });
+    for (let i = 0; i < workOrders.length; i++) {
+      const wo = workOrders[i]!;
+      await client.workOrderOperation.upsert({
+        where: {
+          workOrderId_sequence: { workOrderId: wo.id, sequence: 80 + i },
+        },
+        create: {
+          workOrderId: wo.id,
+          workstationId: workstation.id,
+          sequence: 80 + i,
+          name: `Seed analytics pileup ${i}`,
+          status: 'IN_PROGRESS',
+        },
+        update: {
+          workstationId: workstation.id,
+          status: 'IN_PROGRESS',
+        },
+      });
+    }
+  }
+
+  const product = await client.product.findUnique({ where: { sku: 'SKU-001' } });
+  if (product) {
+    const asOf = new Date();
+    asOf.setUTCHours(0, 0, 0, 0);
+    const inv = await client.inventoryQuantity.findFirst({
+      where: { productId: product.id },
+    });
+    const onHand = inv ? Number(inv.onHand) : 100;
+
+    await client.inventoryForecast.upsert({
+      where: {
+        productId_asOfDate: { productId: product.id, asOfDate: asOf },
+      },
+      create: {
+        productId: product.id,
+        asOfDate: asOf,
+        avgDailyDemand: 2.5,
+        onHand,
+        projectedDepletionDate: new Date(asOf.getTime() + 20 * 86400000),
+        recommendedReorderDate: new Date(asOf.getTime() + 15 * 86400000),
+        leadTimeDays: product.leadTimeDays || 5,
+      },
+      update: {},
+    });
+  }
 }
 
 main()

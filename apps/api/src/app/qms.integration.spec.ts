@@ -28,6 +28,7 @@ import { MesService } from 'mes';
 import { QMS_EVENTS, QmsService } from 'qms';
 import { CmmsService } from 'cmms';
 import { ReturnsService } from 'returns';
+import { AnalyticsService } from 'analytics';
 import { EVENT_BUS } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -152,6 +153,7 @@ describe('QMS tRPC Integration', () => {
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
       returnsService: app.get(ReturnsService),
+      analyticsService: app.get(AnalyticsService),
     });
 
     const login = async (email: string, password: string) => {
