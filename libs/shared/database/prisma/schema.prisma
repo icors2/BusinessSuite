@@ -60,3 +60,51 @@ model AuditLog {
   @@index([actorId])
   @@index([timestamp])
 }
+
+model Product {
+  id            String    @id @default(uuid())
+  sku           String    @unique
+  description   String
+  unitOfMeasure String
+  category      String?
+  active        Boolean   @default(true)
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([active])
+  @@index([category])
+}
+
+model Customer {
+  id              String    @id @default(uuid())
+  name            String
+  email           String?
+  phone           String?
+  billingAddress  Json?
+  shippingAddress Json?
+  creditTerms     String?
+  active          Boolean   @default(true)
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([active])
+  @@index([name])
+}
+
+model Vendor {
+  id            String    @id @default(uuid())
+  name          String
+  email         String?
+  phone         String?
+  address       Json?
+  paymentTerms  String?
+  active        Boolean   @default(true)
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([active])
+  @@index([name])
+}

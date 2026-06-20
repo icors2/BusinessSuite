@@ -9,6 +9,7 @@ export class EventBusModule {
   static forRoot(redisUrl: string): DynamicModule {
     return {
       module: EventBusModule,
+      global: true,
       providers: [
         {
           provide: EVENT_BUS,

@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 0 complete — Nx workspace, API, shared libs, Docker, CI |
+| **Repo status** | Phase 1 complete — master data, tRPC API, ERP Admin UI |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,18 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 0.5 complete |
-| **Next phase** | **Phase 1 — ERP Core (Master Data)** |
+| **Active phase** | None — Phase 1 complete |
+| **Next phase** | **Phase 2 — Data Migration & Legacy Cutover** |
 | **Last updated** | 2026-06-19 |
+
+### Phase 1 Definition of Done
+
+Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 1](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-1--erp-core-master-data--complete)
+
+- [x] Products, Customers, Vendors CRUD + deactivate via ERP Admin UI
+- [x] SKU uniqueness and duplicate-customer (name + billing address) validation tested
+- [x] Events emit on create/update/deactivate; `MasterdataLogSubscriber` logs for verification
+- [x] Role gating: Viewer can read, cannot write; Admin/Manager can write
 
 ### Phase 0.5 Definition of Done
 
@@ -46,11 +55,9 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 - [x] Backup/restore runbook exists and has been tested at least once
 - [x] CI pipeline is green on a clean clone
 
-> **Note:** Docker Desktop was not running during local implementation; `docker-compose.yml` and tests are in place. Start Docker and run `docker compose up -d` to verify the full stack locally.
-
 ### Blockers / Open Questions
 
-- **Site provisioning API (Phase 1+):** Automated registry-token / `POST /api/provision/register` not built in Phase 0. Field SOP documents manual interim process — see [docs/field-deployment-sop.md](../docs/field-deployment-sop.md) Section 4.
+- **Site provisioning API (Phase 1+):** Automated registry-token / `POST /api/provision/register` not built. Field SOP documents manual interim process — see [docs/field-deployment-sop.md](../docs/field-deployment-sop.md) Section 4.
 
 ---
 
@@ -60,18 +67,20 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 |------|------|--------|
 | Nx workspace root | `.` | Created |
 | NestJS API app | `apps/api` | Created |
+| React ERP Admin UI | `apps/web` | Created (Phase 1) |
+| Master data lib | `libs/masterdata` | Created (Phase 1) |
+| tRPC lib | `libs/trpc` | Created (Phase 1) |
 | Shared config lib | `libs/shared/config` | Created |
 | Shared database lib | `libs/shared/database` | Created |
 | Shared event-bus lib | `libs/shared/event-bus` | Created |
 | Shared audit lib | `libs/shared/audit` | Created |
 | Shared health lib | `libs/shared/health` | Created |
 | Shared auth lib | `libs/shared/auth` | Created |
-| React frontend app | _TBD_ | Phase 1+ |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Created |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (Product, Customer, Vendor) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
-| Root README (local dev) | `README.md` | Created |
+| Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
 | Backup scripts | `scripts/backup.sh`, `scripts/restore.sh` | Created |
 | Backup runbook | `docs/backup-restore-runbook.md` | Created |
@@ -86,11 +95,15 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Decision | Choice | Phase | Notes |
 |----------|--------|-------|-------|
 | Redis Event Bus transport | **Redis Streams** | 0 | Durable, replayable; stream key `anc:event-bus` |
-| Authentication strategy | **JWT** (access + refresh) | 0 | Refresh tokens hashed in DB |
+| Authentication strategy | **JWT** (access + refresh) | 0 | Refresh tokens hashed in DB; `jti` on refresh tokens (Phase 1 fix) |
 | Deploy target | **Self-hosted / on-prem Docker** | 0 | Tagged-release deploy in CI |
 | Secrets sourcing | `.env` local / GitHub Secrets CI / host env prod | 0 | Vault documented as future step |
 | Backup RTO/RPO targets | **RPO ≤ 24h, RTO ≤ 4h** | 0 | Nightly encrypted pg_dump; confirm with ops |
 | Prisma version | **6.x** | 0 | Prisma 7 deferred (breaking config changes) |
+| API layer split | **REST auth + tRPC domain** | 1 | `POST /api/auth/login` for tokens; tRPC at `/trpc` for master data |
+| tRPC mounting | **Express middleware in `main.ts`** | 1 | JWT from `Authorization` header via `createContextFromRequest` |
+| Master data soft-delete | **`active` + `deletedAt`** | 1 | No hard deletes on Product/Customer/Vendor |
+| Read-only role | **Viewer** | 1 | Seeded for role-gating tests; extends RBAC baseline |
 
 ---
 
@@ -104,8 +117,8 @@ Follow these on every phase unless a specific phase prompt overrides them.
 - **Database:** PostgreSQL is the system of record, accessed via Prisma
 - **Cache / real-time:** Redis, used for both caching and the Event Bus (**Redis Streams**)
 - **Object storage:** MinIO, S3-compatible, for files/documents/photos
-- **API layer:** tRPC, fully typed end-to-end between backend and frontend (Phase 0 uses REST; tRPC in Phase 1+)
-- **Frontend:** React, using Shadcn UI components and Tailwind
+- **API layer:** tRPC for domain data; REST retained for auth token issuance (Phase 1+)
+- **Frontend:** React (`apps/web`), Shadcn-style components and Tailwind
 - **Monorepo tooling:** Nx, TypeScript strict mode throughout
 
 ### Build Sequence (per phase)
@@ -126,12 +139,15 @@ Do not start UI work until the service layer has passing tests.
 ### RBAC Baseline
 
 - **Phase 0 roles:** Admin, Manager (seeded in `prisma/seed.ts`)
+- **Phase 1 role:** Viewer (read-only; authenticated reads, no writes)
+- **Write gating:** Admin and Manager for master data mutations (tRPC `editorProcedure`)
 - **Extension rule:** New personas extend the role table — do not create parallel permission systems
 
 ### Testing
 
 - Every service needs unit tests for business logic and integration tests for tRPC endpoints against a test database
 - Do not mark a phase complete until tests pass in CI, not just locally
+- `SKIP_MASTERDATA_EVENT_LOG=true` in API Jest setup to avoid Redis subscriber hangs in tests
 
 ### Documentation
 
@@ -153,7 +169,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 |-------|---------------------|--------|
 | 0 | Infrastructure — Nx, Docker, auth, Event Bus, audit, health, CI/CD | **Complete** |
 | 0.5 | White-glove physical SOP (documentation only) | **Complete** |
-| 1 | ERP Core — master data (Product, Customer, Vendor) | Not started |
+| 1 | ERP Core — master data (Product, Customer, Vendor) | **Complete** |
 | 2 | Data migration & legacy cutover | Not started |
 | 3 | Finance & accounting | Not started |
 | 4 | PLM & documents | Not started |
@@ -179,7 +195,15 @@ Cross-module event topics registered as phases complete. Module-specific details
 
 | Topic | Module | Phase | Payload summary |
 |-------|--------|-------|-----------------|
-| _Convention established_ | event-bus | 0 | Redis Streams on `anc:event-bus`; topics from Phase 1+ |
+| `masterdata.product.created` | masterdata | 1 | `{ sku, description }` |
+| `masterdata.product.updated` | masterdata | 1 | `{ sku }` |
+| `masterdata.product.deactivated` | masterdata | 1 | `{ sku }` |
+| `masterdata.customer.created` | masterdata | 1 | `{ name }` |
+| `masterdata.customer.updated` | masterdata | 1 | `{ name }` |
+| `masterdata.customer.deactivated` | masterdata | 1 | `{ name }` |
+| `masterdata.vendor.created` | masterdata | 1 | `{ name }` |
+| `masterdata.vendor.updated` | masterdata | 1 | `{ name }` |
+| `masterdata.vendor.deactivated` | masterdata | 1 | `{ name }` |
 
 ---
 

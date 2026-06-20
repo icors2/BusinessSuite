@@ -12,41 +12,45 @@
 
 ## Current Focus
 
-Phase 0.5 — White-Glove Physical SOP **complete**.
+Phase 1 — ERP Core (Master Data) **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 1._
+_None — ready for Phase 2._
 
 ---
 
 ## Recent Progress
 
-- Authored [docs/field-deployment-sop.md](../docs/field-deployment-sop.md) — field technician SOP for on-site installs
-- Covered UniFi + Omada network setup (Office / Shop IoT / Guest VLAN isolation)
-- Server hardwiring, cable labeling, UPS standards
-- Site provisioning documented with Phase 1+ TODO for automated registry token
-- Printable pre-flight and server-readiness checklists tied to `/api/health`
-- Marked Phase 0.5 complete in MEMORY.md and build prompts doc
+- Added Prisma models: Product, Customer, Vendor (soft-delete via `active` + `deletedAt`)
+- Migration `20260620041302_add_master_data`; seed extended with Viewer role + sample records
+- Created `libs/masterdata` — services, validation, audit, event emission, log subscriber
+- Created `libs/trpc` — JWT context, procedures, composed `AppRouter`, masterdata routers
+- Mounted tRPC at `/trpc` in `apps/api/src/main.ts`; REST auth unchanged
+- Unit tests (SKU uniqueness, duplicate customer) + integration tests (CRUD, role gating) passing
+- Scaffolded `apps/web` — React/Vite/Tailwind ERP Admin UI with list/search/create/edit/deactivate
+- Updated MEMORY.md, README.md, build prompts doc (Phase 1 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 1 — ERP Core (Master Data)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
-2. Phase 1+ will implement site provisioning / registry token endpoint referenced in field SOP Section 4
+1. Start **Phase 2 — Data Migration & Legacy Cutover** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+2. Site provisioning API still deferred (field SOP Section 4)
 
 ---
 
 ## Open Items / Blockers
 
 - Site provisioning API deferred to Phase 1+ (documented in field SOP and MEMORY.md)
+- `npm run prisma:seed` script JSON quoting may fail on PowerShell — use `npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' libs/shared/database/prisma/seed.ts`
 
 ---
 
 ## Session Notes
 
-- Phase 0.5 is documentation-only — no application code changes
-- SOP written for general IT competency, not deep networking expertise
+- EventBusModule marked `global: true` so masterdata services can inject `EVENT_BUS`
+- Refresh tokens now include `jti` to prevent hash collisions on rapid login
+- MasterdataLogSubscriber skipped in test env (`SKIP_MASTERDATA_EVENT_LOG`)

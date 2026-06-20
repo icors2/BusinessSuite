@@ -2,6 +2,8 @@ module.exports = {
   displayName: 'api',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/jest.setup.js'],
+  maxWorkers: 1,
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
@@ -13,6 +15,8 @@ module.exports = {
     '^audit$': '<rootDir>/../../libs/shared/audit/src/index.ts',
     '^health$': '<rootDir>/../../libs/shared/health/src/index.ts',
     '^auth$': '<rootDir>/../../libs/shared/auth/src/index.ts',
+    '^masterdata$': '<rootDir>/../../libs/masterdata/src/index.ts',
+    '^trpc$': '<rootDir>/../../libs/trpc/src/index.ts',
   },
   coverageDirectory: '../../coverage/apps/api',
 };

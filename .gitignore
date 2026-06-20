@@ -39,3 +39,5 @@ backups/
 
 # Netlify (not used but per convention)
 .netlify
+
+vite.config.*.timestamp*

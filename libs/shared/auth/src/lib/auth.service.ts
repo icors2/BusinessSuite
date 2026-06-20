@@ -148,10 +148,13 @@ export class AuthService {
       expiresIn: this.config.jwt.accessExpiresIn as `${number}${'s' | 'm' | 'h' | 'd'}`,
     });
 
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: this.config.jwt.refreshSecret,
-      expiresIn: this.config.jwt.refreshExpiresIn as `${number}${'s' | 'm' | 'h' | 'd'}`,
-    });
+    const refreshToken = this.jwtService.sign(
+      { ...payload, jti: crypto.randomUUID() },
+      {
+        secret: this.config.jwt.refreshSecret,
+        expiresIn: this.config.jwt.refreshExpiresIn as `${number}${'s' | 'm' | 'h' | 'd'}`,
+      },
+    );
 
     const refreshPayload = this.jwtService.decode(refreshToken) as {
       exp?: number;

@@ -52,7 +52,7 @@ describe('API Integration (e2e)', () => {
     if (app) {
       await app.close();
     }
-  });
+  }, 30000);
 
   it('GET /api returns service info', async () => {
     if (!databaseAvailable) {

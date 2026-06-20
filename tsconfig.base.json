@@ -21,7 +21,9 @@
       "event-bus": ["./libs/shared/event-bus/src/index.ts"],
       "audit": ["./libs/shared/audit/src/index.ts"],
       "health": ["./libs/shared/health/src/index.ts"],
-      "auth": ["./libs/shared/auth/src/index.ts"]
+      "auth": ["./libs/shared/auth/src/index.ts"],
+      "masterdata": ["./libs/masterdata/src/index.ts"],
+      "trpc": ["./libs/trpc/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
