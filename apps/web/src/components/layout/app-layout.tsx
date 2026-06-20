@@ -33,6 +33,8 @@ const navItems = [
   { to: '/qms/inspection', label: 'Inspect' },
   { to: '/qms/checklist-builder', label: 'Checklists' },
   { to: '/qms/non-conformance', label: 'Non-Conformance' },
+  { to: '/cmms/assets', label: 'Assets' },
+  { to: '/cmms/work-orders', label: 'Maintenance' },
 ];
 
 export function AppLayout() {

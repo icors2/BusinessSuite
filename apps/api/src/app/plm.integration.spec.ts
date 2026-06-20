@@ -26,6 +26,7 @@ import { MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
 import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
+import { CmmsService } from 'cmms';
 import { QmsService } from 'qms';
 import { StorageService } from 'storage';
 import { createAppRouter } from 'trpc';
@@ -110,6 +111,7 @@ describe('PLM Integration', () => {
       workforceService: app.get(WorkforceService),
       mesService: app.get(MesService),
       qmsService: app.get(QmsService),
+      cmmsService: app.get(CmmsService),
     });
 
     const adminLogin = await request(app.getHttpServer())

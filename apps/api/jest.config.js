@@ -27,6 +27,7 @@ module.exports = {
     '^workforce$': '<rootDir>/../../libs/workforce/src/index.ts',
     '^mes$': '<rootDir>/../../libs/mes/src/index.ts',
     '^qms$': '<rootDir>/../../libs/qms/src/index.ts',
+    '^cmms$': '<rootDir>/../../libs/cmms/src/index.ts',
     '^storage$': '<rootDir>/../../libs/shared/storage/src/index.ts',
     '^trpc$': '<rootDir>/../../libs/trpc/src/index.ts',
   },

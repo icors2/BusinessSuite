@@ -41,6 +41,12 @@ async function main(): Promise<void> {
     create: { name: 'Inspector' },
   });
 
+  const technicianRole = await prisma.role.upsert({
+    where: { name: 'Technician' },
+    update: {},
+    create: { name: 'Technician' },
+  });
+
   const passwordHash = await bcrypt.hash('Admin123!', 12);
 
   const adminUser = await prisma.user.upsert({
@@ -121,6 +127,20 @@ async function main(): Promise<void> {
       passwordHash: inspectorPasswordHash,
       roles: {
         create: [{ roleId: inspectorRole.id }],
+      },
+    },
+  });
+
+  const technicianPasswordHash = await bcrypt.hash('Technician123!', 12);
+
+  await prisma.user.upsert({
+    where: { email: 'technician@arcncode.local' },
+    update: {},
+    create: {
+      email: 'technician@arcncode.local',
+      passwordHash: technicianPasswordHash,
+      roles: {
+        create: [{ roleId: technicianRole.id }],
       },
     },
   });
@@ -316,6 +336,7 @@ async function main(): Promise<void> {
   await seedWorkforce(prisma);
   await seedMes(prisma);
   await seedQms(prisma);
+  await seedCmms(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -326,6 +347,7 @@ async function main(): Promise<void> {
       operatorRole.name,
       supervisorRole.name,
       inspectorRole.name,
+      technicianRole.name,
     ],
   });
 }
@@ -1325,6 +1347,62 @@ async function seedQms(client: PrismaClient): Promise<void> {
           { criterionId: measure.id, measuredValue: 10 },
         ],
       },
+    },
+  });
+}
+
+/** Phase 14 — asset linked to laser workstation, PM rules, corrective MWO. */
+async function seedCmms(client: PrismaClient): Promise<void> {
+  const existing = await client.asset.findUnique({
+    where: { code: 'ASSET-LASER' },
+  });
+  if (existing) return;
+
+  const workstation = await client.workstation.findUnique({
+    where: { code: 'WS-LASER' },
+  });
+  if (!workstation) return;
+
+  const asset = await client.asset.create({
+    data: {
+      code: 'ASSET-LASER',
+      name: 'Laser Cutting Asset',
+      description: 'Primary laser cutting equipment',
+      workstationId: workstation.id,
+      status: 'OPERATIONAL',
+    },
+  });
+
+  await client.pmTriggerRule.create({
+    data: {
+      assetId: asset.id,
+      type: 'CYCLE_COUNT',
+      thresholdCycles: 100,
+      active: true,
+    },
+  });
+
+  const past = new Date();
+  past.setUTCDate(past.getUTCDate() - 15);
+
+  await client.pmTriggerRule.create({
+    data: {
+      assetId: asset.id,
+      type: 'CALENDAR',
+      intervalDays: 30,
+      lastTriggeredAt: past,
+      active: true,
+    },
+  });
+
+  await client.maintenanceWorkOrder.create({
+    data: {
+      mwoNumber: `MWO-${new Date().getUTCFullYear()}-SEED`,
+      assetId: asset.id,
+      type: 'CORRECTIVE',
+      status: 'OPEN',
+      description: 'Replace worn laser nozzle',
+      scheduledDate: new Date(),
     },
   });
 }

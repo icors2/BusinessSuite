@@ -1098,6 +1098,7 @@ model Workstation {
   updatedAt   DateTime          @updatedAt
 
   operations WorkOrderOperation[]
+  assets     Asset[]
 
   @@index([status])
 }
@@ -1303,6 +1304,95 @@ model NonConformanceRecord {
   @@index([workOrderId])
   @@index([binId])
   @@index([holdActive])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 14 — CMMS (Maintenance Management)
+// ---------------------------------------------------------------------------
+
+enum AssetStatus {
+  OPERATIONAL
+  DOWN
+  MAINTENANCE
+  RETIRED
+}
+
+enum MaintenanceType {
+  PREVENTIVE
+  CORRECTIVE
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PmTriggerType {
+  CYCLE_COUNT
+  CALENDAR
+}
+
+model Asset {
+  id                String      @id @default(uuid())
+  code              String      @unique
+  name              String
+  description       String?
+  workstationId     String?
+  status            AssetStatus @default(OPERATIONAL)
+  cumulativeCycles  Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  workstation           Workstation?           @relation(fields: [workstationId], references: [id], onDelete: SetNull)
+  triggerRules          PmTriggerRule[]
+  maintenanceWorkOrders MaintenanceWorkOrder[]
+
+  @@index([workstationId])
+  @@index([status])
+}
+
+model PmTriggerRule {
+  id                    String        @id @default(uuid())
+  assetId               String
+  type                  PmTriggerType
+  thresholdCycles       Int?
+  intervalDays          Int?
+  lastTriggeredCycles   Int           @default(0)
+  lastTriggeredAt       DateTime?
+  active                Boolean       @default(true)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  asset                 Asset                  @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  maintenanceWorkOrders MaintenanceWorkOrder[]
+
+  @@index([assetId])
+  @@index([active])
+}
+
+model MaintenanceWorkOrder {
+  id                 String            @id @default(uuid())
+  mwoNumber          String            @unique
+  assetId            String
+  triggerRuleId      String?
+  type               MaintenanceType
+  status             MaintenanceStatus @default(OPEN)
+  description        String
+  scheduledDate      DateTime?
+  completedDate      DateTime?
+  completedByUserId  String?
+  notes              String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  asset       Asset          @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  triggerRule PmTriggerRule? @relation(fields: [triggerRuleId], references: [id], onDelete: SetNull)
+
+  @@index([assetId])
+  @@index([status])
+  @@index([triggerRuleId])
 }
 
 // ---------------------------------------------------------------------------

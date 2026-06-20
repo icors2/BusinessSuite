@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 13 complete — QMS inspections, non-conformance, hold enforcement on MES/WMS |
+| **Repo status** | Phase 14 complete — CMMS assets, PM triggers, maintenance work orders, cycle subscriber |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,24 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 13 complete |
-| **Next phase** | **Phase 14 — CMMS (Maintenance Management)** |
+| **Active phase** | None — Phase 14 complete |
+| **Next phase** | **Phase 15 — Returns & RMA Management** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 14 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 14](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-14--cmms-maintenance-management--complete)
+
+- [x] Prisma schema: Asset, PmTriggerRule, MaintenanceWorkOrder; AssetStatus/MaintenanceType/MaintenanceStatus/PmTriggerType enums; Workstation.assets back-relation
+- [x] `libs/cmms` — trigger helpers, MWO numbering, CmmsService, CmmsCycleSubscriber, EVENTS.md
+- [x] Cycle PM via `mes.cycle.recorded` subscriber (consumer group `cmms-pm`); calendar PM via `evaluateCalendarTriggers()`
+- [x] Duplicate prevention: no new MWO while open for same trigger rule
+- [x] Technician RBAC (`technicianProcedure`); asset/PM config via `editorProcedure`
+- [x] tRPC `cmms` router; CmmsModule wired in API
+- [x] UI: `/cmms/assets`, `/cmms/work-orders`
+- [x] Events: `cmms.workorder.created`, `cmms.workorder.completed`, `cmms.pm.triggered`
+- [x] Unit + integration tests (cycle/calendar triggers, re-arm after complete, RBAC, due-soon)
+- [x] Seed: ASSET-LASER on WS-LASER, cycle + calendar PM rules, open corrective MWO; Technician role + user
 
 ### Phase 13 Definition of Done
 
@@ -254,6 +269,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | QMS lib | `libs/qms` | Created (Phase 13) |
 | QMS UI | `apps/web/src/pages/qms/*` | Created (Phase 13) |
 | QMS inspection REST | `apps/api/src/app/qms-inspection.controller.ts` | Created (Phase 13) |
+| CMMS lib | `libs/cmms` | Created (Phase 14) |
+| CMMS UI | `apps/web/src/pages/cmms/*` | Created (Phase 14) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -353,6 +370,8 @@ Do not start UI work until the service layer has passing tests.
 - **Phase 1 role:** Viewer (read-only; authenticated reads, no writes)
 - **Phase 12 roles:** Operator (start/stop operations), Supervisor (verify work orders)
 - **Phase 13 role:** Inspector (complete inspections, report scrap/NC); disposition remains Supervisor/Admin
+- **Phase 14 role:** Technician (start/complete maintenance WOs); asset/PM config remains Admin/Manager
+- **Phase 14 PM:** Cycle triggers via `CmmsCycleSubscriber` on `mes.cycle.recorded`; calendar triggers via manual `evaluateCalendarTriggers()` (no scheduler dependency)
 - **Write gating:** Admin and Manager for master data mutations (tRPC `editorProcedure`); Operator+ for floor actions (`operatorProcedure`); Inspector+ for inspections (`inspectorProcedure`); Supervisor+ for verification/disposition (`supervisorProcedure`)
 - **Extension rule:** New personas extend the role table — do not create parallel permission systems
 
@@ -464,6 +483,9 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `qms.nonconformance.raised` | qms | 13 | `{ nonConformanceId, ncNumber, severity, holdActive, workOrderId?, binId? }` |
 | `qms.nonconformance.resolved` | qms | 13 | `{ nonConformanceId, ncNumber, disposition, workOrderId?, binId? }` |
 | `qms.scrap.reported` | qms | 13 | `{ nonConformanceId, quantityScrapped, workOrderId?, binId? }` |
+| `cmms.workorder.created` | cmms | 14 | `{ mwoId, mwoNumber, assetId, type, triggerRuleId? }` |
+| `cmms.workorder.completed` | cmms | 14 | `{ mwoId, mwoNumber, assetId, triggerRuleId?, completedByUserId }` |
+| `cmms.pm.triggered` | cmms | 14 | `{ mwoId, mwoNumber, assetId, triggerRuleId, triggerType, cumulativeCycles? }` |
 
 ---
 

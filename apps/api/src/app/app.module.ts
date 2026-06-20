@@ -18,6 +18,7 @@ import { ProcurementModule } from 'procurement';
 import { WorkforceModule } from 'workforce';
 import { MesModule } from 'mes';
 import { QmsModule } from 'qms';
+import { CmmsModule } from 'cmms';
 import { MesVerificationController } from './mes-verification.controller';
 import { QmsInspectionController } from './qms-inspection.controller';
 import { AppController } from './app.controller';
@@ -45,6 +46,7 @@ const config = loadAppConfig();
     WorkforceModule,
     MesModule,
     QmsModule,
+    CmmsModule,
   ],
   controllers: [
     AppController,

@@ -30,6 +30,8 @@ import { MesPlacardPage } from '../pages/mes/placard';
 import { QmsChecklistBuilderPage } from '../pages/qms/checklist-builder';
 import { QmsInspectionPage } from '../pages/qms/inspection';
 import { QmsNonConformancePage } from '../pages/qms/non-conformance';
+import { CmmsAssetsPage } from '../pages/cmms/assets';
+import { CmmsWorkOrdersPage } from '../pages/cmms/work-orders';
 import { WorkforceSchedulePage } from '../pages/workforce/schedule';
 import { TimeClockPage } from '../pages/workforce/time-clock';
 import { LaborCostPage } from '../pages/workforce/labor-cost';
@@ -86,6 +88,8 @@ export function App() {
         <Route path="qms/inspection" element={<QmsInspectionPage />} />
         <Route path="qms/checklist-builder" element={<QmsChecklistBuilderPage />} />
         <Route path="qms/non-conformance" element={<QmsNonConformancePage />} />
+        <Route path="cmms/assets" element={<CmmsAssetsPage />} />
+        <Route path="cmms/work-orders" element={<CmmsWorkOrdersPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

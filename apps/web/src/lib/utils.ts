@@ -25,6 +25,12 @@ export function canInspect(roles: string[]): boolean {
   );
 }
 
+export function canMaintain(roles: string[]): boolean {
+  return roles.some((role) =>
+    ['Admin', 'Manager', 'Supervisor', 'Technician'].includes(role),
+  );
+}
+
 export function canDisposition(roles: string[]): boolean {
   return roles.some((role) => ['Admin', 'Supervisor'].includes(role));
 }

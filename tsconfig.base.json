@@ -36,7 +36,8 @@
       "procurement": ["./libs/procurement/src/index.ts"],
       "workforce": ["./libs/workforce/src/index.ts"],
       "mes": ["./libs/mes/src/index.ts"],
-      "qms": ["./libs/qms/src/index.ts"]
+      "qms": ["./libs/qms/src/index.ts"],
+      "cmms": ["./libs/cmms/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
