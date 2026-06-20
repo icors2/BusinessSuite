@@ -12,36 +12,37 @@
 
 ## Current Focus
 
-Phase 5 — WMS (Inventory) **complete**.
+Phase 6 — CRM & CPQ (Sales Quoting) **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 6 (CRM & CPQ)._
+_None — ready for Phase 7 (Sales Order Management & Fulfillment)._
 
 ---
 
 ## Recent Progress
 
-- Prisma WMS schema: Location, Bin, InventoryQuantity, InventoryMovement; migration `20260620052509_add_wms_inventory`
-- Created `libs/wms` — LocationService, InventoryService (receive/move/pick/ship/adjust/allocate/deallocate), available math, negative guard, EVENTS.md
-- tRPC `inventory` router; WmsModule wired in API
-- Tablet-optimized WMS UI: ScanInput + receive/move/pick/inventory pages at `/wms/*`
-- Seed: MAIN location, bins A-01-01/A-01-02, on-hand 100/50 for SKU-001/SKU-002
-- 5 wms unit tests + 6 wms integration tests; full suite green (12 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 5 ✅ COMPLETE)
+- Prisma CPQ schema: Quote, QuoteLine, CpqMaterial, CpqCatalogPart, CpqSetting; migration `20260620060357_add_cpq_quoting`
+- Created `libs/cpq` — FabQuote engine (formulas, plate/tube/weldment/purchased), pricing, QuoteService, CatalogService, EVENTS.md
+- tRPC `quote` + `cpqCatalog` routers; CpqModule wired in API
+- CPQ UI: quotes list, quote editor (product + fabricated builder, print/CSV), digital catalog at `/cpq/*`
+- Seed: ~20 materials, catalog parts, rate card/pricing config, sample DRAFT quote Q-SEED-CPQ-001
+- 13 cpq unit tests + 3 cpq integration tests; full suite green (13 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 6 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 6 — CRM & CPQ (Sales)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 7 — Sales Order Management & Fulfillment** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Pick guards on available (onHand - allocated); `allowNegative` override for explicit negative inventory
-- Allocate/deallocate endpoints added now; Phase 7 will drive allocation via events
-- UI is responsive/tablet-optimized scan flows (no offline PWA)
+- Snapshot freeze on send: pricingSnapshot holds rate card, config, formula overrides, per-line prices
+- No Dynamics GP export (internal tool; ERP hand-off deferred)
+- Legacy tube drill/tap ÷0.5 quirk intentionally NOT reproduced
+- `sales.quote.accepted` payload includes lines[] for Phase 7 order creation

@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 5 complete — WMS locations/bins, inventory movements, scan-driven warehouse UI |
+| **Repo status** | Phase 6 complete — CPQ quoting (FabQuote engine, product + fabricated lines, snapshot freeze, sales events) |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,23 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 5 complete |
-| **Next phase** | **Phase 6 — CRM & CPQ (Sales)** |
+| **Active phase** | None — Phase 6 complete |
+| **Next phase** | **Phase 7 — Sales Order Management & Fulfillment** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 6 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 6](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-6--crm--cpq-sales--complete)
+
+- [x] Prisma schema: Quote, QuoteLine, CpqMaterial, CpqCatalogPart, CpqSetting; QuoteStatus/QuoteLineKind enums; Product.listPrice, Customer.priceTier
+- [x] `libs/cpq` — FabQuote engine port (formulas, plate/tube/weldment/purchased), rate card, quantity-break + rule-based product pricing
+- [x] QuoteService: DRAFT-only line CRUD, recalc, status machine (DRAFT→SENT→{ACCEPTED|REJECTED|EXPIRED}), snapshot freeze on send, pricePreview
+- [x] CatalogService: material/part/product search, admin settings (rate_card, pricing_config, formula_overrides)
+- [x] tRPC `quote` + `cpqCatalog` routers; CpqModule wired in API
+- [x] CPQ UI: quotes list, quote editor (product + fabricated builder, print/CSV), digital catalog
+- [x] Events: `sales.quote.created/sent/accepted/rejected/expired` (accepted payload for Phase 7)
+- [x] Unit + integration tests (engine parity, snapshot immutability, expired accept guard, Viewer block)
+- [x] Seed: demo materials, catalog parts, settings, sample DRAFT quote Q-SEED-CPQ-001
 
 ### Phase 5 Definition of Done
 
@@ -126,6 +140,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | PLM UI | `apps/web/src/pages/plm/documents.tsx` | Created (Phase 4) |
 | WMS lib | `libs/wms` | Created (Phase 5) |
 | WMS UI | `apps/web/src/pages/wms/*` | Created (Phase 5) |
+| CPQ lib | `libs/cpq` | Created (Phase 6) |
+| CPQ UI | `apps/web/src/pages/cpq/*` | Created (Phase 6) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -137,7 +153,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Shared auth lib | `libs/shared/auth` | Created |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM, WMS) |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM, WMS, CPQ) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
 | Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
@@ -166,7 +182,11 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Migration tooling form | **CLI + Nx lib**, not UI | 2 | `scripts/migrate.ts` over `libs/migration`; idempotent, audit-trailed |
 | Migration idempotency key | **`(sourceSystem, sourceId)`** | 2 | Staging upsert; promoted rows preserved on re-ingest |
 | Staging-first loading | **`MigrationBatch` + `Staging*` tables** | 2 | Promote is a separate, reviewed step; never load straight to prod |
-| Quotes/inventory at migration | **Staged, not promoted** | 2 | No prod Quote model (Phase 6 CPQ) / inventory model (Phase 5 WMS) yet |
+| Quotes/inventory at migration | **Staged; quotes promotable to Phase 6 Quote model** | 2/6 | Inventory promoted in Phase 5; StagingQuote → Quote when validated |
+| CPQ pricing source of truth | **QuoteService + FabQuote engine** | 6 | Snapshot freeze on send; no Dynamics GP export |
+| Product list price | **`Product.listPrice` + Customer.priceTier** | 6 | Rule-based tier/volume/override for PRODUCT lines |
+| Fabricated line costing | **FabQuote engine via injected catalog** | 6 | fabInput JSON + costBreakdown; quantity-break unit price |
+| Quote status machine | **DRAFT→SENT→terminal; accept rejects expired** | 6 | pricingSnapshot frozen on send |
 | Finance as source of truth | **Services-only writes to ledger** | 3 | Other modules emit events; no direct ledger table writes |
 | Money storage | **Decimal(18,2) in DB; number in API** | 3 | tRPC JSON responses use plain numbers |
 | Posted journal immutability | **Reversing entries only** | 3 | `JournalService.reverse()` mirrors debits/credits |
@@ -248,7 +268,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 3 | Finance & accounting | **Complete** |
 | 4 | PLM & documents | **Complete** |
 | 5 | WMS — inventory | **Complete** |
-| 6 | CRM & CPQ — sales | Not started |
+| 6 | CRM & CPQ — sales | **Complete** |
 | 7 | Sales order management & fulfillment | Not started |
 | 8 | MPS — production scheduling | Not started |
 | 9 | MRP — material planning | Not started |
@@ -296,6 +316,11 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `wms.inventory.moved` | wms | 5 | `{ productId, fromBinId?, toBinId?, binId?, quantity }` |
 | `wms.inventory.shipped` | wms | 5 | `{ productId, binId, quantity }` |
 | `wms.inventory.adjusted` | wms | 5 | `{ productId, binId, quantityDelta, reasonCode }` |
+| `sales.quote.created` | cpq | 6 | `{ quoteId, quoteNumber, customerId }` |
+| `sales.quote.sent` | cpq | 6 | `{ quoteId, quoteNumber, customerId, total }` |
+| `sales.quote.accepted` | cpq | 6 | `{ quoteId, quoteNumber, customerId, total, currency, lines[] }` |
+| `sales.quote.rejected` | cpq | 6 | `{ quoteId, quoteNumber, customerId }` |
+| `sales.quote.expired` | cpq | 6 | `{ quoteId, quoteNumber, customerId }` |
 
 ---
 

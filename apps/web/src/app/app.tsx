@@ -14,6 +14,9 @@ import { WmsReceivePage } from '../pages/wms/receive';
 import { WmsMovePage } from '../pages/wms/move';
 import { WmsPickPage } from '../pages/wms/pick';
 import { WmsInventoryPage } from '../pages/wms/inventory';
+import { CpqQuotesPage } from '../pages/cpq/quotes';
+import { CpqQuoteEditorPage } from '../pages/cpq/quote-editor';
+import { CpqCatalogPage } from '../pages/cpq/catalog';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -48,6 +51,9 @@ export function App() {
         <Route path="wms/move" element={<WmsMovePage />} />
         <Route path="wms/pick" element={<WmsPickPage />} />
         <Route path="wms/inventory" element={<WmsInventoryPage />} />
+        <Route path="cpq/quotes" element={<CpqQuotesPage />} />
+        <Route path="cpq/quotes/:id" element={<CpqQuoteEditorPage />} />
+        <Route path="cpq/catalog" element={<CpqCatalogPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

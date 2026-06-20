@@ -16,6 +16,8 @@ const navItems = [
   { to: '/wms/move', label: 'Move' },
   { to: '/wms/pick', label: 'Pick' },
   { to: '/wms/inventory', label: 'Inventory' },
+  { to: '/cpq/quotes', label: 'Quotes' },
+  { to: '/cpq/catalog', label: 'Catalog' },
 ];
 
 export function AppLayout() {

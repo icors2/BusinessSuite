@@ -67,6 +67,7 @@ model Product {
   description   String
   unitOfMeasure String
   category      String?
+  listPrice     Decimal?            @db.Decimal(18, 2)
   active        Boolean             @default(true)
   deletedAt     DateTime?
   createdAt     DateTime            @default(now())
@@ -74,6 +75,7 @@ model Product {
   documents     Document[]
   inventory     InventoryQuantity[]
   movements     InventoryMovement[]
+  quoteLines    QuoteLine[]
 
   @@index([active])
   @@index([category])
@@ -233,11 +235,13 @@ model Customer {
   billingAddress  Json?
   shippingAddress Json?
   creditTerms     String?
+  priceTier       String?
   active          Boolean   @default(true)
   deletedAt       DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   invoices        Invoice[]
+  quotes          Quote[]
 
   @@index([active])
   @@index([name])
@@ -453,12 +457,122 @@ model Payment {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 6 — CRM & CPQ (Sales Quoting)
+//
+// Quotes hold customer-facing pricing with snapshot freeze on send. PRODUCT
+// lines use rule-based pricing; FABRICATED lines use the FabQuote engine.
+// CpqMaterial/CpqCatalogPart back the fabrication catalog; CpqSetting holds
+// rate card, pricing config, and formula overrides.
+// ---------------------------------------------------------------------------
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum QuoteLineKind {
+  PRODUCT
+  FABRICATED
+}
+
+model Quote {
+  id              String      @id @default(uuid())
+  quoteNumber     String      @unique
+  customerId      String
+  status          QuoteStatus @default(DRAFT)
+  validUntil      DateTime?
+  notes           String?
+  currency        String      @default("USD")
+  createdById     String?
+  sentAt          DateTime?
+  pricingSnapshot Json?
+  subtotal        Decimal     @default(0) @db.Decimal(18, 2)
+  discountTotal   Decimal     @default(0) @db.Decimal(18, 2)
+  total           Decimal     @default(0) @db.Decimal(18, 2)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  customer Customer    @relation(fields: [customerId], references: [id])
+  lines    QuoteLine[]
+
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model QuoteLine {
+  id              String        @id @default(uuid())
+  quoteId         String
+  lineNumber      Int
+  kind            QuoteLineKind
+  productId       String?
+  description     String
+  quantity        Decimal       @default(1) @db.Decimal(18, 4)
+  unitPrice       Decimal       @default(0) @db.Decimal(18, 4)
+  discountPct     Decimal       @default(0) @db.Decimal(9, 4)
+  manualUnitPrice Decimal?      @db.Decimal(18, 4)
+  overrideReason  String?
+  lineTotal       Decimal       @default(0) @db.Decimal(18, 2)
+  fabInput        Json?
+  costBreakdown   Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  quote   Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@unique([quoteId, lineNumber])
+  @@index([quoteId])
+  @@index([productId])
+}
+
+model CpqMaterial {
+  id              String   @id @default(uuid())
+  itemNumber      String   @unique
+  description     String
+  standardCost    Decimal  @default(0) @db.Decimal(18, 4)
+  uom             Decimal  @default(0) @db.Decimal(18, 4)
+  uomProcess      Decimal  @default(0) @db.Decimal(18, 4)
+  cutSpeedInMin   Decimal  @default(0) @db.Decimal(18, 4)
+  pierceTimeSecs  Decimal  @default(0) @db.Decimal(18, 4)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([active])
+}
+
+model CpqCatalogPart {
+  id           String   @id @default(uuid())
+  itemNumber   String   @unique
+  description  String
+  itemType     String?
+  source       String
+  standardCost Decimal  @default(0) @db.Decimal(18, 4)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([active])
+  @@index([source])
+}
+
+model CpqSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
 // Phase 2 — Data Migration & Legacy Cutover (staging area)
 //
 // Legacy records land in staging tables first so an operator can review counts
 // and conflicts before promoting into the production Master Data tables above.
-// Quotes and inventory balances have no production model yet (Phases 5/6); they
-// are staged and held until those phases land.
+// Legacy quotes may still land in StagingQuote during cutover; production quotes
+// use the Quote model above (Phase 6).
 // ---------------------------------------------------------------------------
 
 enum MigrationBatchStatus {

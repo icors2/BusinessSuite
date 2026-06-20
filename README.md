@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 5 WMS (Inventory) complete.
+Integrated manufacturing operations platform — Phase 6 CRM & CPQ (Sales) complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 5 WMS (Inventory) complet
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products, customer, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), and WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002) are seeded after migration.
+Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), and CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001) are seeded after migration.
 
 ## API endpoints
 
@@ -126,6 +126,24 @@ Inventory movements and lookups; `available = onHand - allocated`.
 |--------|------------|
 | `inventory` | createLocation, listLocations, createBin, listBins, receive, move, pick, ship, adjust, allocate, deallocate, byProduct, byBin, byLocation |
 
+### tRPC (CPQ — Phase 6)
+
+FabQuote-derived costing engine + rule-based product pricing; quote lifecycle with snapshot freeze on send.
+
+| Router | Procedures |
+|--------|------------|
+| `quote` | create, get, list, addProductLine, addFabricatedLine, updateLine, removeLine, recalc, transition, pricePreview |
+| `cpqCatalog` | searchMaterials, searchParts, searchProducts, getSettings, updateRateCard, updatePricingConfig, updateFormulas (Admin) |
+
+## ERP Admin UI (CPQ pages)
+
+| Route | Description |
+|-------|-------------|
+| `/cpq/quotes` | Quote list with status badges |
+| `/cpq/quotes/new` | Create new quote |
+| `/cpq/quotes/:id` | Quote editor (product + fabricated lines, send/accept/reject, print/CSV) |
+| `/cpq/catalog` | Digital product catalog with live tier/volume pricing |
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -146,7 +164,7 @@ npm run migrate:rollback  -- --batch <batchId>
 
 - Staging tables: `MigrationBatch`, `StagingCustomer/Vendor/Product/Quote`
 - Conflicts (missing fields, duplicate `sourceId`) are flagged, never dropped
-- Quotes + inventory balances are staged and held for Phases 6/5
+- Quotes staged in `StagingQuote` can be promoted once validated against production `Quote` records (Phase 6)
 - Runbooks: [cutover](docs/migration-cutover-runbook.md), [rollback](docs/migration-rollback-procedure.md)
 
 ## Environment separation
@@ -198,6 +216,7 @@ libs/migration    Legacy ETL: extract/transform/load/reconcile/promote/rollback
 libs/finance      Chart of Accounts, journal entries, AR/AP, payments, reports
 libs/plm          Document control, revision lifecycle, PLM events
 libs/wms          Locations, bins, inventory quantities, movements
+libs/cpq          FabQuote engine, quotes, CPQ catalog, sales events
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -235,4 +254,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 3 status:** Complete  
 **Phase 4 status:** Complete  
 **Phase 5 status:** Complete  
-**Next phase:** Phase 6 — CRM & CPQ (Sales)
+**Phase 6 status:** Complete  
+**Next phase:** Phase 7 — Sales Order Management & Fulfillment

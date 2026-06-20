@@ -20,6 +20,7 @@ import {
 import { createAppRouter } from 'trpc';
 import { DocumentService } from 'plm';
 import { InventoryService, LocationService } from 'wms';
+import { CpqCatalogService, QuoteService } from 'cpq';
 import { AppModule } from './app.module';
 
 const DATABASE_URL =
@@ -84,6 +85,8 @@ describe('Masterdata tRPC Integration', () => {
       documentService: app.get(DocumentService),
       inventoryService: app.get(InventoryService),
       locationService: app.get(LocationService),
+      quoteService: app.get(QuoteService),
+      cpqCatalogService: app.get(CpqCatalogService),
     });
 
     const adminLogin = await request(app.getHttpServer())

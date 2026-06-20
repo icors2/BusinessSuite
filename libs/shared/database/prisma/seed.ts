@@ -67,23 +67,25 @@ async function main(): Promise<void> {
 
   await prisma.product.upsert({
     where: { sku: 'SKU-001' },
-    update: {},
+    update: { listPrice: 49.99 },
     create: {
       sku: 'SKU-001',
       description: 'Sample Widget A',
       unitOfMeasure: 'EA',
       category: 'Widgets',
+      listPrice: 49.99,
     },
   });
 
   await prisma.product.upsert({
     where: { sku: 'SKU-002' },
-    update: {},
+    update: { listPrice: 79.5 },
     create: {
       sku: 'SKU-002',
       description: 'Sample Widget B',
       unitOfMeasure: 'EA',
       category: 'Widgets',
+      listPrice: 79.5,
     },
   });
 
@@ -196,8 +198,9 @@ async function main(): Promise<void> {
     where: { name: 'Acme Manufacturing', deletedAt: null },
   });
 
+  let customerId: string;
   if (!customer) {
-    await prisma.customer.create({
+    const created = await prisma.customer.create({
       data: {
         name: 'Acme Manufacturing',
         email: 'orders@acme.example',
@@ -210,8 +213,16 @@ async function main(): Promise<void> {
           country: 'US',
         },
         creditTerms: 'Net 30',
+        priceTier: 'preferred',
       },
     });
+    customerId = created.id;
+  } else {
+    await prisma.customer.update({
+      where: { id: customer.id },
+      data: { priceTier: 'preferred' },
+    });
+    customerId = customer.id;
   }
 
   const vendor = await prisma.vendor.findFirst({
@@ -237,6 +248,7 @@ async function main(): Promise<void> {
   }
 
   await seedFinance(prisma);
+  await seedCpq(prisma, customerId);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -432,6 +444,178 @@ async function seedFinance(client: PrismaClient): Promise<void> {
       date: seedDate,
       method: 'ACH',
       journalEntryId: jePayBill2.id,
+    },
+  });
+}
+
+/** Phase 6 — CPQ catalog, settings, and sample draft quote. */
+async function seedCpq(client: PrismaClient, customerId: string): Promise<void> {
+  const demoMaterials = [
+    {
+      itemNumber: 'S-P0063-3003',
+      description: 'PLATE .063" X 4\' X 8\' 3003',
+      standardCost: 4,
+      uom: 29,
+      uomProcess: 4018,
+      cutSpeedInMin: 519,
+      pierceTimeSecs: 0.5,
+    },
+    {
+      itemNumber: 'S-S11GA-A1011',
+      description: "SHEET 11GA X 4' X 8' A1011",
+      standardCost: 0.55,
+      uom: 160,
+      uomProcess: 4018,
+      cutSpeedInMin: 417,
+      pierceTimeSecs: 0.5,
+    },
+    {
+      itemNumber: 'S-P0090-5052',
+      description: 'PLATE .090" X 4\' X 10\' 5052',
+      standardCost: 4,
+      uom: 29,
+      uomProcess: 4018,
+      cutSpeedInMin: 450,
+      pierceTimeSecs: 0.5,
+    },
+    {
+      itemNumber: 'S-A05000500012520-A36',
+      description: 'ANGLE BAR 1/2" X 1/2" X 1/8" WL',
+      standardCost: 0.405,
+      uom: 240,
+      uomProcess: 240,
+      cutSpeedInMin: 0,
+      pierceTimeSecs: 0,
+    },
+  ];
+
+  for (const m of demoMaterials) {
+    await client.cpqMaterial.upsert({
+      where: { itemNumber: m.itemNumber },
+      update: m,
+      create: m,
+    });
+  }
+
+  const demoParts = [
+    {
+      itemNumber: '109002-M01',
+      description: 'PLYO RUBBER TOP',
+      itemType: 'Sales Inventory',
+      source: 'purchased',
+      standardCost: 6.59,
+    },
+    {
+      itemNumber: 'PEM-1032',
+      description: 'PEM NUT 10-32',
+      itemType: 'Purchased',
+      source: 'purchased',
+      standardCost: 0.85,
+    },
+  ];
+
+  for (const p of demoParts) {
+    await client.cpqCatalogPart.upsert({
+      where: { itemNumber: p.itemNumber },
+      update: p,
+      create: p,
+    });
+  }
+
+  await client.cpqSetting.upsert({
+    where: { key: 'rate_card' },
+    update: {},
+    create: {
+      key: 'rate_card',
+      value: {
+        materialMargin: 0.7,
+        laborMargin: 0.7,
+        ratesPerMin: {
+          laser: 2.205,
+          tube_laser: 2.1243,
+          saw: 1.0965,
+          drill: 1.097,
+          tap: 1.097,
+          machine: 1.0965,
+          weld: 1.0425,
+          powder: 6.324,
+          blast: 1,
+          press: 0.8288,
+        },
+      },
+    },
+  });
+
+  await client.cpqSetting.upsert({
+    where: { key: 'pricing_config' },
+    update: {},
+    create: {
+      key: 'pricing_config',
+      value: {
+        setupBaseCost: 85,
+        extraMargin: 0,
+        priceRounding: 0.25,
+        quantityBreaks: [1, 2, 3, 5, 10, 25, 50, 100],
+        tierDiscounts: { standard: 0, preferred: 5, strategic: 10 },
+        volumeBreaks: [
+          { minQty: 1, discountPct: 0 },
+          { minQty: 10, discountPct: 2 },
+          { minQty: 25, discountPct: 5 },
+        ],
+      },
+    },
+  });
+
+  const existingQuote = await client.quote.findUnique({
+    where: { quoteNumber: 'Q-SEED-CPQ-001' },
+  });
+  if (existingQuote) return;
+
+  const product = await client.product.findUniqueOrThrow({
+    where: { sku: 'SKU-001' },
+  });
+
+  await client.quote.create({
+    data: {
+      quoteNumber: 'Q-SEED-CPQ-001',
+      customerId,
+      status: 'DRAFT',
+      notes: 'Sample CPQ quote (product + fabricated plate)',
+      currency: 'USD',
+      lines: {
+        create: [
+          {
+            lineNumber: 1,
+            kind: 'PRODUCT',
+            productId: product.id,
+            description: product.description,
+            quantity: 5,
+            unitPrice: 47.49,
+            discountPct: 5,
+            lineTotal: 237.45,
+          },
+          {
+            lineNumber: 2,
+            kind: 'FABRICATED',
+            description: 'Base plate bracket',
+            quantity: 1,
+            unitPrice: 0,
+            discountPct: 0,
+            lineTotal: 0,
+            fabInput: {
+              kind: 'plate',
+              name: 'Base plate',
+              material: 'S-P0063-3003',
+              length: 10,
+              width: 6,
+              drillFeatures: 2,
+            },
+          },
+        ],
+      },
+      subtotal: 237.45,
+      discountTotal: 0,
+      total: 237.45,
     },
   });
 }

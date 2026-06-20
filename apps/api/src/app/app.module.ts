@@ -10,6 +10,7 @@ import { FinanceModule } from 'finance';
 import { PlmModule } from 'plm';
 import { StorageModule } from 'storage';
 import { WmsModule } from 'wms';
+import { CpqModule } from 'cpq';
 import { AppController } from './app.controller';
 import { DocumentsController } from './documents.controller';
 
@@ -27,6 +28,7 @@ const config = loadAppConfig();
     FinanceModule,
     PlmModule,
     WmsModule,
+    CpqModule,
   ],
   controllers: [AppController, DocumentsController],
 })

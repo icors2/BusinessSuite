@@ -28,7 +28,8 @@
       "finance": ["./libs/finance/src/index.ts"],
       "storage": ["./libs/shared/storage/src/index.ts"],
       "plm": ["./libs/plm/src/index.ts"],
-      "wms": ["./libs/wms/src/index.ts"]
+      "wms": ["./libs/wms/src/index.ts"],
+      "cpq": ["./libs/cpq/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
