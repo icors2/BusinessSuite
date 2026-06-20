@@ -29,6 +29,7 @@ import {
 import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { CmmsService } from 'cmms';
+import { ReturnsService } from 'returns';
 import { QmsService } from 'qms';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
@@ -120,6 +121,7 @@ describe('Procurement tRPC Integration', () => {
       mesService: app.get(MesService),
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
+      returnsService: app.get(ReturnsService),
     });
 
     const adminLogin = await import('supertest').then((m) =>
@@ -348,3 +350,4 @@ describe('Procurement tRPC Integration', () => {
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 });
+

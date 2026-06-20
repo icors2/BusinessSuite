@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 14 complete — CMMS assets, PM triggers, maintenance work orders, cycle subscriber |
+| **Repo status** | Phase 15 complete — Returns & RMA, credit memos, Support role, RET-01 bin |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,25 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 14 complete |
-| **Next phase** | **Phase 15 — Returns & RMA Management** |
+| **Active phase** | None — Phase 15 complete |
+| **Next phase** | **Phase 16 — Analytics & AI** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 15 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 15](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-15--returns--rma-management--complete)
+
+- [x] Prisma schema: Rma, CreditMemo, CreditMemoLine; RmaStatus/RmaResolutionType/RmaReasonCode/CreditMemoStatus enums; NonConformanceSource.RETURN
+- [x] `libs/returns` — return window, RMA numbering, ReturnsService, EVENTS.md
+- [x] CreditMemoService in finance (CM-YYYY-####, post reverses invoice journal DR Revenue CR AR)
+- [x] Support RBAC (`supportProcedure`); `canSupport()` web helper
+- [x] tRPC `returns` router; ReturnsModule wired in API
+- [x] UI: `/returns/queue`, `/returns/:id`
+- [x] Events: `returns.rma.requested`, `returns.rma.received`, `returns.rma.resolved`, `finance.creditmemo.created`, `finance.creditmemo.posted`
+- [x] Unit + integration tests (return window, WMS receive + QMS NC, REFUND credit memo, RBAC)
+- [x] Seed: Support role + user, RETURNS/RET-01, sample REQUESTED RMA on shipped SO-SEED-001 line
+
+**Decisions:** Support role for RMA workflow; Refund → CreditMemo (not negative invoice); returns land in seeded RET-01 bin; quality returns use `NonConformanceSource.RETURN`; default 30-day return window (`RETURN_WINDOW_DAYS` env override).
 
 ### Phase 14 Definition of Done
 
@@ -486,6 +502,11 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `cmms.workorder.created` | cmms | 14 | `{ mwoId, mwoNumber, assetId, type, triggerRuleId? }` |
 | `cmms.workorder.completed` | cmms | 14 | `{ mwoId, mwoNumber, assetId, triggerRuleId?, completedByUserId }` |
 | `cmms.pm.triggered` | cmms | 14 | `{ mwoId, mwoNumber, assetId, triggerRuleId, triggerType, cumulativeCycles? }` |
+| `returns.rma.requested` | returns | 15 | `{ rmaId, rmaNumber, salesOrderId, customerId, salesOrderLineId, quantity }` |
+| `returns.rma.received` | returns | 15 | `{ rmaId, rmaNumber, returnedBinId, nonConformanceId? }` |
+| `returns.rma.resolved` | returns | 15 | `{ rmaId, rmaNumber, resolutionType, creditMemoId? }` |
+| `finance.creditmemo.created` | finance | 15 | `{ creditMemoId, creditMemoNumber, customerId, total }` |
+| `finance.creditmemo.posted` | finance | 15 | `{ creditMemoId, creditMemoNumber, total, journalEntryId }` |
 
 ---
 

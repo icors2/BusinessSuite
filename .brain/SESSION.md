@@ -12,38 +12,39 @@
 
 ## Current Focus
 
-Phase 14 — CMMS (Maintenance Management) **complete**.
+Phase 15 — Returns & RMA Management **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 15 (Returns & RMA)._
+_None — ready for Phase 16 (Analytics & AI)._
 
 ---
 
 ## Recent Progress
 
-- Prisma CMMS schema: Asset, PmTriggerRule, MaintenanceWorkOrder; migration `20260620135437_add_cmms`
-- Created `libs/cmms` — triggers, MWO numbering, CmmsService, CmmsCycleSubscriber, EVENTS.md
-- Technician RBAC + `technicianProcedure`; `canMaintain()` web helper
-- tRPC `cmms` router; CmmsModule wired in API
-- UI: `/cmms/assets`, `/cmms/work-orders`
-- Seed: ASSET-LASER on WS-LASER, PM rules, corrective MWO; technician@arcncode.local
-- 8 cmms unit tests + 5 cmms integration tests; full suite green (21 projects)
-- Committed and pushed Phase 14
+- Prisma returns schema: Rma, CreditMemo, CreditMemoLine; migration `20260620141211_add_returns`
+- Created `libs/returns` — return window, RMA numbering, ReturnsService, EVENTS.md
+- CreditMemoService in finance with `finance.creditmemo.*` events
+- Support RBAC + `supportProcedure`; `canSupport()` web helper
+- tRPC `returns` router; ReturnsModule wired in API
+- UI: `/returns/queue`, `/returns/:id`
+- Seed: Support user, RETURNS/RET-01, sample RMA on SO-SEED-001 shipped line
+- 4 returns unit tests + 5 returns integration tests; full suite green (22 projects)
+- Fixed MWO/RMA numbering to max numeric sequence (ignores `-SEED` suffix rows)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 15 — Returns & RMA Management** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 16 — Analytics & AI** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Cycle PM: `CmmsCycleSubscriber` on `mes.cycle.recorded` increments asset cycles and evaluates CYCLE_COUNT rules
-- Calendar PM: `evaluateCalendarTriggers()` tRPC endpoint (no new scheduler)
-- Open MWO for a rule blocks duplicate auto-generation until completed
-- `getMaintenanceHistoryForWorkOrder` cross-references WO operations → workstations → assets → recent MWOs
+- Refund resolution creates + posts CreditMemo (DR Revenue 4000, CR AR 1100)
+- Quality returns call `QmsService.raiseReturnNonConformance` with source RETURN on receive
+- Default return window: 30 days (`RETURN_WINDOW_DAYS` env)
+- No returns event subscriber — all flows tRPC-driven

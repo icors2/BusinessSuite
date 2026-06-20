@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 14 CMMS (Maintenance Management) complete.
+Integrated manufacturing operations platform — Phase 15 Returns & RMA complete.
 
 ## Prerequisites
 
@@ -272,6 +272,25 @@ Maintenance management: assets linked to MES workstations, PM trigger rules (cyc
 
 Cycle-based PM is driven by `CmmsCycleSubscriber` on `mes.cycle.recorded` (consumer group `cmms-pm`). Calendar PM is evaluated via `evaluateCalendarTriggers()` (tRPC/manual).
 
+### tRPC (Returns — Phase 15)
+
+Returns & RMA: request against shipped sales order lines within a configurable return window, approval/rejection, WMS receiving into a returns bin, optional QMS non-conformance for quality returns, and refund resolution via Finance credit memo.
+
+| Router | Procedures |
+|--------|------------|
+| `returns` | requestRma, approveRma, rejectRma, receiveRma, resolveRma, listRmas, getRma |
+
+Support role (or Supervisor/Manager/Admin) required for lifecycle mutations; reads are authenticated.
+
+## ERP Admin UI (Returns pages)
+
+| Route | Description |
+|-------|-------------|
+| `/returns/queue` | RMA queue with status filters; request RMA against shipped order lines |
+| `/returns/:id` | RMA detail — linked order, customer, NC, credit memo; lifecycle actions gated to Support+ |
+
+Default returns bin: `RET-01` in `RETURNS` location (seeded). Refund resolution posts a `CreditMemo` (DR Revenue 4000, CR AR 1100).
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -353,6 +372,7 @@ libs/workforce    Employees, shifts, time clock, labor cost roll-up
 libs/mes          Workstations, operations, cycles, verification, placards, Socket.IO gateway
 libs/qms          Inspection templates, records, non-conformance, hold enforcement
 libs/cmms         Assets, PM trigger rules, maintenance work orders, cycle subscriber
+libs/returns      RMA lifecycle, return window, WMS receive, QMS NC, credit memo refund
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -360,7 +380,7 @@ libs/shared/
   event-bus       Redis Streams pub/sub
   audit           Audit logging to Postgres
   health          /health watchdog
-  auth            JWT + RBAC (Admin, Manager, Viewer, Operator, Supervisor, Inspector, Technician)
+  auth            JWT + RBAC (Admin, Manager, Viewer, Operator, Supervisor, Inspector, Technician, Support)
   storage         MinIO/S3 object storage wrapper
 ```
 
@@ -399,4 +419,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 12 status:** Complete  
 **Phase 13 status:** Complete  
 **Phase 14 status:** Complete  
-**Next phase:** Phase 15 — Returns & RMA Management
+**Phase 15 status:** Complete  
+**Next phase:** Phase 16 — Analytics & AI

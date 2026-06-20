@@ -26,6 +26,7 @@ import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { QmsService } from 'qms';
 import { CmmsService } from 'cmms';
+import { ReturnsService } from 'returns';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -57,6 +58,7 @@ async function bootstrap() {
   const mesService = app.get(MesService);
   const qmsService = app.get(QmsService);
   const cmmsService = app.get(CmmsService);
+  const returnsService = app.get(ReturnsService);
 
   const appRouter = createAppRouter({
     productService,
@@ -81,6 +83,7 @@ async function bootstrap() {
     mesService,
     qmsService,
     cmmsService,
+    returnsService,
   });
 
   app.use(

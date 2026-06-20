@@ -27,6 +27,7 @@ import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { QMS_EVENTS, QmsService } from 'qms';
 import { CmmsService } from 'cmms';
+import { ReturnsService } from 'returns';
 import { EVENT_BUS } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -150,6 +151,7 @@ describe('QMS tRPC Integration', () => {
       mesService: app.get(MesService),
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
+      returnsService: app.get(ReturnsService),
     });
 
     const login = async (email: string, password: string) => {
@@ -444,3 +446,4 @@ describe('QMS tRPC Integration', () => {
     ).rejects.toThrow(/Inspector role or higher required/i);
   }, 30000);
 });
+

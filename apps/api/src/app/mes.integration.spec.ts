@@ -28,6 +28,7 @@ import { WorkforceService } from 'workforce';
 import { MES_EVENTS, MesGateway, MesService } from 'mes';
 import { QmsService } from 'qms';
 import { CmmsService } from 'cmms';
+import { ReturnsService } from 'returns';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -170,6 +171,7 @@ describe('MES tRPC Integration', () => {
       mesService: app.get(MesService),
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
+      returnsService: app.get(ReturnsService),
     });
 
     const login = async (email: string, password: string) => {
@@ -440,3 +442,4 @@ describe('MES tRPC Integration', () => {
     socket.disconnect();
   }, 30000);
 });
+

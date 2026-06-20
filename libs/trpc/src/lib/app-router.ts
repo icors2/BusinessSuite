@@ -17,6 +17,7 @@ import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { QmsService } from 'qms';
 import { CmmsService } from 'cmms';
+import { ReturnsService } from 'returns';
 import { createAccountRouter } from './routers/account.router';
 import { createBillRouter } from './routers/bill.router';
 import { createDocumentRouter } from './routers/document.router';
@@ -30,6 +31,7 @@ import { createWorkforceRouter } from './routers/workforce.router';
 import { createMesRouter } from './routers/mes.router';
 import { createQmsRouter } from './routers/qms.router';
 import { createCmmsRouter } from './routers/cmms.router';
+import { createReturnsRouter } from './routers/returns.router';
 import { createInvoiceRouter } from './routers/invoice.router';
 import { createJournalRouter } from './routers/journal.router';
 import { createReportRouter } from './routers/report.router';
@@ -66,6 +68,7 @@ export interface AppRouterDependencies {
   mesService: MesService;
   qmsService: QmsService;
   cmmsService: CmmsService;
+  returnsService: ReturnsService;
 }
 
 export function createAppRouter(deps: AppRouterDependencies) {
@@ -93,6 +96,7 @@ export function createAppRouter(deps: AppRouterDependencies) {
     mes: createMesRouter(deps.mesService),
     qms: createQmsRouter(deps.qmsService),
     cmms: createCmmsRouter(deps.cmmsService),
+    returns: createReturnsRouter(deps.returnsService),
   });
 }
 

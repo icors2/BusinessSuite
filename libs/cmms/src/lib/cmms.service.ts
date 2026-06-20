@@ -681,16 +681,17 @@ export class CmmsService {
   private async nextMwoNumber(): Promise<string> {
     const year = new Date().getUTCFullYear();
     const prefix = `MWO-${year}-`;
-    const latest = await this.prisma.maintenanceWorkOrder.findFirst({
+    const existing = await this.prisma.maintenanceWorkOrder.findMany({
       where: { mwoNumber: { startsWith: prefix } },
-      orderBy: { mwoNumber: 'desc' },
       select: { mwoNumber: true },
     });
 
     let maxSeq = 0;
-    if (latest) {
-      const parsed = parseMwoSequence(latest.mwoNumber, year);
-      if (parsed != null) maxSeq = parsed;
+    for (const row of existing) {
+      const parsed = parseMwoSequence(row.mwoNumber, year);
+      if (parsed != null && parsed > maxSeq) {
+        maxSeq = parsed;
+      }
     }
 
     return formatMwoNumber(year, maxSeq + 1);

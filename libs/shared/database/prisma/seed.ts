@@ -47,6 +47,12 @@ async function main(): Promise<void> {
     create: { name: 'Technician' },
   });
 
+  const supportRole = await prisma.role.upsert({
+    where: { name: 'Support' },
+    update: {},
+    create: { name: 'Support' },
+  });
+
   const passwordHash = await bcrypt.hash('Admin123!', 12);
 
   const adminUser = await prisma.user.upsert({
@@ -141,6 +147,20 @@ async function main(): Promise<void> {
       passwordHash: technicianPasswordHash,
       roles: {
         create: [{ roleId: technicianRole.id }],
+      },
+    },
+  });
+
+  const supportPasswordHash = await bcrypt.hash('Support123!', 12);
+
+  await prisma.user.upsert({
+    where: { email: 'support@arcncode.local' },
+    update: {},
+    create: {
+      email: 'support@arcncode.local',
+      passwordHash: supportPasswordHash,
+      roles: {
+        create: [{ roleId: supportRole.id }],
       },
     },
   });
@@ -337,6 +357,7 @@ async function main(): Promise<void> {
   await seedMes(prisma);
   await seedQms(prisma);
   await seedCmms(prisma);
+  await seedReturns(prisma, adminUser.id);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -348,6 +369,7 @@ async function main(): Promise<void> {
       supervisorRole.name,
       inspectorRole.name,
       technicianRole.name,
+      supportRole.name,
     ],
   });
 }
@@ -1403,6 +1425,99 @@ async function seedCmms(client: PrismaClient): Promise<void> {
       status: 'OPEN',
       description: 'Replace worn laser nozzle',
       scheduledDate: new Date(),
+    },
+  });
+}
+
+/** Phase 15 — Returns location, RET-01 bin, sample RMA against shipped SO line. */
+async function seedReturns(
+  client: PrismaClient,
+  adminUserId: string,
+): Promise<void> {
+  const seedRmaNumber = `RMA-${new Date().getUTCFullYear()}-SEED`;
+  const existingRma = await client.rma.findUnique({
+    where: { rmaNumber: seedRmaNumber },
+  });
+  if (existingRma) return;
+
+  let returnsLocation = await client.location.findUnique({
+    where: { code: 'RETURNS' },
+  });
+  if (!returnsLocation) {
+    returnsLocation = await client.location.create({
+      data: {
+        code: 'RETURNS',
+        name: 'Returns Warehouse',
+        type: 'returns',
+      },
+    });
+  }
+
+  let returnsBin = await client.bin.findUnique({ where: { code: 'RET-01' } });
+  if (!returnsBin) {
+    returnsBin = await client.bin.create({
+      data: {
+        code: 'RET-01',
+        locationId: returnsLocation.id,
+      },
+    });
+  }
+
+  const order = await client.salesOrder.findUnique({
+    where: { orderNumber: 'SO-SEED-001' },
+    include: {
+      lines: {
+        where: { kind: 'PRODUCT' },
+        orderBy: { lineNumber: 'asc' },
+      },
+      shipments: true,
+    },
+  });
+  if (!order || order.lines.length === 0) return;
+
+  const line = order.lines[0]!;
+  const qtyShipped = Number(line.qtyShipped);
+
+  if (qtyShipped <= 0) {
+    const shipQty = Math.min(5, Number(line.qtyOrdered));
+    await client.salesOrderLine.update({
+      where: { id: line.id },
+      data: { qtyShipped: shipQty },
+    });
+
+    const newStatus =
+      shipQty >= Number(line.qtyOrdered) ? 'SHIPPED' : 'PARTIALLY_SHIPPED';
+    await client.salesOrder.update({
+      where: { id: order.id },
+      data: { status: newStatus },
+    });
+
+    await client.salesOrderShipment.create({
+      data: {
+        orderId: order.id,
+        shipmentNumber: 'SHP-SEED-001',
+        shippedAt: new Date(),
+        lines: [{ lineId: line.id, quantity: shipQty }],
+      },
+    });
+  }
+
+  const supportUser = await client.user.findUnique({
+    where: { email: 'support@arcncode.local' },
+  });
+
+  await client.rma.create({
+    data: {
+      rmaNumber: seedRmaNumber,
+      salesOrderId: order.id,
+      salesOrderLineId: line.id,
+      customerId: order.customerId,
+      reasonCode: 'DEFECTIVE',
+      status: 'REQUESTED',
+      quantity: 1,
+      qualityRelated: true,
+      notes: 'Sample seed RMA for demo',
+      requestedByUserId: supportUser?.id ?? adminUserId,
     },
   });
 }

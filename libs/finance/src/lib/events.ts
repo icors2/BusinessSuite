@@ -19,6 +19,10 @@ export const FINANCE_EVENTS = {
     paid: 'finance.invoice.paid',
     voided: 'finance.invoice.voided',
   },
+  creditmemo: {
+    created: 'finance.creditmemo.created',
+    posted: 'finance.creditmemo.posted',
+  },
   bill: {
     created: 'finance.bill.created',
     posted: 'finance.bill.posted',
@@ -33,6 +37,7 @@ export const FINANCE_EVENTS = {
 export const ALL_FINANCE_TOPICS = [
   ...Object.values(FINANCE_EVENTS.journal),
   ...Object.values(FINANCE_EVENTS.invoice),
+  ...Object.values(FINANCE_EVENTS.creditmemo),
   ...Object.values(FINANCE_EVENTS.bill),
   FINANCE_EVENTS.payment.recorded,
 ] as const;

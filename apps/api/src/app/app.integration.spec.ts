@@ -111,3 +111,4 @@ describe('API Integration (e2e)', () => {
     expect(res.body).toHaveProperty('info');
   });
 });
+

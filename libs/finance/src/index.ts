@@ -4,6 +4,8 @@ export * from './lib/utils';
 export * from './lib/account.service';
 export * from './lib/journal.service';
 export * from './lib/invoice.service';
+export * from './lib/credit-memo.service';
+export * from './lib/credit-memo-number';
 export * from './lib/bill.service';
 export * from './lib/payment.service';
 export * from './lib/report.service';

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuditModule } from 'audit';
 import { AccountService } from './account.service';
 import { BillService } from './bill.service';
+import { CreditMemoService } from './credit-memo.service';
 import { InvoiceService } from './invoice.service';
 import { JournalService } from './journal.service';
 import { PaymentService } from './payment.service';
@@ -13,6 +14,7 @@ import { ReportService } from './report.service';
     AccountService,
     JournalService,
     InvoiceService,
+    CreditMemoService,
     BillService,
     PaymentService,
     ReportService,
@@ -21,6 +23,7 @@ import { ReportService } from './report.service';
     AccountService,
     JournalService,
     InvoiceService,
+    CreditMemoService,
     BillService,
     PaymentService,
     ReportService,

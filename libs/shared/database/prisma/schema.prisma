@@ -144,6 +144,7 @@ model Bin {
   movementsFrom      InventoryMovement[] @relation("MovementFromBin")
   movementsTo        InventoryMovement[] @relation("MovementToBin")
   nonConformances    NonConformanceRecord[]
+  returnedRmas       Rma[]
 
   @@index([locationId])
   @@index([active])
@@ -262,6 +263,8 @@ model Customer {
   invoices        Invoice[]
   quotes          Quote[]
   salesOrders     SalesOrder[]
+  rmas            Rma[]
+  creditMemos     CreditMemo[]
 
   @@index([active])
   @@index([name])
@@ -364,6 +367,7 @@ model JournalEntry {
   invoice       Invoice?
   bill          Bill?
   payment       Payment?
+  creditMemo    CreditMemo?
 
   @@index([status])
   @@index([date])
@@ -401,6 +405,7 @@ model Invoice {
   journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
   lines        InvoiceLine[]
   payments     Payment[]
+  creditMemos  CreditMemo[]
 
   @@index([customerId])
   @@index([status])
@@ -632,6 +637,7 @@ model SalesOrder {
   quote     Quote?               @relation(fields: [quoteId], references: [id], onDelete: SetNull)
   lines     SalesOrderLine[]
   shipments SalesOrderShipment[]
+  rmas      Rma[]
 
   @@index([status])
   @@index([customerId])
@@ -658,6 +664,7 @@ model SalesOrderLine {
 
   order   SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  rmas    Rma[]
 
   @@unique([orderId, lineNumber])
   @@index([orderId])
@@ -1175,6 +1182,7 @@ enum InspectionResult {
 enum NonConformanceSource {
   INSPECTION
   SCRAP
+  RETURN
 }
 
 enum NonConformanceSeverity {
@@ -1299,6 +1307,7 @@ model NonConformanceRecord {
   workOrder  WorkOrder?        @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
   bin        Bin?              @relation(fields: [binId], references: [id], onDelete: SetNull)
   product    Product?          @relation(fields: [productId], references: [id], onDelete: SetNull)
+  rma        Rma?
 
   @@index([status])
   @@index([workOrderId])
@@ -1393,6 +1402,113 @@ model MaintenanceWorkOrder {
   @@index([assetId])
   @@index([status])
   @@index([triggerRuleId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 15 — Returns & RMA Management
+// ---------------------------------------------------------------------------
+
+enum RmaStatus {
+  REQUESTED
+  APPROVED
+  RECEIVED
+  RESOLVED
+  REJECTED
+}
+
+enum RmaResolutionType {
+  REFUND
+  REPLACE
+  REPAIR
+  REJECT
+}
+
+enum RmaReasonCode {
+  DEFECTIVE
+  WRONG_ITEM
+  DAMAGED_IN_TRANSIT
+  NOT_AS_DESCRIBED
+  OTHER
+}
+
+enum CreditMemoStatus {
+  DRAFT
+  POSTED
+  VOIDED
+}
+
+model Rma {
+  id                 String             @id @default(uuid())
+  rmaNumber          String             @unique
+  salesOrderId       String
+  salesOrderLineId   String
+  customerId         String
+  reasonCode         RmaReasonCode
+  status             RmaStatus          @default(REQUESTED)
+  resolutionType     RmaResolutionType?
+  quantity           Decimal            @db.Decimal(18, 4)
+  qualityRelated     Boolean            @default(false)
+  nonConformanceId   String?            @unique
+  returnedBinId      String?
+  creditMemoId       String?            @unique
+  notes              String?
+  requestedByUserId  String
+  approvedByUserId   String?
+  receivedByUserId   String?
+  resolvedByUserId   String?
+  requestedAt        DateTime           @default(now())
+  approvedAt         DateTime?
+  receivedAt         DateTime?
+  resolvedAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  salesOrder       SalesOrder           @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  salesOrderLine   SalesOrderLine       @relation(fields: [salesOrderLineId], references: [id], onDelete: Cascade)
+  customer         Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  nonConformance   NonConformanceRecord? @relation(fields: [nonConformanceId], references: [id], onDelete: SetNull)
+  returnedBin      Bin?                 @relation(fields: [returnedBinId], references: [id], onDelete: SetNull)
+  creditMemo       CreditMemo?          @relation(fields: [creditMemoId], references: [id], onDelete: SetNull)
+
+  @@index([salesOrderId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model CreditMemo {
+  id                String           @id @default(uuid())
+  creditMemoNumber  String           @unique
+  customerId        String
+  invoiceId         String?
+  status            CreditMemoStatus @default(DRAFT)
+  issueDate         DateTime
+  total             Decimal          @db.Decimal(18, 2)
+  journalEntryId    String?          @unique
+  notes             String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  customer     Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  rma          Rma?
+  invoice      Invoice?         @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  journalEntry JournalEntry?    @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+  lines        CreditMemoLine[]
+
+  @@index([customerId])
+  @@index([status])
+}
+
+model CreditMemoLine {
+  id            String  @id @default(uuid())
+  creditMemoId  String
+  description   String
+  quantity      Decimal @db.Decimal(18, 4)
+  unitPrice     Decimal @db.Decimal(18, 2)
+  amount        Decimal @db.Decimal(18, 2)
+
+  creditMemo CreditMemo @relation(fields: [creditMemoId], references: [id], onDelete: Cascade)
+
+  @@index([creditMemoId])
 }
 
 // ---------------------------------------------------------------------------

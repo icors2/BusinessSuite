@@ -69,6 +69,29 @@ export const listInvoicesSchema = z.object({
   take: z.number().int().min(1).max(100).optional().default(50),
 });
 
+export const creditMemoLineInputSchema = z.object({
+  description: z.string().min(1),
+  quantity: z.number().positive(),
+  unitPrice: z.number().min(0),
+});
+
+export const createCreditMemoSchema = z.object({
+  creditMemoNumber: z.string().min(1).optional(),
+  customerId: z.string().uuid(),
+  invoiceId: z.string().uuid().optional(),
+  issueDate: z.coerce.date(),
+  notes: z.string().optional(),
+  lines: z.array(creditMemoLineInputSchema).min(1),
+});
+
+export const listCreditMemosSchema = z.object({
+  customerId: z.string().uuid().optional(),
+  status: z.enum(['DRAFT', 'POSTED', 'VOIDED']).optional(),
+  search: z.string().optional(),
+  skip: z.number().int().min(0).optional().default(0),
+  take: z.number().int().min(1).max(100).optional().default(50),
+});
+
 export const billLineInputSchema = z.object({
   description: z.string().min(1),
   quantity: z.number().positive(),
@@ -123,6 +146,7 @@ export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
 export type CreateJournalEntryInput = z.infer<typeof createJournalEntrySchema>;
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
+export type CreateCreditMemoInput = z.infer<typeof createCreditMemoSchema>;
 export type CreateBillInput = z.infer<typeof createBillSchema>;
 export type RecordInvoicePaymentInput = z.infer<
   typeof recordInvoicePaymentSchema

@@ -32,6 +32,8 @@ import { QmsInspectionPage } from '../pages/qms/inspection';
 import { QmsNonConformancePage } from '../pages/qms/non-conformance';
 import { CmmsAssetsPage } from '../pages/cmms/assets';
 import { CmmsWorkOrdersPage } from '../pages/cmms/work-orders';
+import { ReturnsQueuePage } from '../pages/returns/queue';
+import { ReturnsDetailPage } from '../pages/returns/detail';
 import { WorkforceSchedulePage } from '../pages/workforce/schedule';
 import { TimeClockPage } from '../pages/workforce/time-clock';
 import { LaborCostPage } from '../pages/workforce/labor-cost';
@@ -90,6 +92,8 @@ export function App() {
         <Route path="qms/non-conformance" element={<QmsNonConformancePage />} />
         <Route path="cmms/assets" element={<CmmsAssetsPage />} />
         <Route path="cmms/work-orders" element={<CmmsWorkOrdersPage />} />
+        <Route path="returns/queue" element={<ReturnsQueuePage />} />
+        <Route path="returns/:id" element={<ReturnsDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

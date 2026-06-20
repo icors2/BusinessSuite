@@ -35,6 +35,7 @@ const navItems = [
   { to: '/qms/non-conformance', label: 'Non-Conformance' },
   { to: '/cmms/assets', label: 'Assets' },
   { to: '/cmms/work-orders', label: 'Maintenance' },
+  { to: '/returns/queue', label: 'Returns' },
 ];
 
 export function AppLayout() {

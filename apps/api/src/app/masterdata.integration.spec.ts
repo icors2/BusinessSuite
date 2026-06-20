@@ -28,6 +28,7 @@ import { ProcurementService } from 'procurement';
 import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { CmmsService } from 'cmms';
+import { ReturnsService } from 'returns';
 import { QmsService } from 'qms';
 import { AppModule } from './app.module';
 
@@ -103,6 +104,7 @@ describe('Masterdata tRPC Integration', () => {
       mesService: app.get(MesService),
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
+      returnsService: app.get(ReturnsService),
     });
 
     const adminLogin = await request(app.getHttpServer())
@@ -209,3 +211,4 @@ describe('Masterdata tRPC Integration', () => {
     await adminCaller.vendor.deactivate({ id: vendor.id });
   });
 });
+

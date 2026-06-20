@@ -26,6 +26,7 @@ import { ProcurementService } from 'procurement';
 import { WORKFORCE_EVENTS, WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { CmmsService } from 'cmms';
+import { ReturnsService } from 'returns';
 import { QmsService } from 'qms';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
@@ -121,6 +122,7 @@ describe('Workforce tRPC Integration', () => {
       mesService: app.get(MesService),
       qmsService: app.get(QmsService),
       cmmsService: app.get(CmmsService),
+      returnsService: app.get(ReturnsService),
     });
 
     const adminLogin = await import('supertest').then((m) =>
@@ -363,3 +365,4 @@ describe('Workforce tRPC Integration', () => {
     ).rejects.toThrow(/Admin or Manager role required/i);
   });
 });
+

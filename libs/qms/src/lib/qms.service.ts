@@ -344,6 +344,17 @@ export class QmsService {
     return nc;
   }
 
+  async raiseReturnNonConformance(
+    input: RaiseNonConformanceInput,
+    actorId?: string,
+  ) {
+    return this.createNonConformance(
+      input,
+      NonConformanceSource.RETURN,
+      actorId,
+    );
+  }
+
   async disposition(input: DispositionInput, actorId?: string) {
     const nc = await this.prisma.nonConformanceRecord.findUnique({
       where: { id: input.nonConformanceId },
