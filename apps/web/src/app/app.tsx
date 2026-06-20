@@ -5,6 +5,10 @@ import { CustomersPage } from '../pages/customers';
 import { LoginPage } from '../pages/login';
 import { ProductsPage } from '../pages/products';
 import { VendorsPage } from '../pages/vendors';
+import { AccountsPage } from '../pages/finance/accounts';
+import { InvoicesPage } from '../pages/finance/invoices';
+import { BillsPage } from '../pages/finance/bills';
+import { ReportsPage } from '../pages/finance/reports';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -30,6 +34,10 @@ export function App() {
         <Route path="products" element={<ProductsPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="vendors" element={<VendorsPage />} />
+        <Route path="finance/accounts" element={<AccountsPage />} />
+        <Route path="finance/invoices" element={<InvoicesPage />} />
+        <Route path="finance/bills" element={<BillsPage />} />
+        <Route path="finance/reports" element={<ReportsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

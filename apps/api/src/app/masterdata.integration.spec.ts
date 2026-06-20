@@ -9,6 +9,14 @@ import {
   ProductService,
   VendorService,
 } from 'masterdata';
+import {
+  AccountService,
+  BillService,
+  InvoiceService,
+  JournalService,
+  PaymentService,
+  ReportService,
+} from 'finance';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
 
@@ -65,6 +73,12 @@ describe('Masterdata tRPC Integration', () => {
       productService,
       customerService,
       vendorService,
+      accountService: app.get(AccountService),
+      journalService: app.get(JournalService),
+      invoiceService: app.get(InvoiceService),
+      billService: app.get(BillService),
+      paymentService: app.get(PaymentService),
+      reportService: app.get(ReportService),
     });
 
     const adminLogin = await request(app.getHttpServer())

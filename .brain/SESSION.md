@@ -12,48 +12,36 @@
 
 ## Current Focus
 
-Phase 2 — Data Migration & Legacy Cutover **complete**.
+Phase 3 — Finance & Accounting Core **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 3 (Finance & Accounting Core)._
+_None — ready for Phase 4 (PLM & Documents)._
 
 ---
 
 ## Recent Progress
 
-- Added Prisma staging schema: `MigrationBatch` + `StagingCustomer/Vendor/Product/Quote` with status enums; migration `20260620042705_add_migration_staging`
-- Created `libs/migration` — extract (CSV/JSON), transform + conflict detection, load (staging upsert), reconcile (report), promote (staging→prod), rollback, runner orchestrator
-- Dependency-free RFC-4180-style CSV parser (quoted fields, escaped quotes, embedded newlines)
-- Built `scripts/migrate.ts` CLI (`run`/`ingest`/`reconcile`/`promote`/`rollback`) + npm scripts; report artifacts to `migration-output/` (gitignored)
-- Sample legacy data in `data/legacy-samples/` (deliberate conflicts: missing fields, duplicate sourceId)
-- 18 tests passing: unit (transform/conflict/CSV) + integration ETL (ingest→reconcile→promote→idempotency→rollback) against Docker DB
-- Dry-ran full CLI against samples (promote +2 cust/+2 vend/+3 prod, 2 quotes held; rollback clean); cleaned dry-run data
-- Docs: `docs/migration-expected-schema.md`, `docs/migration-cutover-runbook.md`, `docs/migration-rollback-procedure.md`
-- Updated MEMORY.md, README.md, build prompts doc (Phase 2 ✅ COMPLETE)
+- Prisma finance schema: Account, JournalEntry/Line, Invoice/Line, Bill/Line, Payment; migration `20260620044753_add_finance_core`
+- Created `libs/finance` — account, journal (balance/immutability/reverse), invoice, bill, payment, report services; EVENTS.md
+- tRPC routers: account, journal, invoice, bill, report; wired in AppModule + main.ts
+- Finance UI: accounts, invoices (list/detail/post/pay), bills, P&L + Balance Sheet reports
+- Seed: COA 1000–5000 + sample AR/AP with known totals (P&L revenue 1500, expenses 500, net 1000; BS assets 1300)
+- 7 finance unit tests + 4 finance integration tests; full suite green (10 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 3 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 3 — Finance & Accounting Core** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
-2. Site provisioning API still deferred (field SOP Section 4)
-
----
-
-## Open Items / Blockers
-
-- Site provisioning API deferred to Phase 1+ (documented in field SOP and MEMORY.md)
-- `npm run prisma:seed` script JSON quoting may fail on PowerShell — use `npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' libs/shared/database/prisma/seed.ts`
-- Quotes + inventory balances are staged but NOT promoted — pick up when Phase 6 (CPQ) / Phase 5 (WMS) land
+1. Start **Phase 4 — PLM & Documents** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Migration idempotency: load skips re-writing rows already `PROMOTED`; products promote via SKU upsert
-- Logical rollback deletes only batch-created rows (via `staging.promotedId`); full restore path documented for overlapping SKUs / heavy post-cutover activity
-- Windows: Prisma `generate` can EPERM-lock if stale `node` processes hold the engine DLL — stop them and retry
-- PowerShell has no heredoc; use `prisma db execute --file` for ad-hoc SQL
+- Invoice/bill post auto-generates balanced journal entries (DR AR/CR Revenue, DR Expense/CR AP)
+- Report integration tests use Jan 2026 date window to isolate seed data from dynamic test invoices
+- Export `AccountBalanceRow` from report.service for tRPC build compatibility

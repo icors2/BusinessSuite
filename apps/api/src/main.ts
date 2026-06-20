@@ -7,6 +7,14 @@ import {
   ProductService,
   VendorService,
 } from 'masterdata';
+import {
+  AccountService,
+  BillService,
+  InvoiceService,
+  JournalService,
+  PaymentService,
+  ReportService,
+} from 'finance';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -19,11 +27,23 @@ async function bootstrap() {
   const productService = app.get(ProductService);
   const customerService = app.get(CustomerService);
   const vendorService = app.get(VendorService);
+  const accountService = app.get(AccountService);
+  const journalService = app.get(JournalService);
+  const invoiceService = app.get(InvoiceService);
+  const billService = app.get(BillService);
+  const paymentService = app.get(PaymentService);
+  const reportService = app.get(ReportService);
 
   const appRouter = createAppRouter({
     productService,
     customerService,
     vendorService,
+    accountService,
+    journalService,
+    invoiceService,
+    billService,
+    paymentService,
+    reportService,
   });
 
   app.use(

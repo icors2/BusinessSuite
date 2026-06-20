@@ -88,6 +88,7 @@ model Customer {
   deletedAt       DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  invoices        Invoice[]
 
   @@index([active])
   @@index([name])
@@ -104,9 +105,202 @@ model Vendor {
   deletedAt     DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  bills         Bill[]
 
   @@index([active])
   @@index([name])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3 — Finance & Accounting Core
+//
+// Double-entry ledger is the financial source of truth. Invoices, bills, and
+// payments auto-post balanced journal entries. Posted entries are immutable;
+// corrections use reversing entries.
+// ---------------------------------------------------------------------------
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum JournalStatus {
+  DRAFT
+  POSTED
+  REVERSED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PARTIALLY_PAID
+  PAID
+  VOIDED
+}
+
+enum BillStatus {
+  DRAFT
+  OPEN
+  PARTIALLY_PAID
+  PAID
+  VOIDED
+}
+
+enum PaymentType {
+  INVOICE
+  BILL
+}
+
+model Account {
+  id        String      @id @default(uuid())
+  code      String      @unique
+  name      String
+  type      AccountType
+  active    Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  journalLines JournalLine[]
+  billLines    BillLine[]
+
+  @@index([type])
+  @@index([active])
+}
+
+model JournalEntry {
+  id            String        @id @default(uuid())
+  entryNumber   String        @unique
+  date          DateTime
+  memo          String?
+  status        JournalStatus @default(DRAFT)
+  postedAt      DateTime?
+  reversalOfId  String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  lines         JournalLine[]
+  reversalOf    JournalEntry?  @relation("JournalReversal", fields: [reversalOfId], references: [id], onDelete: SetNull)
+  reversals     JournalEntry[] @relation("JournalReversal")
+  invoice       Invoice?
+  bill          Bill?
+  payment       Payment?
+
+  @@index([status])
+  @@index([date])
+}
+
+model JournalLine {
+  id             String   @id @default(uuid())
+  journalEntryId String
+  accountId      String
+  debit          Decimal  @default(0) @db.Decimal(18, 2)
+  credit         Decimal  @default(0) @db.Decimal(18, 2)
+  description    String?
+
+  journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account      Account      @relation(fields: [accountId], references: [id])
+
+  @@index([journalEntryId])
+  @@index([accountId])
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  invoiceNumber   String        @unique
+  customerId      String
+  issueDate       DateTime
+  dueDate         DateTime
+  status          InvoiceStatus @default(DRAFT)
+  total           Decimal       @db.Decimal(18, 2)
+  amountPaid      Decimal       @default(0) @db.Decimal(18, 2)
+  journalEntryId  String?       @unique
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+  lines        InvoiceLine[]
+  payments     Payment[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model InvoiceLine {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  description String
+  quantity    Decimal @db.Decimal(18, 4)
+  unitPrice   Decimal @db.Decimal(18, 2)
+  amount      Decimal @db.Decimal(18, 2)
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+model Bill {
+  id             String     @id @default(uuid())
+  billNumber     String     @unique
+  vendorId       String
+  issueDate      DateTime
+  dueDate        DateTime
+  status         BillStatus @default(DRAFT)
+  total          Decimal    @db.Decimal(18, 2)
+  amountPaid     Decimal    @default(0) @db.Decimal(18, 2)
+  journalEntryId String?    @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  vendor       Vendor        @relation(fields: [vendorId], references: [id])
+  journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+  lines        BillLine[]
+  payments     Payment[]
+
+  @@index([vendorId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model BillLine {
+  id               String  @id @default(uuid())
+  billId           String
+  description      String
+  quantity         Decimal @db.Decimal(18, 4)
+  unitPrice        Decimal @db.Decimal(18, 2)
+  amount           Decimal @db.Decimal(18, 2)
+  expenseAccountId String
+
+  bill           Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  expenseAccount Account @relation(fields: [expenseAccountId], references: [id])
+
+  @@index([billId])
+  @@index([expenseAccountId])
+}
+
+model Payment {
+  id             String      @id @default(uuid())
+  type           PaymentType
+  invoiceId      String?
+  billId         String?
+  amount         Decimal     @db.Decimal(18, 2)
+  date           DateTime
+  method         String?
+  journalEntryId String?     @unique
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  invoice      Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  bill         Bill?         @relation(fields: [billId], references: [id], onDelete: SetNull)
+  journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([billId])
+  @@index([date])
 }
 
 // ---------------------------------------------------------------------------

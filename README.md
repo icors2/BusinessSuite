@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 2 data migration tooling complete.
+Integrated manufacturing operations platform — Phase 3 Finance & Accounting Core complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 2 data migration tooling 
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products, customer, vendor) is seeded after migration.
+Sample master data (products, customer, vendor) and finance seed data (Chart of Accounts, sample AR/AP) are seeded after migration.
 
 ## API endpoints
 
@@ -88,6 +88,18 @@ Mounted at `/trpc`. Authenticated reads for all roles; writes require Admin or M
 | `product` | create, get, list, update, deactivate |
 | `customer` | create, get, list, update, deactivate |
 | `vendor` | create, get, list, update, deactivate |
+
+### tRPC (finance — Phase 3)
+
+Double-entry ledger; invoices/bills auto-post balanced journal entries.
+
+| Router | Procedures |
+|--------|------------|
+| `account` | create, get, list, update, deactivate |
+| `journal` | create, get, list, post, reverse |
+| `invoice` | create, get, list, post, void, recordPayment |
+| `bill` | create, get, list, post, void, recordPayment |
+| `report` | profitAndLoss, balanceSheet |
 
 ## Data migration (Phase 2)
 
@@ -158,6 +170,7 @@ apps/web          React ERP Admin UI (Vite, Tailwind, Shadcn-style components)
 libs/masterdata   Product, Customer, Vendor domain services + events
 libs/trpc         tRPC init, JWT context, composed AppRouter
 libs/migration    Legacy ETL: extract/transform/load/reconcile/promote/rollback
+libs/finance      Chart of Accounts, journal entries, AR/AP, payments, reports
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -191,4 +204,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 0.5 status:** Complete  
 **Phase 1 status:** Complete  
 **Phase 2 status:** Complete  
-**Next phase:** Phase 3 — Finance & Accounting Core
+**Phase 3 status:** Complete  
+**Next phase:** Phase 4 — PLM & Documents

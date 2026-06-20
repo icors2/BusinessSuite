@@ -6,6 +6,7 @@ import { AuditModule } from 'audit';
 import { HealthModule } from 'health';
 import { AuthModule } from 'auth';
 import { MasterdataModule } from 'masterdata';
+import { FinanceModule } from 'finance';
 import { AppController } from './app.controller';
 
 const config = loadAppConfig();
@@ -18,6 +19,7 @@ const config = loadAppConfig();
     HealthModule.forRoot(config),
     AuthModule.forRoot(config),
     MasterdataModule,
+    FinanceModule,
   ],
   controllers: [AppController],
 })

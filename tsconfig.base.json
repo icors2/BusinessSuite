@@ -24,7 +24,8 @@
       "auth": ["./libs/shared/auth/src/index.ts"],
       "masterdata": ["./libs/masterdata/src/index.ts"],
       "trpc": ["./libs/trpc/src/index.ts"],
-      "migration": ["./libs/migration/src/index.ts"]
+      "migration": ["./libs/migration/src/index.ts"],
+      "finance": ["./libs/finance/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

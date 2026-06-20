@@ -7,6 +7,10 @@ const navItems = [
   { to: '/products', label: 'Products' },
   { to: '/customers', label: 'Customers' },
   { to: '/vendors', label: 'Vendors' },
+  { to: '/finance/accounts', label: 'Accounts' },
+  { to: '/finance/invoices', label: 'Invoices' },
+  { to: '/finance/bills', label: 'Bills' },
+  { to: '/finance/reports', label: 'Reports' },
 ];
 
 export function AppLayout() {

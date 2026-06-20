@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 2 complete — data migration ETL, staging, reconciliation, cutover/rollback runbooks |
+| **Repo status** | Phase 3 complete — finance ledger, AR/AP, P&L/Balance Sheet reports, Finance UI |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,20 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 2 complete |
-| **Next phase** | **Phase 3 — Finance & Accounting Core** |
+| **Active phase** | None — Phase 3 complete |
+| **Next phase** | **Phase 4 — PLM & Documents** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 3 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 3](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-3--finance--accounting-core--complete)
+
+- [x] Prisma schema: Account, JournalEntry/Line, Invoice/Line, Bill/Line, Payment
+- [x] Balanced-entry enforcement; posted entries immutable; corrections via reversing entries
+- [x] Invoices/bills/payments auto-post GL; tRPC routers for all finance operations
+- [x] P&L and Balance Sheet from posted journal entries; seed totals verified in integration tests
+- [x] Finance admin UI: accounts, invoices, bills, reports
+- [x] Events documented in `libs/finance/EVENTS.md` and emitted on state changes
 
 ### Phase 2 Definition of Done
 
@@ -83,6 +94,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Master data lib | `libs/masterdata` | Created (Phase 1) |
 | tRPC lib | `libs/trpc` | Created (Phase 1) |
 | Data migration lib | `libs/migration` | Created (Phase 2) |
+| Finance lib | `libs/finance` | Created (Phase 3) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -94,7 +106,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Shared auth lib | `libs/shared/auth` | Created |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (Product, Customer, Vendor; Phase 2 staging tables) |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
 | Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
@@ -124,6 +136,10 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Migration idempotency key | **`(sourceSystem, sourceId)`** | 2 | Staging upsert; promoted rows preserved on re-ingest |
 | Staging-first loading | **`MigrationBatch` + `Staging*` tables** | 2 | Promote is a separate, reviewed step; never load straight to prod |
 | Quotes/inventory at migration | **Staged, not promoted** | 2 | No prod Quote model (Phase 6 CPQ) / inventory model (Phase 5 WMS) yet |
+| Finance as source of truth | **Services-only writes to ledger** | 3 | Other modules emit events; no direct ledger table writes |
+| Money storage | **Decimal(18,2) in DB; number in API** | 3 | tRPC JSON responses use plain numbers |
+| Posted journal immutability | **Reversing entries only** | 3 | `JournalService.reverse()` mirrors debits/credits |
+| Default COA codes | **1000–5000** | 3 | Cash, AR, AP, Equity, Revenue, Expense for auto-posting |
 
 ---
 
@@ -191,7 +207,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 0.5 | White-glove physical SOP (documentation only) | **Complete** |
 | 1 | ERP Core — master data (Product, Customer, Vendor) | **Complete** |
 | 2 | Data migration & legacy cutover | **Complete** |
-| 3 | Finance & accounting | Not started |
+| 3 | Finance & accounting | **Complete** |
 | 4 | PLM & documents | Not started |
 | 5 | WMS — inventory | Not started |
 | 6 | CRM & CPQ — sales | Not started |
@@ -224,6 +240,17 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `masterdata.vendor.created` | masterdata | 1 | `{ name }` |
 | `masterdata.vendor.updated` | masterdata | 1 | `{ name }` |
 | `masterdata.vendor.deactivated` | masterdata | 1 | `{ name }` |
+| `finance.journal.posted` | finance | 3 | `{ entryNumber, total }` |
+| `finance.journal.reversed` | finance | 3 | `{ entryNumber, reversedEntryId }` |
+| `finance.invoice.created` | finance | 3 | `{ invoiceNumber, customerId, total }` |
+| `finance.invoice.posted` | finance | 3 | `{ invoiceNumber, total }` |
+| `finance.invoice.paid` | finance | 3 | `{ invoiceNumber, totalPaid }` |
+| `finance.invoice.voided` | finance | 3 | `{ invoiceNumber }` |
+| `finance.bill.created` | finance | 3 | `{ billNumber, vendorId, total }` |
+| `finance.bill.posted` | finance | 3 | `{ billNumber, total }` |
+| `finance.bill.paid` | finance | 3 | `{ billNumber, totalPaid }` |
+| `finance.bill.voided` | finance | 3 | `{ billNumber }` |
+| `finance.payment.recorded` | finance | 3 | `{ type, amount }` |
 
 ---
 
