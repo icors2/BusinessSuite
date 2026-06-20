@@ -1,0 +1,28 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "strict": true,
+    "ignoreDeprecations": "6.0",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "config": ["./libs/shared/config/src/index.ts"],
+      "database": ["./libs/shared/database/src/index.ts"],
+      "event-bus": ["./libs/shared/event-bus/src/index.ts"],
+      "audit": ["./libs/shared/audit/src/index.ts"],
+      "health": ["./libs/shared/health/src/index.ts"],
+      "auth": ["./libs/shared/auth/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

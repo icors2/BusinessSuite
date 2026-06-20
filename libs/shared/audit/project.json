@@ -1,0 +1,19 @@
+{
+  "name": "audit",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/audit/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/audit",
+        "main": "libs/shared/audit/src/index.ts",
+        "tsConfig": "libs/shared/audit/tsconfig.lib.json",
+        "assets": ["libs/shared/audit/*.md"]
+      }
+    }
+  }
+}

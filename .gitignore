@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+tmp/
+.nx/cache
+.nx/workspace-data
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/launch.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test & coverage
+coverage/
+*.log
+
+# Prisma (legacy custom output path)
+libs/shared/database/src/generated/
+
+# Backups
+backups/
+*.sql
+*.sql.gpg
+
+# Docker
+.docker/
+
+# Netlify (not used but per convention)
+.netlify
