@@ -6,13 +6,13 @@
 
 ## Last Updated
 
-2026-06-19
+2026-06-20
 
 ---
 
 ## Current Focus
 
-Phase 18 — Demo & Tutorial **complete** on `demo` branch.
+Phase 18 — Demo & Tutorial **shipped** on `demo` branch (`9cfd5eb` + mes build fix).
 
 ---
 
@@ -24,18 +24,15 @@ _None._
 
 ## Recent Progress
 
-- Created `demo` branch from main; GitHub `demo` label
-- Implemented `seed-demo.ts`, `seed-helpers.ts`, demo data catalog
-- Added `docker-compose.demo.yml`, demo Dockerfiles, GHCR publish workflow
-- Built driver.js tutorial system (14 modules, `/tutorials` hub)
-- Added `data-tour` anchors across module pages
-- Updated README, MEMORY, build prompts Phase 18
+- Pushed `demo` branch; tagged `demo-v0.1.0`
+- Fixed `mes.gateway.ts` TS4111 blocking Docker API image build
+- GHCR Demo Publish workflow re-triggered on push
 
 ---
 
 ## Next Steps
 
-_Push `demo` branch; tag `demo-v0.1.0` for GHCR publish._
+_Verify GHCR images publish; optional local `docker compose -f docker-compose.demo.yml up --build` smoke._
 
 ---
 
