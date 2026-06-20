@@ -34,8 +34,8 @@ export class MesGateway implements OnGatewayInit, OnModuleInit {
   afterInit(server: Server): void {
     server.use((socket, next) => {
       const token =
-        (socket.handshake.auth?.token as string | undefined) ??
-        (socket.handshake.query?.token as string | undefined);
+        (socket.handshake.auth?.['token'] as string | undefined) ??
+        (socket.handshake.query?.['token'] as string | undefined);
       if (!token) {
         next(new Error('Authentication required'));
         return;
