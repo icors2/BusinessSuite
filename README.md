@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 16 Analytics & AI complete.
+Integrated manufacturing operations platform — **all phases complete** (Phase 17 Training, UAT & Change Management).
 
 ## Prerequisites
 
@@ -62,6 +62,11 @@ Integrated manufacturing operations platform — Phase 16 Analytics & AI complet
 | admin@arcncode.local | Admin123! | Admin |
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
+| operator@arcncode.local | Operator123! | Operator |
+| supervisor@arcncode.local | Supervisor123! | Supervisor |
+| inspector@arcncode.local | Inspector123! | Inspector |
+| technician@arcncode.local | Technician123! | Technician |
+| support@arcncode.local | Support123! | Support |
 
 Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times), procurement seed data (issued PO PO-2026-SEED1 with sample receipt for scorecard), workforce seed data (EMP-0001, DAY shift, assignment, closed time entry on seeded work order), MES seed data (WS-LASER workstation, 2 sequential operations on seeded WO, closed cycle for EMP-0001), QMS seed data (TMPL-FINAL checklist, passing inspection on seeded WO), and CMMS seed data (ASSET-LASER linked to WS-LASER, cycle + calendar PM rules, open corrective MWO) are seeded after migration.
 
@@ -404,6 +409,20 @@ libs/shared/
   storage         MinIO/S3 object storage wrapper
 ```
 
+## Training & UAT (Phase 17)
+
+Role-based user guides, persona onboarding, UAT scripts, support process, and sign-off tracker:
+
+| Resource | Location |
+|----------|----------|
+| Training index | [docs/training/README.md](docs/training/README.md) |
+| Module guides (14) | [docs/training/modules/](docs/training/modules/) |
+| Persona quick-starts (10) | [docs/training/onboarding/](docs/training/onboarding/) |
+| UAT scripts | [docs/uat/](docs/uat/) |
+| UAT master tracker | [docs/uat/uat-master-tracker.md](docs/uat/uat-master-tracker.md) |
+| Support & feedback process | [docs/support/support-feedback-process.md](docs/support/support-feedback-process.md) |
+| Tickets log (sample ticket) | [docs/support/tickets-log.md](docs/support/tickets-log.md) |
+
 ## Backup & restore
 
 See [docs/backup-restore-runbook.md](docs/backup-restore-runbook.md).
@@ -441,4 +460,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 14 status:** Complete  
 **Phase 15 status:** Complete  
 **Phase 16 status:** Complete  
-**Next phase:** Phase 17 — Training, UAT & Change Management
+**Phase 17 status:** Complete  
+**Build status:** All phases (0–17) complete

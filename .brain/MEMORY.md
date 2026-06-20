@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 16 complete — Analytics ingestion, NLQ, bottlenecks, inventory forecasting |
+| **Repo status** | **All phases complete (0–17)** — Training guides, UAT scripts, onboarding, support process, sign-off tracker |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,22 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 16 complete |
-| **Next phase** | **Phase 17 — Training, UAT & Change Management** |
-| **Last updated** | 2026-06-20 |
+| **Active phase** | None — build complete (Phases 0–17) |
+| **Next phase** | None |
+| **Last updated** | 2026-06-19 |
+
+### Phase 17 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 17](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-17--training-uat--change-management)
+
+- [x] 14 module user guides in `docs/training/modules/` (derived from routers, UI routes, RBAC)
+- [x] 14 UAT scripts in `docs/uat/uat-<module>.md` with step/action/expected/pass-fail columns
+- [x] 10 persona onboarding quick-starts in `docs/training/onboarding/`
+- [x] Support process: `docs/support/support-feedback-process.md` + `tickets-log.md` with worked sample SUP-2026-0001
+- [x] Master UAT tracker: `docs/uat/uat-master-tracker.md`
+- [x] Training index: `docs/training/README.md`; README Training & UAT section
+
+**Decisions:** Docs under `docs/training/`, `docs/uat/`, `docs/support/`; 10 personas (8 RBAC roles + Sales Rep/Planner/Buyer/Finance mapped to Manager); lightweight ticket convention (GitHub Issues + tickets-log); tracker initial status Not Started (scripts ready for live sign-off).
 
 ### Phase 16 Definition of Done
 
@@ -450,7 +463,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 14 | CMMS — maintenance management | **Complete** |
 | 15 | Returns & RMA management | **Complete** |
 | 16 | Analytics & AI | **Complete** |
-| 17 | Training, UAT & change management | Not started |
+| 17 | Training, UAT & change management | **Complete** |
 
 ---
 

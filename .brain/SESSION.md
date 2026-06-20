@@ -6,43 +6,41 @@
 
 ## Last Updated
 
-2026-06-20
+2026-06-19
 
 ---
 
 ## Current Focus
 
-Phase 16 — Analytics & AI **complete**.
+Phase 17 — Training, UAT & Change Management **complete**. All build phases (0–17) done.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 17 (Training, UAT & Change Management)._
+_None — build complete._
 
 ---
 
 ## Recent Progress
 
-- Prisma analytics schema: AnalyticsEvent, InventoryForecast; migration `20260620144050_add_analytics`
-- Created `libs/analytics` — ingestion subscriber, NLQ, forecasting, bottlenecks, AnalyticsService, EVENTS.md
-- tRPC `analytics` router; AnalyticsModule wired in API
-- UI: `/analytics/dashboard`, `/analytics/ask`, `/analytics/bottlenecks`, `/analytics/forecast` + recharts
-- Seed: sample events, WIP pileup on WS-LASER, SKU-001 forecast
-- 8 analytics unit tests + 6 analytics integration tests; full suite green (23 projects)
-- Committed and pushed Phase 16
+- Created 14 module user guides in `docs/training/modules/`
+- Created 14 UAT scripts in `docs/uat/`
+- Created 10 persona onboarding guides in `docs/training/onboarding/`
+- Created support process + tickets log with sample ticket SUP-2026-0001
+- Created UAT master tracker and training index
+- Updated README, MEMORY, build prompts for Phase 17 completion
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 17 — Training, UAT & Change Management** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+_None — optional: execute live UAT sign-offs using tracker; operational deployment._
 
 ---
 
 ## Session Notes
 
-- Event ingestion: `AnalyticsIngestionSubscriber` subscribes to all 63 Phase 1–15 topics (group `analytics-ingest`)
-- NLQ: deterministic curated intent parser — no external LLM/API keys
-- Data freshness: real-time ingest vs near-real-time MES metrics vs batch forecasts
-- Forecast reorder dates are advisory; MRP auto-consumption documented as stub
+- Documentation-only phase; no application code changes
+- Guides strictly describe built routers/pages/RBAC from Phases 1–16
+- Demo logins: `<role>@arcncode.local` / `<Role>123!`
