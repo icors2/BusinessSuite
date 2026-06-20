@@ -6,8 +6,10 @@ import {
   PaymentService,
   ReportService,
 } from 'finance';
+import { DocumentService } from 'plm';
 import { createAccountRouter } from './routers/account.router';
 import { createBillRouter } from './routers/bill.router';
+import { createDocumentRouter } from './routers/document.router';
 import { createInvoiceRouter } from './routers/invoice.router';
 import { createJournalRouter } from './routers/journal.router';
 import { createReportRouter } from './routers/report.router';
@@ -31,6 +33,7 @@ export interface AppRouterDependencies {
   billService: BillService;
   paymentService: PaymentService;
   reportService: ReportService;
+  documentService: DocumentService;
 }
 
 export function createAppRouter(deps: AppRouterDependencies) {
@@ -43,6 +46,7 @@ export function createAppRouter(deps: AppRouterDependencies) {
     invoice: createInvoiceRouter(deps.invoiceService, deps.paymentService),
     bill: createBillRouter(deps.billService, deps.paymentService),
     report: createReportRouter(deps.reportService),
+    document: createDocumentRouter(deps.documentService),
   });
 }
 

@@ -9,6 +9,7 @@ import { AccountsPage } from '../pages/finance/accounts';
 import { InvoicesPage } from '../pages/finance/invoices';
 import { BillsPage } from '../pages/finance/bills';
 import { ReportsPage } from '../pages/finance/reports';
+import { DocumentsPage } from '../pages/plm/documents';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -38,6 +39,7 @@ export function App() {
         <Route path="finance/invoices" element={<InvoicesPage />} />
         <Route path="finance/bills" element={<BillsPage />} />
         <Route path="finance/reports" element={<ReportsPage />} />
+        <Route path="plm/documents" element={<DocumentsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

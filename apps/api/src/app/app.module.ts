@@ -7,7 +7,10 @@ import { HealthModule } from 'health';
 import { AuthModule } from 'auth';
 import { MasterdataModule } from 'masterdata';
 import { FinanceModule } from 'finance';
+import { PlmModule } from 'plm';
+import { StorageModule } from 'storage';
 import { AppController } from './app.controller';
+import { DocumentsController } from './documents.controller';
 
 const config = loadAppConfig();
 
@@ -18,9 +21,11 @@ const config = loadAppConfig();
     AuditModule,
     HealthModule.forRoot(config),
     AuthModule.forRoot(config),
+    StorageModule.forRoot(config),
     MasterdataModule,
     FinanceModule,
+    PlmModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, DocumentsController],
 })
 export class AppModule {}

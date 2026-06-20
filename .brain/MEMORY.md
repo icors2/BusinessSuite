@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 3 complete — finance ledger, AR/AP, P&L/Balance Sheet reports, Finance UI |
+| **Repo status** | Phase 4 complete — PLM documents, MinIO storage, revision lifecycle, Documents UI |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,22 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 3 complete |
-| **Next phase** | **Phase 4 — PLM & Documents** |
+| **Active phase** | None — Phase 4 complete |
+| **Next phase** | **Phase 5 — WMS (Inventory)** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 4 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 4](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-4--plm--documents--complete)
+
+- [x] Prisma schema: Document, DocumentRevision (immutable), DocumentStatus enum; Product back-relation
+- [x] `libs/shared/storage` — StorageService (MinIO/S3); object keys `documents/{documentId}/{revisionId}-{filename}`
+- [x] `libs/plm` — DocumentService (create, listByProduct, addRevision, transitionStatus, download helpers)
+- [x] Revision rules: Draft → In Review → Released → Obsolete; single active Released per document
+- [x] REST DocumentsController for multipart upload + streamed download; tRPC document router for metadata/lifecycle
+- [x] PLM UI: documents per product, revision history, image/PDF preview, editor-gated upload/transitions
+- [x] Events: `plm.document.uploaded`, `plm.document.revised`, `plm.document.released` (see `libs/plm/EVENTS.md`)
+- [x] Unit tests (revision increment, illegal transition, single-Released) + integration tests (MinIO round-trip, lifecycle, Viewer block)
 
 ### Phase 3 Definition of Done
 
@@ -95,6 +108,10 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | tRPC lib | `libs/trpc` | Created (Phase 1) |
 | Data migration lib | `libs/migration` | Created (Phase 2) |
 | Finance lib | `libs/finance` | Created (Phase 3) |
+| PLM lib | `libs/plm` | Created (Phase 4) |
+| Storage lib | `libs/shared/storage` | Created (Phase 4) |
+| Documents REST controller | `apps/api/src/app/documents.controller.ts` | Created (Phase 4) |
+| PLM UI | `apps/web/src/pages/plm/documents.tsx` | Created (Phase 4) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -106,7 +123,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Shared auth lib | `libs/shared/auth` | Created |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance) |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
 | Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
@@ -140,6 +157,10 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Money storage | **Decimal(18,2) in DB; number in API** | 3 | tRPC JSON responses use plain numbers |
 | Posted journal immutability | **Reversing entries only** | 3 | `JournalService.reverse()` mirrors debits/credits |
 | Default COA codes | **1000–5000** | 3 | Cash, AR, AP, Equity, Revenue, Expense for auto-posting |
+| Binary file transport | **REST multipart + stream** | 4 | Upload/download via DocumentsController; metadata via tRPC |
+| Object key scheme | **`documents/{documentId}/{revisionId}-{filename}`** | 4 | Uploads never overwrite; each revision gets a new key |
+| Document revision immutability | **Never delete revisions** | 4 | New upload = new DocumentRevision row + new MinIO object |
+| Single released revision | **Auto-obsolete prior Released** | 4 | Enforced in `DocumentService.transitionStatus` |
 
 ---
 
@@ -208,7 +229,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 1 | ERP Core — master data (Product, Customer, Vendor) | **Complete** |
 | 2 | Data migration & legacy cutover | **Complete** |
 | 3 | Finance & accounting | **Complete** |
-| 4 | PLM & documents | Not started |
+| 4 | PLM & documents | **Complete** |
 | 5 | WMS — inventory | Not started |
 | 6 | CRM & CPQ — sales | Not started |
 | 7 | Sales order management & fulfillment | Not started |
@@ -251,6 +272,9 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `finance.bill.paid` | finance | 3 | `{ billNumber, totalPaid }` |
 | `finance.bill.voided` | finance | 3 | `{ billNumber }` |
 | `finance.payment.recorded` | finance | 3 | `{ type, amount }` |
+| `plm.document.uploaded` | plm | 4 | `{ documentId, revisionId, revisionNumber, fileName, productId }` |
+| `plm.document.revised` | plm | 4 | `{ documentId, revisionId, revisionNumber, fileName, productId }` |
+| `plm.document.released` | plm | 4 | `{ documentId, revisionId, revisionNumber, productId }` |
 
 ---
 

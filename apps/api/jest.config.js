@@ -17,6 +17,8 @@ module.exports = {
     '^auth$': '<rootDir>/../../libs/shared/auth/src/index.ts',
     '^masterdata$': '<rootDir>/../../libs/masterdata/src/index.ts',
     '^finance$': '<rootDir>/../../libs/finance/src/index.ts',
+    '^plm$': '<rootDir>/../../libs/plm/src/index.ts',
+    '^storage$': '<rootDir>/../../libs/shared/storage/src/index.ts',
     '^trpc$': '<rootDir>/../../libs/trpc/src/index.ts',
   },
   coverageDirectory: '../../coverage/apps/api',

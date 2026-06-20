@@ -1,0 +1,19 @@
+{
+  "name": "storage",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/storage/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/storage",
+        "main": "libs/shared/storage/src/index.ts",
+        "tsConfig": "libs/shared/storage/tsconfig.lib.json",
+        "assets": ["libs/shared/storage/*.md"]
+      }
+    }
+  }
+}

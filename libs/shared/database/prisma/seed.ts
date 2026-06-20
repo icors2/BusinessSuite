@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -85,6 +86,48 @@ async function main(): Promise<void> {
       category: 'Widgets',
     },
   });
+
+  const seedProduct = await prisma.product.findUnique({
+    where: { sku: 'SKU-001' },
+  });
+
+  if (seedProduct) {
+    const existingPlmDoc = await prisma.document.findFirst({
+      where: {
+        productId: seedProduct.id,
+        name: 'Widget A Assembly Drawing',
+      },
+    });
+
+    if (!existingPlmDoc) {
+      const revisionId = randomUUID();
+      const document = await prisma.document.create({
+        data: {
+          productId: seedProduct.id,
+          name: 'Widget A Assembly Drawing',
+          docType: 'drawing',
+          revisions: {
+            create: {
+              id: revisionId,
+              revisionNumber: 1,
+              status: 'DRAFT',
+              fileName: 'assembly-v1.pdf',
+              mimeType: 'application/pdf',
+              sizeBytes: 0,
+              objectKey: `documents/seed/${revisionId}-assembly-v1.pdf`,
+              notes: 'Seed metadata only — upload a file to store in MinIO',
+            },
+          },
+        },
+        include: { revisions: true },
+      });
+
+      await prisma.document.update({
+        where: { id: document.id },
+        data: { currentRevisionId: document.revisions[0].id },
+      });
+    }
+  }
 
   const customer = await prisma.customer.findFirst({
     where: { name: 'Acme Manufacturing', deletedAt: null },

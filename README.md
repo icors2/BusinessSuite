@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 3 Finance & Accounting Core complete.
+Integrated manufacturing operations platform — Phase 4 PLM & Documents complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 3 Finance & Accounting Co
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products, customer, vendor) and finance seed data (Chart of Accounts, sample AR/AP) are seeded after migration.
+Sample master data (products, customer, vendor), finance seed data (Chart of Accounts, sample AR/AP), and a sample PLM document (metadata-only DRAFT revision on SKU-001) are seeded after migration.
 
 ## API endpoints
 
@@ -78,6 +78,15 @@ Sample master data (products, customer, vendor) and finance seed data (Chart of 
 | POST | `/api/auth/refresh` | Public | Refresh tokens |
 | GET | `/api/auth/admin-only` | Admin | Role-gated test |
 | GET | `/api/auth/manager-or-admin` | Admin, Manager | Role-gated test |
+
+### REST (documents — Phase 4)
+
+Binary upload/download; metadata and lifecycle via tRPC `document` router.
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/documents/:documentId/revisions` | Admin, Manager | Multipart file upload (new revision) |
+| GET | `/api/documents/revisions/:revisionId/download` | Authenticated | Stream revision bytes from MinIO |
 
 ### tRPC (master data)
 
@@ -100,6 +109,14 @@ Double-entry ledger; invoices/bills auto-post balanced journal entries.
 | `invoice` | create, get, list, post, void, recordPayment |
 | `bill` | create, get, list, post, void, recordPayment |
 | `report` | profitAndLoss, balanceSheet |
+
+### tRPC (PLM — Phase 4)
+
+Immutable revision history; status flow Draft → In Review → Released → Obsolete.
+
+| Router | Procedures |
+|--------|------------|
+| `document` | create, get, listByProduct, revisions, transition |
 
 ## Data migration (Phase 2)
 
@@ -171,6 +188,7 @@ libs/masterdata   Product, Customer, Vendor domain services + events
 libs/trpc         tRPC init, JWT context, composed AppRouter
 libs/migration    Legacy ETL: extract/transform/load/reconcile/promote/rollback
 libs/finance      Chart of Accounts, journal entries, AR/AP, payments, reports
+libs/plm          Document control, revision lifecycle, PLM events
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -179,6 +197,7 @@ libs/shared/
   audit           Audit logging to Postgres
   health          /health watchdog
   auth            JWT + RBAC (Admin, Manager, Viewer)
+  storage         MinIO/S3 object storage wrapper
 ```
 
 ## Backup & restore
@@ -205,4 +224,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 1 status:** Complete  
 **Phase 2 status:** Complete  
 **Phase 3 status:** Complete  
-**Next phase:** Phase 4 — PLM & Documents
+**Phase 4 status:** Complete  
+**Next phase:** Phase 5 — WMS (Inventory)

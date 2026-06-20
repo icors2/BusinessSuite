@@ -15,6 +15,7 @@ import {
   PaymentService,
   ReportService,
 } from 'finance';
+import { DocumentService } from 'plm';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -33,6 +34,7 @@ async function bootstrap() {
   const billService = app.get(BillService);
   const paymentService = app.get(PaymentService);
   const reportService = app.get(ReportService);
+  const documentService = app.get(DocumentService);
 
   const appRouter = createAppRouter({
     productService,
@@ -44,6 +46,7 @@ async function bootstrap() {
     billService,
     paymentService,
     reportService,
+    documentService,
   });
 
   app.use(

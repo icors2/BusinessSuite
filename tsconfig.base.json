@@ -25,7 +25,9 @@
       "masterdata": ["./libs/masterdata/src/index.ts"],
       "trpc": ["./libs/trpc/src/index.ts"],
       "migration": ["./libs/migration/src/index.ts"],
-      "finance": ["./libs/finance/src/index.ts"]
+      "finance": ["./libs/finance/src/index.ts"],
+      "storage": ["./libs/shared/storage/src/index.ts"],
+      "plm": ["./libs/plm/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

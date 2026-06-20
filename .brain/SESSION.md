@@ -12,36 +12,37 @@
 
 ## Current Focus
 
-Phase 3 — Finance & Accounting Core **complete**.
+Phase 4 — PLM & Documents **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 4 (PLM & Documents)._
+_None — ready for Phase 5 (WMS / Inventory)._
 
 ---
 
 ## Recent Progress
 
-- Prisma finance schema: Account, JournalEntry/Line, Invoice/Line, Bill/Line, Payment; migration `20260620044753_add_finance_core`
-- Created `libs/finance` — account, journal (balance/immutability/reverse), invoice, bill, payment, report services; EVENTS.md
-- tRPC routers: account, journal, invoice, bill, report; wired in AppModule + main.ts
-- Finance UI: accounts, invoices (list/detail/post/pay), bills, P&L + Balance Sheet reports
-- Seed: COA 1000–5000 + sample AR/AP with known totals (P&L revenue 1500, expenses 500, net 1000; BS assets 1300)
-- 7 finance unit tests + 4 finance integration tests; full suite green (10 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 3 ✅ COMPLETE)
+- Prisma PLM schema: Document, DocumentRevision, DocumentStatus; migration `20260620045930_add_plm_documents`
+- Created `libs/shared/storage` — StorageService (MinIO/S3 wrapper, ensureBucket/putObject/getObject/objectKeyFor)
+- Created `libs/plm` — DocumentService, revision state machine, single-Released rule, EVENTS.md
+- tRPC `document` router; REST DocumentsController (multipart upload + streamed download)
+- PLM UI at `/plm/documents` — product picker, revision history, preview, editor-gated upload/transitions
+- Seed: sample Document + DRAFT revision on SKU-001 (metadata only)
+- 4 plm unit tests + 4 plm integration tests (MinIO byte-for-byte, lifecycle, Viewer block); full suite green (11 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 4 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 4 — PLM & Documents** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 5 — WMS (Inventory)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Invoice/bill post auto-generates balanced journal entries (DR AR/CR Revenue, DR Expense/CR AP)
-- Report integration tests use Jan 2026 date window to isolate seed data from dynamic test invoices
-- Export `AccountBalanceRow` from report.service for tRPC build compatibility
+- StorageModule APP_CONFIG token moved to `storage.constants.ts` to avoid circular import with StorageService
+- REST for binary, tRPC for metadata matches Phase 1+ API split
+- Integration tests require Postgres + MinIO (docker compose up)

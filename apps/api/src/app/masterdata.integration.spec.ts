@@ -18,6 +18,7 @@ import {
   ReportService,
 } from 'finance';
 import { createAppRouter } from 'trpc';
+import { DocumentService } from 'plm';
 import { AppModule } from './app.module';
 
 const DATABASE_URL =
@@ -79,6 +80,7 @@ describe('Masterdata tRPC Integration', () => {
       billService: app.get(BillService),
       paymentService: app.get(PaymentService),
       reportService: app.get(ReportService),
+      documentService: app.get(DocumentService),
     });
 
     const adminLogin = await request(app.getHttpServer())

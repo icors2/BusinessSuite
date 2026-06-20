@@ -11,6 +11,7 @@ const navItems = [
   { to: '/finance/invoices', label: 'Invoices' },
   { to: '/finance/bills', label: 'Bills' },
   { to: '/finance/reports', label: 'Reports' },
+  { to: '/plm/documents', label: 'Documents' },
 ];
 
 export function AppLayout() {

@@ -62,18 +62,75 @@ model AuditLog {
 }
 
 model Product {
-  id            String    @id @default(uuid())
-  sku           String    @unique
+  id            String     @id @default(uuid())
+  sku           String     @unique
   description   String
   unitOfMeasure String
   category      String?
-  active        Boolean   @default(true)
+  active        Boolean    @default(true)
   deletedAt     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  documents     Document[]
 
   @@index([active])
   @@index([category])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 4 — PLM & Documents
+//
+// Engineering documents linked to Products. Revisions are immutable — uploads
+// create new revision rows; prior revisions are never deleted.
+// ---------------------------------------------------------------------------
+
+enum DocumentStatus {
+  DRAFT
+  IN_REVIEW
+  RELEASED
+  OBSOLETE
+}
+
+model Document {
+  id                  String             @id @default(uuid())
+  productId           String
+  name                String
+  docType             String?
+  currentRevisionId   String?            @unique
+  releasedRevisionId  String?            @unique
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  product          Product             @relation(fields: [productId], references: [id])
+  revisions        DocumentRevision[]
+  currentRevision  DocumentRevision?   @relation("DocumentCurrentRevision", fields: [currentRevisionId], references: [id], onDelete: SetNull)
+  releasedRevision DocumentRevision?   @relation("DocumentReleasedRevision", fields: [releasedRevisionId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([name])
+}
+
+model DocumentRevision {
+  id             String         @id @default(uuid())
+  documentId     String
+  revisionNumber Int
+  status         DocumentStatus @default(DRAFT)
+  fileName       String
+  mimeType       String
+  sizeBytes      Int
+  objectKey      String         @unique
+  notes          String?
+  createdById    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  document              Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  currentForDocument    Document? @relation("DocumentCurrentRevision")
+  releasedForDocument   Document? @relation("DocumentReleasedRevision")
+
+  @@unique([documentId, revisionNumber])
+  @@index([documentId])
+  @@index([status])
 }
 
 model Customer {
