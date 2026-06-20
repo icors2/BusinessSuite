@@ -19,6 +19,7 @@ import { CpqQuoteEditorPage } from '../pages/cpq/quote-editor';
 import { CpqCatalogPage } from '../pages/cpq/catalog';
 import { SalesOrdersPage } from '../pages/sales/orders';
 import { SalesOrderDetailPage } from '../pages/sales/order-detail';
+import { MpsDashboardPage } from '../pages/mps/dashboard';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -58,6 +59,7 @@ export function App() {
         <Route path="cpq/catalog" element={<CpqCatalogPage />} />
         <Route path="sales/orders" element={<SalesOrdersPage />} />
         <Route path="sales/orders/:id" element={<SalesOrderDetailPage />} />
+        <Route path="mps/dashboard" element={<MpsDashboardPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

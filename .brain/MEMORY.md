@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 7 complete — sales orders, WMS allocation, fulfillment, invoice-on-ship |
+| **Repo status** | Phase 8 complete — MPS engine, work orders, factory calendar, capacity overload detection |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,23 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 7 complete |
-| **Next phase** | **Phase 8 — MPS (Production Scheduling)** |
+| **Active phase** | None — Phase 8 complete |
+| **Next phase** | **Phase 9 — MRP (Material Planning)** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 8 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 8](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-8--mps-production-scheduling--complete)
+
+- [x] Prisma schema: ProductionLine, FactoryCalendarDay, WorkOrder, MpsSetting; MpsStrategy/WorkOrderStatus enums; Product.mpsStrategy
+- [x] `libs/mps` — aggregation (Weekly/Monthly/BTO), net demand, capacity-aware scheduling with overload flags
+- [x] MpsService: previewDemand, generateSchedule, list/get WO, reschedule, line/calendar/strategy management
+- [x] SalesDemandSubscriber listens for `sales.order.created` (consumer group `mps-demand`)
+- [x] tRPC `mps` router; MpsModule wired in API
+- [x] MPS UI: dashboard (demand preview, work order timeline, overload warnings, reschedule)
+- [x] Events: `mps.workorder.scheduled/rescheduled`, `mps.capacity.overloaded`
+- [x] Unit + integration tests (3 strategies, net demand, overload, reschedule, Viewer block)
+- [x] Seed: LINE-MAIN, 30-day calendar, sample work order from SO-SEED-001 demand
 
 ### Phase 7 Definition of Done
 
@@ -158,6 +172,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | CPQ UI | `apps/web/src/pages/cpq/*` | Created (Phase 6) |
 | Sales lib | `libs/sales` | Created (Phase 7) |
 | Sales UI | `apps/web/src/pages/sales/*` | Created (Phase 7) |
+| MPS lib | `libs/mps` | Created (Phase 8) |
+| MPS UI | `apps/web/src/pages/mps/*` | Created (Phase 8) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -205,6 +221,9 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Quote status machine | **DRAFT→SENT→terminal; accept rejects expired** | 6 | pricingSnapshot frozen on send |
 | Sales order fulfillment | **allocate → ship → invoice (shipped qty only)** | 7 | WMS allocate/ship + Finance create+post; FABRICATED = MTO |
 | Quote-to-order conversion | **Event subscriber + manual tRPC convert (idempotent)** | 7 | One order per quoteId; frozen quoted pricing |
+| MPS demand source | **All open product-linked sales lines** | 8 | Net demand nets inventory; FABRICATED without productId skipped |
+| MPS aggregation strategy | **Product.mpsStrategy → category → GLOBAL fallback** | 8 | Weekly, Monthly, Build-To-Order |
+| MPS capacity model | **ProductionLine.capacityPerDay × working days** | 8 | Overload flagged, not silently absorbed |
 | Finance as source of truth | **Services-only writes to ledger** | 3 | Other modules emit events; no direct ledger table writes |
 | Money storage | **Decimal(18,2) in DB; number in API** | 3 | tRPC JSON responses use plain numbers |
 | Posted journal immutability | **Reversing entries only** | 3 | `JournalService.reverse()` mirrors debits/credits |
@@ -288,7 +307,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 5 | WMS — inventory | **Complete** |
 | 6 | CRM & CPQ — sales | **Complete** |
 | 7 | Sales order management & fulfillment | **Complete** |
-| 8 | MPS — production scheduling | Not started |
+| 8 | MPS — production scheduling | **Complete** |
 | 9 | MRP — material planning | Not started |
 | 10 | Procurement & vendor integration | Not started |
 | 11 | Workforce management (time & scheduling) | Not started |
@@ -343,6 +362,9 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `sales.order.allocated` | sales | 7 | `{ orderId, orderNumber, lines[] }` |
 | `sales.order.backordered` | sales | 7 | `{ orderId, orderNumber, lines[] with qtyBackordered }` |
 | `sales.order.shipped` | sales | 7 | `{ orderId, orderNumber, shipmentId, invoiceId, shippedLines[] }` |
+| `mps.workorder.scheduled` | mps | 8 | `{ workOrderId, woNumber, productId, quantity, periodKey, lineId }` |
+| `mps.workorder.rescheduled` | mps | 8 | `{ workOrderId, woNumber, previousStart, previousEnd, scheduledStart, scheduledEnd, lineId }` |
+| `mps.capacity.overloaded` | mps | 8 | `{ periodKey, lineId, lineCode, capacity, scheduled, utilization }` |
 
 ---
 

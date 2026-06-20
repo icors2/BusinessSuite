@@ -1,0 +1,27 @@
+{
+  "name": "mps",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/mps/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/mps",
+        "main": "libs/mps/src/index.ts",
+        "tsConfig": "libs/mps/tsconfig.lib.json",
+        "assets": ["libs/mps/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/mps/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

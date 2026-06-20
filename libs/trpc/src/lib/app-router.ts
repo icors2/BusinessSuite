@@ -10,12 +10,14 @@ import { DocumentService } from 'plm';
 import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
+import { MpsService } from 'mps';
 import { createAccountRouter } from './routers/account.router';
 import { createBillRouter } from './routers/bill.router';
 import { createDocumentRouter } from './routers/document.router';
 import { createInventoryRouter } from './routers/inventory.router';
 import { createCpqCatalogRouter, createQuoteRouter } from './routers/quote.router';
 import { createSalesOrderRouter } from './routers/sales-order.router';
+import { createMpsRouter } from './routers/mps.router';
 import { createInvoiceRouter } from './routers/invoice.router';
 import { createJournalRouter } from './routers/journal.router';
 import { createReportRouter } from './routers/report.router';
@@ -45,6 +47,7 @@ export interface AppRouterDependencies {
   quoteService: QuoteService;
   cpqCatalogService: CpqCatalogService;
   salesOrderService: SalesOrderService;
+  mpsService: MpsService;
 }
 
 export function createAppRouter(deps: AppRouterDependencies) {
@@ -65,6 +68,7 @@ export function createAppRouter(deps: AppRouterDependencies) {
     quote: createQuoteRouter(deps.quoteService),
     cpqCatalog: createCpqCatalogRouter(deps.cpqCatalogService),
     salesOrder: createSalesOrderRouter(deps.salesOrderService),
+    mps: createMpsRouter(deps.mpsService),
   });
 }
 

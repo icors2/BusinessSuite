@@ -19,6 +19,7 @@ import { DocumentService } from 'plm';
 import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
+import { MpsService } from 'mps';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -43,6 +44,7 @@ async function bootstrap() {
   const quoteService = app.get(QuoteService);
   const cpqCatalogService = app.get(CpqCatalogService);
   const salesOrderService = app.get(SalesOrderService);
+  const mpsService = app.get(MpsService);
 
   const appRouter = createAppRouter({
     productService,
@@ -60,6 +62,7 @@ async function bootstrap() {
     quoteService,
     cpqCatalogService,
     salesOrderService,
+    mpsService,
   });
 
   app.use(

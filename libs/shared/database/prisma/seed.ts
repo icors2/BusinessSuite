@@ -250,6 +250,7 @@ async function main(): Promise<void> {
   await seedFinance(prisma);
   await seedCpq(prisma, customerId);
   await seedSales(prisma, customerId);
+  await seedMps(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -744,6 +745,95 @@ async function seedSales(
           },
         ],
       },
+    },
+  });
+}
+
+/** Phase 8 — factory calendar, production line, and sample work orders. */
+async function seedMps(client: PrismaClient): Promise<void> {
+  const existingLine = await client.productionLine.findUnique({
+    where: { code: 'LINE-MAIN' },
+  });
+  if (existingLine) return;
+
+  const line = await client.productionLine.create({
+    data: {
+      code: 'LINE-MAIN',
+      name: 'Main Assembly Line',
+      capacityPerDay: 50,
+      active: true,
+    },
+  });
+
+  const start = new Date();
+  start.setUTCHours(0, 0, 0, 0);
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(start);
+    date.setUTCDate(date.getUTCDate() + i);
+    const day = date.getUTCDay();
+    await client.factoryCalendarDay.upsert({
+      where: { date },
+      create: {
+        date,
+        isWorkingDay: day !== 0 && day !== 6,
+      },
+      update: {},
+    });
+  }
+
+  await client.mpsSetting.upsert({
+    where: { scope: 'GLOBAL' },
+    create: { scope: 'GLOBAL', strategy: 'WEEKLY' },
+    update: {},
+  });
+
+  const product = await client.product.findUnique({
+    where: { sku: 'SKU-001' },
+  });
+  if (!product) return;
+
+  await client.product.update({
+    where: { id: product.id },
+    data: { mpsStrategy: 'WEEKLY' },
+  });
+
+  const salesLine = await client.salesOrderLine.findFirst({
+    where: {
+      productId: product.id,
+      order: { orderNumber: 'SO-SEED-001' },
+    },
+  });
+  if (!salesLine) return;
+
+  const qty = Math.max(
+    0,
+    Number(salesLine.qtyOrdered) - Number(salesLine.qtyShipped),
+  );
+  if (qty <= 0) return;
+
+  const periodStart = new Date(start);
+  const periodEnd = new Date(start);
+  periodEnd.setUTCDate(periodEnd.getUTCDate() + 4);
+
+  await client.workOrder.create({
+    data: {
+      woNumber: `WO-${new Date().getFullYear()}-SEED1`,
+      productId: product.id,
+      lineId: line.id,
+      quantity: qty,
+      scheduledStart: periodStart,
+      scheduledEnd: periodEnd,
+      status: 'PROPOSED',
+      strategy: 'WEEKLY',
+      periodKey: `${periodStart.getUTCFullYear()}-W${String(
+        Math.ceil(
+          ((periodStart.getTime() - Date.UTC(periodStart.getUTCFullYear(), 0, 1)) /
+            86400000 +
+            1) /
+            7,
+        ),
+      ).padStart(2, '0')}`,
+      demandRefs: [salesLine.id],
     },
   });
 }

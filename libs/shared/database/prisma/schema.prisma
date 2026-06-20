@@ -68,6 +68,7 @@ model Product {
   unitOfMeasure String
   category      String?
   listPrice     Decimal?            @db.Decimal(18, 2)
+  mpsStrategy   MpsStrategy?
   active        Boolean             @default(true)
   deletedAt     DateTime?
   createdAt     DateTime            @default(now())
@@ -77,6 +78,7 @@ model Product {
   movements     InventoryMovement[]
   quoteLines    QuoteLine[]
   salesOrderLines SalesOrderLine[]
+  workOrders    WorkOrder[]
 
   @@index([active])
   @@index([category])
@@ -654,6 +656,85 @@ model SalesOrderShipment {
   order SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 8 — MPS (Master Production Schedule)
+//
+// Aggregates sales demand into work orders using Weekly, Monthly, or
+// Build-To-Order strategies. Factory calendar and production lines define
+// capacity; overload is flagged rather than silently over-scheduled.
+// ---------------------------------------------------------------------------
+
+enum MpsStrategy {
+  WEEKLY
+  MONTHLY
+  BUILD_TO_ORDER
+}
+
+enum WorkOrderStatus {
+  PROPOSED
+  FIRM
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model ProductionLine {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  name           String
+  active         Boolean  @default(true)
+  capacityPerDay Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  workOrders WorkOrder[]
+
+  @@index([active])
+}
+
+model FactoryCalendarDay {
+  id            String   @id @default(uuid())
+  date          DateTime @unique @db.Date
+  isWorkingDay  Boolean  @default(true)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isWorkingDay])
+}
+
+model WorkOrder {
+  id             String          @id @default(uuid())
+  woNumber       String          @unique
+  productId      String
+  lineId         String?
+  quantity       Decimal         @default(0) @db.Decimal(18, 4)
+  scheduledStart DateTime
+  scheduledEnd   DateTime
+  status         WorkOrderStatus @default(PROPOSED)
+  strategy       MpsStrategy
+  periodKey      String
+  demandRefs     Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  product Product         @relation(fields: [productId], references: [id])
+  line    ProductionLine? @relation(fields: [lineId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([productId])
+  @@index([periodKey])
+  @@index([scheduledStart])
+}
+
+model MpsSetting {
+  id        String      @id @default(uuid())
+  scope     String      @unique
+  strategy  MpsStrategy
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 // ---------------------------------------------------------------------------

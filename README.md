@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 7 Sales Order Management & Fulfillment complete.
+Integrated manufacturing operations platform — Phase 8 MPS (Production Scheduling) complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 7 Sales Order Management 
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), and sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line) are seeded after migration.
+Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), and MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order) are seeded after migration.
 
 ## API endpoints
 
@@ -159,6 +159,20 @@ Quote-to-order conversion, WMS allocation, shipment + Finance invoicing.
 | `/sales/orders` | Order list with status/backorder badges |
 | `/sales/orders/:id` | Order detail (allocation progress, ship, cancel, invoice links) |
 
+### tRPC (MPS — Phase 8)
+
+Master Production Schedule: demand aggregation, net demand, capacity-aware scheduling.
+
+| Router | Procedures |
+|--------|------------|
+| `mps` | previewDemand, generateSchedule, listWorkOrders, getWorkOrder, listLines, getCalendar, rescheduleWorkOrder, upsertLine, upsertCalendarDay, setStrategy, setProductStrategy, listSettings |
+
+## ERP Admin UI (MPS pages)
+
+| Route | Description |
+|-------|-------------|
+| `/mps/dashboard` | MPS dashboard (demand preview, work order timeline, overload warnings, reschedule) |
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -233,6 +247,7 @@ libs/plm          Document control, revision lifecycle, PLM events
 libs/wms          Locations, bins, inventory quantities, movements
 libs/cpq          FabQuote engine, quotes, CPQ catalog, sales events
 libs/sales        Sales orders, WMS allocation, fulfillment, invoice-on-ship
+libs/mps          Master Production Schedule, work orders, factory calendar
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -272,4 +287,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 5 status:** Complete  
 **Phase 6 status:** Complete  
 **Phase 7 status:** Complete  
-**Next phase:** Phase 8 — MPS (Production Scheduling)
+**Phase 8 status:** Complete  
+**Next phase:** Phase 9 — MRP (Material Planning)

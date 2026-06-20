@@ -21,6 +21,7 @@ import { DocumentService } from 'plm';
 import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
+import { MpsService } from 'mps';
 import { StorageService } from 'storage';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -98,6 +99,7 @@ describe('PLM Integration', () => {
       quoteService: app.get(QuoteService),
       cpqCatalogService: app.get(CpqCatalogService),
       salesOrderService: app.get(SalesOrderService),
+      mpsService: app.get(MpsService),
     });
 
     const adminLogin = await request(app.getHttpServer())
