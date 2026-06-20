@@ -1,0 +1,6 @@
+sourceId,sku,description,unitOfMeasure,category,inventoryOnHand
+LPROD-3001,SKU-100,Steel Bracket 4in,EA,Hardware,250
+LPROD-3002,SKU-101,Aluminum Sheet 1m x 2m,EA,Raw Material,40
+LPROD-3003,SKU-102,M6 Hex Bolt,BOX,Fasteners,1200
+LPROD-3004,,Missing SKU Item,EA,Misc,5
+LPROD-3005,SKU-104,,EA,Misc,0

@@ -108,3 +108,151 @@ model Vendor {
   @@index([active])
   @@index([name])
 }
+
+// ---------------------------------------------------------------------------
+// Phase 2 — Data Migration & Legacy Cutover (staging area)
+//
+// Legacy records land in staging tables first so an operator can review counts
+// and conflicts before promoting into the production Master Data tables above.
+// Quotes and inventory balances have no production model yet (Phases 5/6); they
+// are staged and held until those phases land.
+// ---------------------------------------------------------------------------
+
+enum MigrationBatchStatus {
+  EXTRACTED
+  LOADED
+  RECONCILED
+  PROMOTED
+  ROLLED_BACK
+  FAILED
+}
+
+enum StagingRecordStatus {
+  PENDING
+  VALID
+  CONFLICT
+  PROMOTED
+  SKIPPED
+}
+
+enum MigrationEntityType {
+  CUSTOMER
+  VENDOR
+  PRODUCT
+  QUOTE
+}
+
+model MigrationBatch {
+  id           String               @id @default(uuid())
+  sourceSystem String
+  status       MigrationBatchStatus @default(EXTRACTED)
+  notes        String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  customers StagingCustomer[]
+  vendors   StagingVendor[]
+  products  StagingProduct[]
+  quotes    StagingQuote[]
+
+  @@index([status])
+}
+
+model StagingCustomer {
+  id             String              @id @default(uuid())
+  batchId        String
+  sourceSystem   String
+  sourceId       String
+  status         StagingRecordStatus @default(PENDING)
+  conflictReason String?
+  promotedId     String?
+  raw            Json
+  name           String?
+  email          String?
+  phone          String?
+  billingAddress Json?
+  shippingAddress Json?
+  creditTerms    String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  batch MigrationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSystem, sourceId])
+  @@index([batchId])
+  @@index([status])
+}
+
+model StagingVendor {
+  id             String              @id @default(uuid())
+  batchId        String
+  sourceSystem   String
+  sourceId       String
+  status         StagingRecordStatus @default(PENDING)
+  conflictReason String?
+  promotedId     String?
+  raw            Json
+  name           String?
+  email          String?
+  phone          String?
+  address        Json?
+  paymentTerms   String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  batch MigrationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSystem, sourceId])
+  @@index([batchId])
+  @@index([status])
+}
+
+model StagingProduct {
+  id              String              @id @default(uuid())
+  batchId         String
+  sourceSystem    String
+  sourceId        String
+  status          StagingRecordStatus @default(PENDING)
+  conflictReason  String?
+  promotedId      String?
+  raw             Json
+  sku             String?
+  description     String?
+  unitOfMeasure   String?
+  category        String?
+  inventoryOnHand Float?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  batch MigrationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSystem, sourceId])
+  @@index([batchId])
+  @@index([status])
+}
+
+model StagingQuote {
+  id             String              @id @default(uuid())
+  batchId        String
+  sourceSystem   String
+  sourceId       String
+  status         StagingRecordStatus @default(PENDING)
+  conflictReason String?
+  promotedId     String?
+  raw            Json
+  customerSourceId String?
+  quoteNumber    String?
+  status_legacy  String?
+  totalAmount    Float?
+  currency       String?
+  quotedAt       DateTime?
+  lineItems      Json?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  batch MigrationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceSystem, sourceId])
+  @@index([batchId])
+  @@index([status])
+}

@@ -1,0 +1,4 @@
+sourceId,name,email,phone,addressLine1,addressCity,addressState,addressPostalCode,addressCountry,paymentTerms
+LVEND-2001,Global Supplies Co,ap@globalsupplies.example,555-0200,500 Warehouse Way,Chicago,IL,60601,US,Net 45
+LVEND-2002,Pacific Components,sales@pacificcomp.example,555-0211,18 Harbor Dr,Seattle,WA,98101,US,Net 30
+LVEND-2003,,no-name@vendor.example,555-0222,7 Foundry Ln,Cleveland,OH,44101,US,Net 30

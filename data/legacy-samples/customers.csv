@@ -1,0 +1,6 @@
+sourceId,name,email,phone,billingLine1,billingCity,billingState,billingPostalCode,billingCountry,shippingLine1,shippingCity,shippingState,shippingPostalCode,shippingCountry,creditTerms
+LCUST-1001,Acme Manufacturing,orders@acme.example,555-0100,100 Industrial Blvd,Springfield,IL,62701,US,100 Industrial Blvd,Springfield,IL,62701,US,Net 30
+LCUST-1002,Northwind Traders,ap@northwind.example,555-0111,42 Market St,Portland,OR,97201,US,,,,,,Net 45
+LCUST-1003,"Globex, Inc.",buyer@globex.example,555-0122,9 Innovation Way,Austin,TX,73301,US,,,,,,Net 60
+LCUST-1004,,missing-name@example.com,555-0133,1 Nowhere Rd,Reno,NV,89501,US,,,,,,Net 30
+LCUST-1002,Northwind Traders Duplicate,dupe@northwind.example,555-0199,42 Market St,Portland,OR,97201,US,,,,,,Net 45

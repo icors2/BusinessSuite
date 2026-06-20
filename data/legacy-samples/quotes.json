@@ -1,0 +1,30 @@
+[
+  {
+    "sourceId": "LQUOTE-4001",
+    "customerSourceId": "LCUST-1001",
+    "quoteNumber": "Q-2025-0001",
+    "status": "open",
+    "totalAmount": "1250.00",
+    "currency": "USD",
+    "quotedAt": "2025-11-01",
+    "lineItems": "[{\"sku\":\"SKU-100\",\"qty\":10,\"unitPrice\":25},{\"sku\":\"SKU-102\",\"qty\":2,\"unitPrice\":500}]"
+  },
+  {
+    "sourceId": "LQUOTE-4002",
+    "customerSourceId": "LCUST-1003",
+    "quoteNumber": "Q-2025-0002",
+    "status": "open",
+    "totalAmount": "800.00",
+    "currency": "USD",
+    "quotedAt": "2025-11-15",
+    "lineItems": "[{\"sku\":\"SKU-101\",\"qty\":20,\"unitPrice\":40}]"
+  },
+  {
+    "sourceId": "LQUOTE-4003",
+    "customerSourceId": "LCUST-1002",
+    "status": "open",
+    "totalAmount": "300.00",
+    "currency": "USD",
+    "quotedAt": "2025-12-01"
+  }
+]

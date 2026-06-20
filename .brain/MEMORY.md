@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 1 complete — master data, tRPC API, ERP Admin UI |
+| **Repo status** | Phase 2 complete — data migration ETL, staging, reconciliation, cutover/rollback runbooks |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,21 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 1 complete |
-| **Next phase** | **Phase 2 — Data Migration & Legacy Cutover** |
-| **Last updated** | 2026-06-19 |
+| **Active phase** | None — Phase 2 complete |
+| **Next phase** | **Phase 3 — Finance & Accounting Core** |
+| **Last updated** | 2026-06-20 |
+
+### Phase 2 Definition of Done
+
+Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 2](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-2--data-migration--legacy-cutover--complete)
+
+- [x] ETL runs end-to-end against sample/legacy-shaped data without manual intervention (`libs/migration` + `scripts/migrate.ts`)
+- [x] CSV/JSON extract mapped to documented expected schema; conflicts (missing fields, duplicate `sourceId`) logged to review file, never silently dropped
+- [x] Staging-first load (`MigrationBatch` + `Staging*` tables); promotion to production is a separate, reviewed step
+- [x] Reconciliation report: counts extracted/staged/valid/conflicts/promoted + flagged conflict samples
+- [x] Idempotent re-runs (upsert on `(sourceSystem, sourceId)`; promoted rows preserved); audit trail via `AuditLog`
+- [x] Cutover runbook + rollback procedure written and dry-run (promote→rollback exercised against staging copy)
+- [x] Unit tests (transform/conflict/CSV) + integration ETL test (18 tests passing)
 
 ### Phase 1 Definition of Done
 
@@ -70,6 +82,10 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | React ERP Admin UI | `apps/web` | Created (Phase 1) |
 | Master data lib | `libs/masterdata` | Created (Phase 1) |
 | tRPC lib | `libs/trpc` | Created (Phase 1) |
+| Data migration lib | `libs/migration` | Created (Phase 2) |
+| Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
+| Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
+| Migration docs | `docs/migration-*.md` | Created (Phase 2) |
 | Shared config lib | `libs/shared/config` | Created |
 | Shared database lib | `libs/shared/database` | Created |
 | Shared event-bus lib | `libs/shared/event-bus` | Created |
@@ -78,7 +94,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Shared auth lib | `libs/shared/auth` | Created |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (Product, Customer, Vendor) |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (Product, Customer, Vendor; Phase 2 staging tables) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
 | Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
@@ -104,6 +120,10 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | tRPC mounting | **Express middleware in `main.ts`** | 1 | JWT from `Authorization` header via `createContextFromRequest` |
 | Master data soft-delete | **`active` + `deletedAt`** | 1 | No hard deletes on Product/Customer/Vendor |
 | Read-only role | **Viewer** | 1 | Seeded for role-gating tests; extends RBAC baseline |
+| Migration tooling form | **CLI + Nx lib**, not UI | 2 | `scripts/migrate.ts` over `libs/migration`; idempotent, audit-trailed |
+| Migration idempotency key | **`(sourceSystem, sourceId)`** | 2 | Staging upsert; promoted rows preserved on re-ingest |
+| Staging-first loading | **`MigrationBatch` + `Staging*` tables** | 2 | Promote is a separate, reviewed step; never load straight to prod |
+| Quotes/inventory at migration | **Staged, not promoted** | 2 | No prod Quote model (Phase 6 CPQ) / inventory model (Phase 5 WMS) yet |
 
 ---
 
@@ -170,7 +190,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 0 | Infrastructure — Nx, Docker, auth, Event Bus, audit, health, CI/CD | **Complete** |
 | 0.5 | White-glove physical SOP (documentation only) | **Complete** |
 | 1 | ERP Core — master data (Product, Customer, Vendor) | **Complete** |
-| 2 | Data migration & legacy cutover | Not started |
+| 2 | Data migration & legacy cutover | **Complete** |
 | 3 | Finance & accounting | Not started |
 | 4 | PLM & documents | Not started |
 | 5 | WMS — inventory | Not started |

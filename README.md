@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 1 ERP master data complete.
+Integrated manufacturing operations platform — Phase 2 data migration tooling complete.
 
 ## Prerequisites
 
@@ -89,6 +89,29 @@ Mounted at `/trpc`. Authenticated reads for all roles; writes require Admin or M
 | `customer` | create, get, list, update, deactivate |
 | `vendor` | create, get, list, update, deactivate |
 
+## Data migration (Phase 2)
+
+CLI ETL from legacy exports into the Master Data schema. Staging-first,
+idempotent, with a reconciliation report and cutover/rollback runbooks. Map the
+legacy export to the [expected schema](docs/migration-expected-schema.md)
+(CSV or JSON), then:
+
+```bash
+# ingest + reconcile in one step (review before promoting)
+npm run migrate:run -- --source legacy-erp --dir data/legacy-samples
+
+# or step-by-step
+npm run migrate:ingest    -- --source legacy-erp --dir data/legacy-samples
+npm run migrate:reconcile -- --batch <batchId>
+npm run migrate:promote   -- --batch <batchId>
+npm run migrate:rollback  -- --batch <batchId>
+```
+
+- Staging tables: `MigrationBatch`, `StagingCustomer/Vendor/Product/Quote`
+- Conflicts (missing fields, duplicate `sourceId`) are flagged, never dropped
+- Quotes + inventory balances are staged and held for Phases 6/5
+- Runbooks: [cutover](docs/migration-cutover-runbook.md), [rollback](docs/migration-rollback-procedure.md)
+
 ## Environment separation
 
 | Environment | Config source | Notes |
@@ -121,6 +144,9 @@ Mounted at `/trpc`. Authenticated reads for all roles; writes require Admin or M
 | `npm run lint` | ESLint all projects |
 | `npm run prisma:migrate` | Create/apply dev migrations |
 | `npm run prisma:seed` | Seed Admin/Manager roles and users |
+| `npm run migrate:run` | Ingest + reconcile a legacy migration batch |
+| `npm run migrate:promote` | Promote a reviewed batch into production |
+| `npm run migrate:rollback` | Undo a promoted batch |
 | `npm run docker:up` | Start full Docker stack |
 | `npm run backup` | Encrypted Postgres backup |
 
@@ -131,6 +157,8 @@ apps/api          NestJS modular monolith (REST auth + tRPC master data)
 apps/web          React ERP Admin UI (Vite, Tailwind, Shadcn-style components)
 libs/masterdata   Product, Customer, Vendor domain services + events
 libs/trpc         tRPC init, JWT context, composed AppRouter
+libs/migration    Legacy ETL: extract/transform/load/reconcile/promote/rollback
+scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
   database        Prisma + PostgreSQL
@@ -162,4 +190,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 0 status:** Complete  
 **Phase 0.5 status:** Complete  
 **Phase 1 status:** Complete  
-**Next phase:** Phase 2 — Data Migration & Legacy Cutover
+**Phase 2 status:** Complete  
+**Next phase:** Phase 3 — Finance & Accounting Core

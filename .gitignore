@@ -34,6 +34,9 @@ backups/
 *.sql.gpg
 !libs/shared/database/prisma/migrations/**/*.sql
 
+# Migration run artifacts (generated reconciliation reports)
+migration-output/
+
 # Docker
 .docker/
 

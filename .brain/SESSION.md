@@ -6,38 +6,39 @@
 
 ## Last Updated
 
-2026-06-19
+2026-06-20
 
 ---
 
 ## Current Focus
 
-Phase 1 — ERP Core (Master Data) **complete**.
+Phase 2 — Data Migration & Legacy Cutover **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 2._
+_None — ready for Phase 3 (Finance & Accounting Core)._
 
 ---
 
 ## Recent Progress
 
-- Added Prisma models: Product, Customer, Vendor (soft-delete via `active` + `deletedAt`)
-- Migration `20260620041302_add_master_data`; seed extended with Viewer role + sample records
-- Created `libs/masterdata` — services, validation, audit, event emission, log subscriber
-- Created `libs/trpc` — JWT context, procedures, composed `AppRouter`, masterdata routers
-- Mounted tRPC at `/trpc` in `apps/api/src/main.ts`; REST auth unchanged
-- Unit tests (SKU uniqueness, duplicate customer) + integration tests (CRUD, role gating) passing
-- Scaffolded `apps/web` — React/Vite/Tailwind ERP Admin UI with list/search/create/edit/deactivate
-- Updated MEMORY.md, README.md, build prompts doc (Phase 1 ✅ COMPLETE)
+- Added Prisma staging schema: `MigrationBatch` + `StagingCustomer/Vendor/Product/Quote` with status enums; migration `20260620042705_add_migration_staging`
+- Created `libs/migration` — extract (CSV/JSON), transform + conflict detection, load (staging upsert), reconcile (report), promote (staging→prod), rollback, runner orchestrator
+- Dependency-free RFC-4180-style CSV parser (quoted fields, escaped quotes, embedded newlines)
+- Built `scripts/migrate.ts` CLI (`run`/`ingest`/`reconcile`/`promote`/`rollback`) + npm scripts; report artifacts to `migration-output/` (gitignored)
+- Sample legacy data in `data/legacy-samples/` (deliberate conflicts: missing fields, duplicate sourceId)
+- 18 tests passing: unit (transform/conflict/CSV) + integration ETL (ingest→reconcile→promote→idempotency→rollback) against Docker DB
+- Dry-ran full CLI against samples (promote +2 cust/+2 vend/+3 prod, 2 quotes held; rollback clean); cleaned dry-run data
+- Docs: `docs/migration-expected-schema.md`, `docs/migration-cutover-runbook.md`, `docs/migration-rollback-procedure.md`
+- Updated MEMORY.md, README.md, build prompts doc (Phase 2 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 2 — Data Migration & Legacy Cutover** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 3 — Finance & Accounting Core** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 2. Site provisioning API still deferred (field SOP Section 4)
 
 ---
@@ -46,11 +47,13 @@ _None — ready for Phase 2._
 
 - Site provisioning API deferred to Phase 1+ (documented in field SOP and MEMORY.md)
 - `npm run prisma:seed` script JSON quoting may fail on PowerShell — use `npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' libs/shared/database/prisma/seed.ts`
+- Quotes + inventory balances are staged but NOT promoted — pick up when Phase 6 (CPQ) / Phase 5 (WMS) land
 
 ---
 
 ## Session Notes
 
-- EventBusModule marked `global: true` so masterdata services can inject `EVENT_BUS`
-- Refresh tokens now include `jti` to prevent hash collisions on rapid login
-- MasterdataLogSubscriber skipped in test env (`SKIP_MASTERDATA_EVENT_LOG`)
+- Migration idempotency: load skips re-writing rows already `PROMOTED`; products promote via SKU upsert
+- Logical rollback deletes only batch-created rows (via `staging.promotedId`); full restore path documented for overlapping SKUs / heavy post-cutover activity
+- Windows: Prisma `generate` can EPERM-lock if stale `node` processes hold the engine DLL — stop them and retry
+- PowerShell has no heredoc; use `prisma db execute --file` for ad-hoc SQL
