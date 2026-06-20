@@ -32,7 +32,7 @@ export function MesPlacardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold">Work Order Placard</h2>
+        <h2 className="text-2xl font-semibold" data-tour="mes-placard-header">Work Order Placard</h2>
         <p className="text-sm text-muted-foreground">
           Printable traveler with scannable barcode.
         </p>

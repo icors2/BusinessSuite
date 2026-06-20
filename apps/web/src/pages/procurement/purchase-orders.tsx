@@ -107,7 +107,7 @@ export function PurchaseOrdersPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold">Purchase Orders</h1>
+        <h1 className="text-2xl font-semibold" data-tour="procurement-po-header">Purchase Orders</h1>
         <p className="text-sm text-muted-foreground">
           Convert approved requisitions into POs and manage vendor intake
         </p>

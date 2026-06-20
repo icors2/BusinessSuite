@@ -41,7 +41,7 @@ export function AnalyticsBottlenecksPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Production Bottlenecks</h2>
+        <h2 className="text-2xl font-bold" data-tour="analytics-bottlenecks-header">Production Bottlenecks</h2>
         <p className="text-sm text-muted-foreground">
           WIP accumulation by workstation — near-real-time from MES operations
         </p>

@@ -49,7 +49,7 @@ export function QmsInspectionPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h2 className="text-3xl font-semibold">Quality Inspection</h2>
+      <h2 className="text-3xl font-semibold" data-tour="qms-inspection-header">Quality Inspection</h2>
       {message && <p className="text-lg text-green-700">{message}</p>}
 
       <Card>

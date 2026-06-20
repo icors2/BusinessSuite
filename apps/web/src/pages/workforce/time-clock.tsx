@@ -74,7 +74,7 @@ export function TimeClockPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold">Time Clock</h2>
+        <h2 className="text-3xl font-bold" data-tour="workforce-clock-header">Time Clock</h2>
         <p className="text-muted-foreground">
           Tap your name or scan your badge to clock in or out.
         </p>

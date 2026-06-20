@@ -40,7 +40,7 @@ export function LaborCostPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold">Labor Cost Roll-up</h2>
+        <h2 className="text-2xl font-semibold" data-tour="workforce-labor-header">Labor Cost Roll-up</h2>
         <p className="text-sm text-muted-foreground">
           Labor cost by work order and department for closed time entries.
         </p>

@@ -45,7 +45,7 @@ export function AccountsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Chart of Accounts</h2>
+          <h2 className="text-2xl font-bold" data-tour="finance-accounts-header">Chart of Accounts</h2>
           <p className="text-sm text-muted-foreground">
             General ledger account codes and types
           </p>

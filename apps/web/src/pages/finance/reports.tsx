@@ -25,7 +25,7 @@ export function ReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Financial Reports</h2>
+        <h2 className="text-2xl font-bold" data-tour="finance-reports-header">Financial Reports</h2>
         <p className="text-sm text-muted-foreground">
           Profit &amp; Loss and Balance Sheet from posted journal entries
         </p>

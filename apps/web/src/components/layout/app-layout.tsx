@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { clearSession, getSession } from '../../lib/auth';
-import { cn } from '../../lib/utils';
+import { TutorialLauncher } from '../../features/tutorial/tutorial-launcher';
 
 const navItems = [
   { to: '/products', label: 'Products' },
@@ -61,9 +61,12 @@ export function AppLayout() {
               {session?.email} · {session?.roles.join(', ')}
             </p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            Sign out
-          </Button>
+          <div className="flex items-center gap-2">
+            <TutorialLauncher />
+            <Button variant="outline" onClick={handleLogout}>
+              Sign out
+            </Button>
+          </div>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 px-6 pb-3">
           {navItems.map((item) => (
@@ -84,7 +87,7 @@ export function AppLayout() {
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-6 py-8" data-tour="main-content">
         <Outlet />
       </main>
     </div>

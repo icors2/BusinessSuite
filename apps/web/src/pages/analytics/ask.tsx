@@ -50,7 +50,7 @@ export function AnalyticsAskPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Ask Analytics</h2>
+        <h2 className="text-2xl font-bold" data-tour="analytics-ask-header">Ask Analytics</h2>
         <p className="text-sm text-muted-foreground">
           Deterministic natural-language queries over ingested data
         </p>

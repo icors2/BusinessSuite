@@ -27,7 +27,7 @@ export function VendorScorecardPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold">Vendor Scorecard</h1>
+        <h1 className="text-2xl font-semibold" data-tour="procurement-scorecard-header">Vendor Scorecard</h1>
         <p className="text-sm text-muted-foreground">
           On-time delivery and quantity accuracy by vendor
         </p>

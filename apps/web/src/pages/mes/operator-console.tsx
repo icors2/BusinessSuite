@@ -69,7 +69,7 @@ export function MesOperatorConsolePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold">Operator Console</h2>
+        <h2 className="text-3xl font-bold" data-tour="mes-operator-header">Operator Console</h2>
         <p className="text-muted-foreground">
           Start and stop operations at your workstation.
         </p>

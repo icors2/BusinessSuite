@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
-async function main(): Promise<void> {
+export async function seedMain(): Promise<void> {
   const adminRole = await prisma.role.upsert({
     where: { name: 'Admin' },
     update: {},
@@ -1610,11 +1610,17 @@ async function seedAnalytics(client: PrismaClient): Promise<void> {
   }
 }
 
-main()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const isDirectRun =
+  typeof require !== 'undefined' &&
+  require.main === module;
+
+if (isDirectRun) {
+  seedMain()
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

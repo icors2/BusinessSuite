@@ -88,7 +88,7 @@ export function ProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Products</h2>
+          <h2 className="text-2xl font-bold" data-tour="products-header">Products</h2>
           <p className="text-sm text-muted-foreground">
             Manage product master data
           </p>

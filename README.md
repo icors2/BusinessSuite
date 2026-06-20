@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — **all phases complete** (Phase 17 Training, UAT & Change Management).
+Integrated manufacturing operations platform — **Phase 18 Demo & Tutorial** on the `demo` branch.
 
 ## Prerequisites
 
@@ -423,6 +423,21 @@ Role-based user guides, persona onboarding, UAT scripts, support process, and si
 | Support & feedback process | [docs/support/support-feedback-process.md](docs/support/support-feedback-process.md) |
 | Tickets log (sample ticket) | [docs/support/tickets-log.md](docs/support/tickets-log.md) |
 
+## Demo environment (Phase 18 — `demo` branch)
+
+Full-stack Docker with preloaded demo data and in-app tutorials:
+
+| Resource | Location |
+|----------|----------|
+| Demo quick start | [docs/demo/README.md](docs/demo/README.md) |
+| Demo data catalog | [docs/demo/demo-data-catalog.md](docs/demo/demo-data-catalog.md) |
+| Compose file | [docker-compose.demo.yml](docker-compose.demo.yml) |
+
+```bash
+docker compose -f docker-compose.demo.yml up --build -d
+# Web: http://localhost:8080
+```
+
 ## Backup & restore
 
 See [docs/backup-restore-runbook.md](docs/backup-restore-runbook.md).
@@ -461,4 +476,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 15 status:** Complete  
 **Phase 16 status:** Complete  
 **Phase 17 status:** Complete  
-**Build status:** All phases (0–17) complete
+**Phase 18 status:** Complete (demo branch)  
+**Build status:** Phases 0–18 complete on `demo` branch

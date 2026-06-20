@@ -62,7 +62,7 @@ export function CmmsAssetsPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Maintenance Assets</h2>
+      <h2 className="text-2xl font-semibold" data-tour="cmms-assets-header">Maintenance Assets</h2>
       {message && <p className="text-sm text-green-700">{message}</p>}
 
       <div className="grid gap-4">

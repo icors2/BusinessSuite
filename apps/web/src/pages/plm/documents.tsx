@@ -206,7 +206,7 @@ export function DocumentsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Documents</h2>
+        <h2 className="text-2xl font-bold" data-tour="plm-documents-header">Documents</h2>
         <p className="text-sm text-muted-foreground">
           Product lifecycle documents with immutable revision history
         </p>

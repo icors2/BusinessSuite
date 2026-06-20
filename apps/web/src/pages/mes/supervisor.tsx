@@ -77,7 +77,7 @@ export function MesSupervisorPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold">Supervisor Floor Dashboard</h2>
+        <h2 className="text-2xl font-semibold" data-tour="mes-supervisor-header">Supervisor Floor Dashboard</h2>
         <p className="text-sm text-muted-foreground">
           Live MES feed {connected ? '(connected)' : '(connecting…)'}
         </p>

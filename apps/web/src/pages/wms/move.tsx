@@ -49,7 +49,7 @@ export function WmsMovePage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">Move / Put-away</h2>
+        <h2 className="text-3xl font-bold" data-tour="wms-move-header">Move / Put-away</h2>
         <p className="text-muted-foreground">
           Scan from-bin, SKU, qty, then to-bin
         </p>

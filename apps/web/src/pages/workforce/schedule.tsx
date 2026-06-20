@@ -106,7 +106,7 @@ export function WorkforceSchedulePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold">Workforce Schedule</h2>
+        <h2 className="text-2xl font-semibold" data-tour="workforce-schedule-header">Workforce Schedule</h2>
         <p className="text-sm text-muted-foreground">
           Assign shifts, review coverage gaps, and mark employee unavailability.
         </p>

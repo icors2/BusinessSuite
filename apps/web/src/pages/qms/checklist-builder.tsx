@@ -53,7 +53,7 @@ export function QmsChecklistBuilderPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Inspection Checklist Builder</h2>
+      <h2 className="text-2xl font-semibold" data-tour="qms-builder-header">Inspection Checklist Builder</h2>
       {message && <p className="text-sm text-green-700">{message}</p>}
 
       <Card>

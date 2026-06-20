@@ -106,7 +106,7 @@ export function WmsInventoryPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">Inventory lookup</h2>
+        <h2 className="text-3xl font-bold" data-tour="wms-inventory-header">Inventory lookup</h2>
         <p className="text-muted-foreground">
           Search by product SKU, bin code, or location code
         </p>

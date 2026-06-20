@@ -57,7 +57,7 @@ export function WmsPickPage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">Pick / Ship</h2>
+        <h2 className="text-3xl font-bold" data-tour="wms-pick-header">Pick / Ship</h2>
         <p className="text-muted-foreground">
           Scan bin and SKU — pick respects available qty
         </p>

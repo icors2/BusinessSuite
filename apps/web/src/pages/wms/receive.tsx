@@ -66,7 +66,7 @@ export function WmsReceivePage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <h2 className="text-3xl font-bold">Receive</h2>
+        <h2 className="text-3xl font-bold" data-tour="wms-receive-header">Receive</h2>
         <p className="text-muted-foreground">Scan bin, SKU, enter quantity</p>
       </div>
 

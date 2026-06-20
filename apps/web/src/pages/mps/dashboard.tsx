@@ -85,7 +85,7 @@ export function MpsDashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Master Production Schedule</h2>
+          <h2 className="text-2xl font-bold" data-tour="mps-dashboard-header">Master Production Schedule</h2>
           <p className="text-sm text-muted-foreground">
             Demand aggregation, capacity planning, and work order scheduling
           </p>

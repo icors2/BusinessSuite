@@ -1,0 +1,90 @@
+# Demo stack — full Business Suite with preloaded demo data
+# Usage: docker compose -f docker-compose.demo.yml up -d
+# Web UI: http://localhost:8080
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: anc-demo-postgres
+    environment:
+      POSTGRES_USER: anc
+      POSTGRES_PASSWORD: anc
+      POSTGRES_DB: anc_suite
+    volumes:
+      - demo_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U anc -d anc_suite']
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    container_name: anc-demo-redis
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: anc-demo-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - demo_minio_data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api.demo
+    image: ghcr.io/icors2/businesssuite-api:demo
+    container_name: anc-demo-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://anc:anc@postgres:5432/anc_suite?schema=public
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: anc-suite
+      MINIO_USE_SSL: 'false'
+      JWT_ACCESS_SECRET: demo-access-secret-change-in-production
+      JWT_REFRESH_SECRET: demo-refresh-secret-change-in-production
+      SKIP_DEMO_SEED: 'false'
+    ports:
+      - '3000:3000'
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web.demo
+    image: ghcr.io/icors2/businesssuite-web:demo
+    container_name: anc-demo-web
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '8080:80'
+
+volumes:
+  demo_postgres_data:
+  demo_minio_data:

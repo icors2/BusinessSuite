@@ -836,6 +836,23 @@ performed once Phases 1–16 are substantially feature-complete.
 
 ---
 
+## Phase 18 — Demo & Tutorial ✅ COMPLETE
+
+**Prompt:**
+```
+Phase 18 (demo branch only): comprehensive demo seed data, full-stack Docker
+stack with preloaded data, GHCR-published images, and in-app interactive
+tutorials (driver.js) for all 14 modules.
+```
+
+**Definition of Done:**
+- [x] `seed-demo.ts` with end-to-end cross-module demo scenarios + catalog
+- [x] `docker-compose.demo.yml` + API/Web demo Dockerfiles + GHCR workflow
+- [x] Interactive tutorials at `/tutorials` for all 14 modules
+- [x] Long-lived `demo` branch; docs in `docs/demo/`
+
+---
+
 ## Foundational Tech Strategy (reference, unchanged from the roadmap)
 - Backend: Node.js (NestJS) Modular Monolith.
 - Database: PostgreSQL (System of Record), Redis (Real-time/Event Bus), MinIO (Object Storage).

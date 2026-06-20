@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | **All phases complete (0–17)** — Training guides, UAT scripts, onboarding, support process, sign-off tracker |
+| **Repo status** | **Phase 18 complete on `demo` branch** — E2E demo seed, Docker/GHCR stack, interactive tutorials |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,20 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — build complete (Phases 0–17) |
+| **Active phase** | None — Phase 18 complete on `demo` branch |
 | **Next phase** | None |
 | **Last updated** | 2026-06-19 |
+
+### Phase 18 Definition of Done
+
+- [x] `seed-demo.ts` + `seed-helpers.ts` — cross-module demo scenarios (see `docs/demo/demo-data-catalog.md`)
+- [x] `npm run prisma:seed:demo`; demo Docker entrypoint runs migrate + seed-demo
+- [x] `docker-compose.demo.yml`, `Dockerfile.api.demo`, `Dockerfile.web.demo`, GHCR workflow
+- [x] driver.js tutorials — 14 modules, `/tutorials` hub, `data-tour` page anchors
+- [x] `seed-demo.integration.spec.ts`; docs in `docs/demo/`
+- [x] Long-lived `demo` branch; GitHub label `demo`
+
+**Decisions:** Demo work on `demo` branch only (main production-focused); GHCR images `ghcr.io/icors2/businesssuite-{api,web}:demo`; base `seed.ts` unchanged for CI; demo seed calls `seedMain()` then enriches.
 
 ### Phase 17 Definition of Done
 
@@ -464,6 +475,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 15 | Returns & RMA management | **Complete** |
 | 16 | Analytics & AI | **Complete** |
 | 17 | Training, UAT & change management | **Complete** |
+| 18 | Demo & tutorial (`demo` branch) | **Complete** |
 
 ---
 

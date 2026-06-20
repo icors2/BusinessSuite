@@ -100,7 +100,7 @@ export function ReturnsQueuePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Returns & RMA</h2>
+        <h2 className="text-2xl font-bold" data-tour="returns-queue-header">Returns & RMA</h2>
         <p className="text-sm text-muted-foreground">
           Request, approve, receive, and resolve customer returns
         </p>

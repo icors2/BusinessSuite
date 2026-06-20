@@ -27,7 +27,7 @@ export function AnalyticsForecastPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Inventory Forecast</h2>
+          <h2 className="text-2xl font-bold" data-tour="analytics-forecast-header">Inventory Forecast</h2>
           <p className="text-sm text-muted-foreground">
             Batch-computed depletion and reorder projections (MRP linkage advisory)
           </p>

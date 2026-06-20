@@ -59,7 +59,7 @@ export function CmmsWorkOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Maintenance Work Orders</h2>
+      <h2 className="text-2xl font-semibold" data-tour="cmms-wo-header">Maintenance Work Orders</h2>
       {message && <p className="text-sm text-green-700">{message}</p>}
 
       <div className="flex items-center gap-2">

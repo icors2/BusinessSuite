@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from '../components/layout/app-layout';
+import { TutorialProvider } from '../features/tutorial/tutorial-provider';
 import { getSession } from '../lib/auth';
 import { CustomersPage } from '../pages/customers';
 import { LoginPage } from '../pages/login';
@@ -41,6 +42,7 @@ import { AnalyticsForecastPage } from '../pages/analytics/forecast';
 import { WorkforceSchedulePage } from '../pages/workforce/schedule';
 import { TimeClockPage } from '../pages/workforce/time-clock';
 import { LaborCostPage } from '../pages/workforce/labor-cost';
+import { TutorialsPage } from '../pages/tutorials';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -52,7 +54,8 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
 export function App() {
   return (
-    <Routes>
+    <TutorialProvider>
+      <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/"
@@ -102,9 +105,11 @@ export function App() {
         <Route path="analytics/ask" element={<AnalyticsAskPage />} />
         <Route path="analytics/bottlenecks" element={<AnalyticsBottlenecksPage />} />
         <Route path="analytics/forecast" element={<AnalyticsForecastPage />} />
+        <Route path="tutorials" element={<TutorialsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>
+    </TutorialProvider>
   );
 }
 

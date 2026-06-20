@@ -28,7 +28,7 @@ export function AnalyticsDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+        <h2 className="text-2xl font-bold" data-tour="analytics-dashboard-header">Analytics Dashboard</h2>
         <p className="text-sm text-muted-foreground">
           Cross-module metrics from ingested events and operational data
         </p>
