@@ -12,6 +12,10 @@ const navItems = [
   { to: '/finance/bills', label: 'Bills' },
   { to: '/finance/reports', label: 'Reports' },
   { to: '/plm/documents', label: 'Documents' },
+  { to: '/wms/receive', label: 'Receive' },
+  { to: '/wms/move', label: 'Move' },
+  { to: '/wms/pick', label: 'Pick' },
+  { to: '/wms/inventory', label: 'Inventory' },
 ];
 
 export function AppLayout() {

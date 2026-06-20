@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 4 complete — PLM documents, MinIO storage, revision lifecycle, Documents UI |
+| **Repo status** | Phase 5 complete — WMS locations/bins, inventory movements, scan-driven warehouse UI |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,21 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 4 complete |
-| **Next phase** | **Phase 5 — WMS (Inventory)** |
+| **Active phase** | None — Phase 5 complete |
+| **Next phase** | **Phase 6 — CRM & CPQ (Sales)** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 5 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 5](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-5--wms-inventory--complete)
+
+- [x] Prisma schema: Location, Bin, InventoryQuantity, InventoryMovement, MovementType enum; Product back-relation
+- [x] `libs/wms` — LocationService + InventoryService (receive/move/pick/ship/adjust/allocate/deallocate)
+- [x] available = onHand - allocated; negative inventory rejected unless `allowNegative` override
+- [x] tRPC `inventory` router for movements and lookups by product/bin/location
+- [x] Tablet-optimized WMS UI: ScanInput, receive/move/pick flows, inventory lookup (no offline PWA)
+- [x] Events: `wms.inventory.received`, `wms.inventory.moved`, `wms.inventory.shipped`, `wms.inventory.adjusted`
+- [x] Unit + integration tests (movement math, allocate+pick, negative guard, Viewer block)
 
 ### Phase 4 Definition of Done
 
@@ -112,6 +124,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Storage lib | `libs/shared/storage` | Created (Phase 4) |
 | Documents REST controller | `apps/api/src/app/documents.controller.ts` | Created (Phase 4) |
 | PLM UI | `apps/web/src/pages/plm/documents.tsx` | Created (Phase 4) |
+| WMS lib | `libs/wms` | Created (Phase 5) |
+| WMS UI | `apps/web/src/pages/wms/*` | Created (Phase 5) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -123,7 +137,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Shared auth lib | `libs/shared/auth` | Created |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM) |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM, WMS) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
 | Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
@@ -161,6 +175,9 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Object key scheme | **`documents/{documentId}/{revisionId}-{filename}`** | 4 | Uploads never overwrite; each revision gets a new key |
 | Document revision immutability | **Never delete revisions** | 4 | New upload = new DocumentRevision row + new MinIO object |
 | Single released revision | **Auto-obsolete prior Released** | 4 | Enforced in `DocumentService.transitionStatus` |
+| Inventory source of truth | **Services-only writes to InventoryQuantity** | 5 | Movements append-only in InventoryMovement |
+| Available quantity | **onHand - allocated (computed, not stored)** | 5 | Enforced in `InventoryService`; pick guards available |
+| Negative inventory | **Explicit allowNegative override only** | 5 | Default rejects negative onHand/available |
 
 ---
 
@@ -230,7 +247,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 2 | Data migration & legacy cutover | **Complete** |
 | 3 | Finance & accounting | **Complete** |
 | 4 | PLM & documents | **Complete** |
-| 5 | WMS — inventory | Not started |
+| 5 | WMS — inventory | **Complete** |
 | 6 | CRM & CPQ — sales | Not started |
 | 7 | Sales order management & fulfillment | Not started |
 | 8 | MPS — production scheduling | Not started |
@@ -275,6 +292,10 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `plm.document.uploaded` | plm | 4 | `{ documentId, revisionId, revisionNumber, fileName, productId }` |
 | `plm.document.revised` | plm | 4 | `{ documentId, revisionId, revisionNumber, fileName, productId }` |
 | `plm.document.released` | plm | 4 | `{ documentId, revisionId, revisionNumber, productId }` |
+| `wms.inventory.received` | wms | 5 | `{ productId, binId, quantity, sku, binCode }` |
+| `wms.inventory.moved` | wms | 5 | `{ productId, fromBinId?, toBinId?, binId?, quantity }` |
+| `wms.inventory.shipped` | wms | 5 | `{ productId, binId, quantity }` |
+| `wms.inventory.adjusted` | wms | 5 | `{ productId, binId, quantityDelta, reasonCode }` |
 
 ---
 

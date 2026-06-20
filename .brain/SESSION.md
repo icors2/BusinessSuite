@@ -12,37 +12,36 @@
 
 ## Current Focus
 
-Phase 4 — PLM & Documents **complete**.
+Phase 5 — WMS (Inventory) **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 5 (WMS / Inventory)._
+_None — ready for Phase 6 (CRM & CPQ)._
 
 ---
 
 ## Recent Progress
 
-- Prisma PLM schema: Document, DocumentRevision, DocumentStatus; migration `20260620045930_add_plm_documents`
-- Created `libs/shared/storage` — StorageService (MinIO/S3 wrapper, ensureBucket/putObject/getObject/objectKeyFor)
-- Created `libs/plm` — DocumentService, revision state machine, single-Released rule, EVENTS.md
-- tRPC `document` router; REST DocumentsController (multipart upload + streamed download)
-- PLM UI at `/plm/documents` — product picker, revision history, preview, editor-gated upload/transitions
-- Seed: sample Document + DRAFT revision on SKU-001 (metadata only)
-- 4 plm unit tests + 4 plm integration tests (MinIO byte-for-byte, lifecycle, Viewer block); full suite green (11 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 4 ✅ COMPLETE)
+- Prisma WMS schema: Location, Bin, InventoryQuantity, InventoryMovement; migration `20260620052509_add_wms_inventory`
+- Created `libs/wms` — LocationService, InventoryService (receive/move/pick/ship/adjust/allocate/deallocate), available math, negative guard, EVENTS.md
+- tRPC `inventory` router; WmsModule wired in API
+- Tablet-optimized WMS UI: ScanInput + receive/move/pick/inventory pages at `/wms/*`
+- Seed: MAIN location, bins A-01-01/A-01-02, on-hand 100/50 for SKU-001/SKU-002
+- 5 wms unit tests + 6 wms integration tests; full suite green (12 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 5 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 5 — WMS (Inventory)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 6 — CRM & CPQ (Sales)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- StorageModule APP_CONFIG token moved to `storage.constants.ts` to avoid circular import with StorageService
-- REST for binary, tRPC for metadata matches Phase 1+ API split
-- Integration tests require Postgres + MinIO (docker compose up)
+- Pick guards on available (onHand - allocated); `allowNegative` override for explicit negative inventory
+- Allocate/deallocate endpoints added now; Phase 7 will drive allocation via events
+- UI is responsive/tablet-optimized scan flows (no offline PWA)

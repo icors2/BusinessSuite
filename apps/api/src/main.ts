@@ -16,6 +16,7 @@ import {
   ReportService,
 } from 'finance';
 import { DocumentService } from 'plm';
+import { InventoryService, LocationService } from 'wms';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -35,6 +36,8 @@ async function bootstrap() {
   const paymentService = app.get(PaymentService);
   const reportService = app.get(ReportService);
   const documentService = app.get(DocumentService);
+  const inventoryService = app.get(InventoryService);
+  const locationService = app.get(LocationService);
 
   const appRouter = createAppRouter({
     productService,
@@ -47,6 +50,8 @@ async function bootstrap() {
     paymentService,
     reportService,
     documentService,
+    inventoryService,
+    locationService,
   });
 
   app.use(

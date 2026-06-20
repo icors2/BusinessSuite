@@ -18,6 +18,7 @@ module.exports = {
     '^masterdata$': '<rootDir>/../../libs/masterdata/src/index.ts',
     '^finance$': '<rootDir>/../../libs/finance/src/index.ts',
     '^plm$': '<rootDir>/../../libs/plm/src/index.ts',
+    '^wms$': '<rootDir>/../../libs/wms/src/index.ts',
     '^storage$': '<rootDir>/../../libs/shared/storage/src/index.ts',
     '^trpc$': '<rootDir>/../../libs/trpc/src/index.ts',
   },

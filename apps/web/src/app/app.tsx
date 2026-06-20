@@ -10,6 +10,10 @@ import { InvoicesPage } from '../pages/finance/invoices';
 import { BillsPage } from '../pages/finance/bills';
 import { ReportsPage } from '../pages/finance/reports';
 import { DocumentsPage } from '../pages/plm/documents';
+import { WmsReceivePage } from '../pages/wms/receive';
+import { WmsMovePage } from '../pages/wms/move';
+import { WmsPickPage } from '../pages/wms/pick';
+import { WmsInventoryPage } from '../pages/wms/inventory';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -40,6 +44,10 @@ export function App() {
         <Route path="finance/bills" element={<BillsPage />} />
         <Route path="finance/reports" element={<ReportsPage />} />
         <Route path="plm/documents" element={<DocumentsPage />} />
+        <Route path="wms/receive" element={<WmsReceivePage />} />
+        <Route path="wms/move" element={<WmsMovePage />} />
+        <Route path="wms/pick" element={<WmsPickPage />} />
+        <Route path="wms/inventory" element={<WmsInventoryPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

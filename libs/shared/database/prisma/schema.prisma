@@ -62,19 +62,111 @@ model AuditLog {
 }
 
 model Product {
-  id            String     @id @default(uuid())
-  sku           String     @unique
+  id            String              @id @default(uuid())
+  sku           String              @unique
   description   String
   unitOfMeasure String
   category      String?
-  active        Boolean    @default(true)
+  active        Boolean             @default(true)
   deletedAt     DateTime?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
   documents     Document[]
+  inventory     InventoryQuantity[]
+  movements     InventoryMovement[]
 
   @@index([active])
   @@index([category])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 5 — WMS (Inventory)
+//
+// Locations and bins hold per-product quantities. Movements are append-only;
+// on-hand and allocated are updated transactionally. available = onHand - allocated.
+// ---------------------------------------------------------------------------
+
+enum MovementType {
+  RECEIPT
+  PUTAWAY
+  PICK
+  SHIP
+  ADJUST
+  ALLOCATE
+  DEALLOCATE
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  type      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bins Bin[]
+
+  @@index([active])
+}
+
+model Bin {
+  id          String   @id @default(uuid())
+  locationId  String
+  code        String   @unique
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location           Location            @relation(fields: [locationId], references: [id])
+  inventory          InventoryQuantity[]
+  movementsAt        InventoryMovement[] @relation("MovementBin")
+  movementsFrom      InventoryMovement[] @relation("MovementFromBin")
+  movementsTo        InventoryMovement[] @relation("MovementToBin")
+
+  @@index([locationId])
+  @@index([active])
+}
+
+model InventoryQuantity {
+  id        String   @id @default(uuid())
+  productId String
+  binId     String
+  onHand    Decimal  @default(0) @db.Decimal(18, 4)
+  allocated Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+  bin     Bin     @relation(fields: [binId], references: [id])
+
+  @@unique([productId, binId])
+  @@index([productId])
+  @@index([binId])
+}
+
+model InventoryMovement {
+  id          String       @id @default(uuid())
+  type        MovementType
+  productId   String
+  binId       String?
+  fromBinId   String?
+  toBinId     String?
+  quantity    Decimal      @db.Decimal(18, 4)
+  reasonCode  String?
+  note        String?
+  createdById String?
+  createdAt   DateTime     @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+  bin     Bin?    @relation("MovementBin", fields: [binId], references: [id], onDelete: SetNull)
+  fromBin Bin?    @relation("MovementFromBin", fields: [fromBinId], references: [id], onDelete: SetNull)
+  toBin   Bin?    @relation("MovementToBin", fields: [toBinId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([type])
+  @@index([createdAt])
 }
 
 // ---------------------------------------------------------------------------

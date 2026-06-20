@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 4 PLM & Documents complete.
+Integrated manufacturing operations platform — Phase 5 WMS (Inventory) complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 4 PLM & Documents complet
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products, customer, vendor), finance seed data (Chart of Accounts, sample AR/AP), and a sample PLM document (metadata-only DRAFT revision on SKU-001) are seeded after migration.
+Sample master data (products, customer, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), and WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002) are seeded after migration.
 
 ## API endpoints
 
@@ -117,6 +117,14 @@ Immutable revision history; status flow Draft → In Review → Released → Obs
 | Router | Procedures |
 |--------|------------|
 | `document` | create, get, listByProduct, revisions, transition |
+
+### tRPC (WMS — Phase 5)
+
+Inventory movements and lookups; `available = onHand - allocated`.
+
+| Router | Procedures |
+|--------|------------|
+| `inventory` | createLocation, listLocations, createBin, listBins, receive, move, pick, ship, adjust, allocate, deallocate, byProduct, byBin, byLocation |
 
 ## Data migration (Phase 2)
 
@@ -189,6 +197,7 @@ libs/trpc         tRPC init, JWT context, composed AppRouter
 libs/migration    Legacy ETL: extract/transform/load/reconcile/promote/rollback
 libs/finance      Chart of Accounts, journal entries, AR/AP, payments, reports
 libs/plm          Document control, revision lifecycle, PLM events
+libs/wms          Locations, bins, inventory quantities, movements
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -225,4 +234,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 2 status:** Complete  
 **Phase 3 status:** Complete  
 **Phase 4 status:** Complete  
-**Next phase:** Phase 5 — WMS (Inventory)
+**Phase 5 status:** Complete  
+**Next phase:** Phase 6 — CRM & CPQ (Sales)

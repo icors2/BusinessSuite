@@ -129,6 +129,69 @@ async function main(): Promise<void> {
     }
   }
 
+  const mainLocation = await prisma.location.upsert({
+    where: { code: 'MAIN' },
+    update: {},
+    create: {
+      code: 'MAIN',
+      name: 'Main Warehouse',
+      type: 'warehouse',
+    },
+  });
+
+  const binA01 = await prisma.bin.upsert({
+    where: { code: 'A-01-01' },
+    update: {},
+    create: {
+      locationId: mainLocation.id,
+      code: 'A-01-01',
+      description: 'Aisle A, Rack 1, Level 1',
+    },
+  });
+
+  const binA02 = await prisma.bin.upsert({
+    where: { code: 'A-01-02' },
+    update: {},
+    create: {
+      locationId: mainLocation.id,
+      code: 'A-01-02',
+      description: 'Aisle A, Rack 1, Level 2',
+    },
+  });
+
+  const product1 = await prisma.product.findUnique({ where: { sku: 'SKU-001' } });
+  const product2 = await prisma.product.findUnique({ where: { sku: 'SKU-002' } });
+
+  if (product1) {
+    await prisma.inventoryQuantity.upsert({
+      where: {
+        productId_binId: { productId: product1.id, binId: binA01.id },
+      },
+      update: { onHand: 100, allocated: 0 },
+      create: {
+        productId: product1.id,
+        binId: binA01.id,
+        onHand: 100,
+        allocated: 0,
+      },
+    });
+  }
+
+  if (product2) {
+    await prisma.inventoryQuantity.upsert({
+      where: {
+        productId_binId: { productId: product2.id, binId: binA02.id },
+      },
+      update: { onHand: 50, allocated: 0 },
+      create: {
+        productId: product2.id,
+        binId: binA02.id,
+        onHand: 50,
+        allocated: 0,
+      },
+    });
+  }
+
   const customer = await prisma.customer.findFirst({
     where: { name: 'Acme Manufacturing', deletedAt: null },
   });

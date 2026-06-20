@@ -7,9 +7,11 @@ import {
   ReportService,
 } from 'finance';
 import { DocumentService } from 'plm';
+import { InventoryService, LocationService } from 'wms';
 import { createAccountRouter } from './routers/account.router';
 import { createBillRouter } from './routers/bill.router';
 import { createDocumentRouter } from './routers/document.router';
+import { createInventoryRouter } from './routers/inventory.router';
 import { createInvoiceRouter } from './routers/invoice.router';
 import { createJournalRouter } from './routers/journal.router';
 import { createReportRouter } from './routers/report.router';
@@ -34,6 +36,8 @@ export interface AppRouterDependencies {
   paymentService: PaymentService;
   reportService: ReportService;
   documentService: DocumentService;
+  inventoryService: InventoryService;
+  locationService: LocationService;
 }
 
 export function createAppRouter(deps: AppRouterDependencies) {
@@ -47,6 +51,10 @@ export function createAppRouter(deps: AppRouterDependencies) {
     bill: createBillRouter(deps.billService, deps.paymentService),
     report: createReportRouter(deps.reportService),
     document: createDocumentRouter(deps.documentService),
+    inventory: createInventoryRouter(
+      deps.inventoryService,
+      deps.locationService,
+    ),
   });
 }
 

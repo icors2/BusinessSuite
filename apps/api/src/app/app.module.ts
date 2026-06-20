@@ -9,6 +9,7 @@ import { MasterdataModule } from 'masterdata';
 import { FinanceModule } from 'finance';
 import { PlmModule } from 'plm';
 import { StorageModule } from 'storage';
+import { WmsModule } from 'wms';
 import { AppController } from './app.controller';
 import { DocumentsController } from './documents.controller';
 
@@ -25,6 +26,7 @@ const config = loadAppConfig();
     MasterdataModule,
     FinanceModule,
     PlmModule,
+    WmsModule,
   ],
   controllers: [AppController, DocumentsController],
 })
