@@ -4,8 +4,8 @@ import {
   useImperativeHandle,
   useRef,
 } from 'react';
-import { Input } from './input';
-import { Label } from './label';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 export interface ScanInputHandle {
   focus: () => void;
