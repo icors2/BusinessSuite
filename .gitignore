@@ -31,8 +31,8 @@ libs/shared/database/src/generated/
 
 # Backups
 backups/
-*.sql
 *.sql.gpg
+!libs/shared/database/prisma/migrations/**/*.sql
 
 # Docker
 .docker/
