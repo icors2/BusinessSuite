@@ -251,6 +251,7 @@ async function main(): Promise<void> {
   await seedCpq(prisma, customerId);
   await seedSales(prisma, customerId);
   await seedMps(prisma);
+  await seedMrp(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -834,6 +835,113 @@ async function seedMps(client: PrismaClient): Promise<void> {
         ),
       ).padStart(2, '0')}`,
       demandRefs: [salesLine.id],
+    },
+  });
+}
+
+/** Phase 9 — BOM, procurement types, and sample MRP data. */
+async function seedMrp(client: PrismaClient): Promise<void> {
+  const assembly = await client.product.findUnique({
+    where: { sku: 'SKU-001' },
+  });
+  const buyComponent = await client.product.findUnique({
+    where: { sku: 'SKU-002' },
+  });
+  if (!assembly || !buyComponent) return;
+
+  const existingBom = await client.billOfMaterials.findUnique({
+    where: { productId: assembly.id },
+  });
+  if (existingBom) return;
+
+  const vendor = await client.vendor.findFirst({
+    where: { name: 'Global Supplies Co', deletedAt: null },
+  });
+  if (!vendor) return;
+
+  await client.vendor.update({
+    where: { id: vendor.id },
+    data: { leadTimeDays: 14 },
+  });
+
+  await client.product.update({
+    where: { id: assembly.id },
+    data: { procurementType: 'MAKE' },
+  });
+
+  let subAsm = await client.product.findUnique({
+    where: { sku: 'SKU-SUB-001' },
+  });
+  if (!subAsm) {
+    subAsm = await client.product.create({
+      data: {
+        sku: 'SKU-SUB-001',
+        description: 'Widget A sub-assembly',
+        unitOfMeasure: 'EA',
+        procurementType: 'MAKE',
+      },
+    });
+  }
+
+  await client.product.update({
+    where: { id: buyComponent.id },
+    data: {
+      procurementType: 'BUY',
+      leadTimeDays: 7,
+      preferredVendorId: vendor.id,
+    },
+  });
+
+  let buyFastener = await client.product.findUnique({
+    where: { sku: 'SKU-FAST-001' },
+  });
+  if (!buyFastener) {
+    buyFastener = await client.product.create({
+      data: {
+        sku: 'SKU-FAST-001',
+        description: 'Mounting fastener kit',
+        unitOfMeasure: 'EA',
+        procurementType: 'BUY',
+        leadTimeDays: 3,
+        preferredVendorId: vendor.id,
+      },
+    });
+  }
+
+  await client.billOfMaterials.create({
+    data: {
+      productId: subAsm.id,
+      active: true,
+      lines: {
+        create: [
+          {
+            componentProductId: buyComponent.id,
+            quantityPer: 2,
+            scrapFactor: 0.05,
+          },
+        ],
+      },
+    },
+  });
+
+  await client.billOfMaterials.create({
+    data: {
+      productId: assembly.id,
+      active: true,
+      lines: {
+        create: [
+          {
+            componentProductId: subAsm.id,
+            quantityPer: 1,
+            scrapFactor: 0,
+          },
+          {
+            componentProductId: buyFastener.id,
+            quantityPer: 4,
+            scrapFactor: 0.1,
+          },
+        ],
+      },
     },
   });
 }

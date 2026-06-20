@@ -21,6 +21,7 @@ import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, CPQ_EVENTS, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
+import { MrpService } from 'mrp';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -112,6 +113,7 @@ describe('CPQ tRPC Integration', () => {
       cpqCatalogService: app.get(CpqCatalogService),
       salesOrderService: app.get(SalesOrderService),
       mpsService: app.get(MpsService),
+      mrpService: app.get(MrpService),
     });
 
     const adminLogin = await import('supertest').then((m) =>

@@ -12,37 +12,38 @@
 
 ## Current Focus
 
-Phase 8 — MPS (Production Scheduling) **complete**.
+Phase 9 — MRP (Material Planning) **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 9 (MRP — Material Planning)._
+_None — ready for Phase 10 (Procurement & Vendor Integration)._
 
 ---
 
 ## Recent Progress
 
-- Prisma MPS schema: ProductionLine, FactoryCalendarDay, WorkOrder, MpsSetting; migration `20260620113538_add_mps`
-- Created `libs/mps` — MpsService, aggregation/net-demand/scheduling helpers, SalesDemandSubscriber, EVENTS.md
-- tRPC `mps` router; MpsModule wired (WmsModule)
-- MPS UI: dashboard (demand preview, work order timeline, overload warnings, reschedule)
-- Seed: LINE-MAIN, 30-day calendar, sample work order from SO-SEED-001 demand
-- 9 mps unit tests + 6 mps integration tests; full suite green (15 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 8 ✅ COMPLETE)
+- Prisma MRP schema: BillOfMaterials, BomLine, PurchaseRequisition; migration `20260620115456_add_mrp`
+- Created `libs/mrp` — MrpService, explosion/net-demand/requisitions helpers, EVENTS.md
+- tRPC `mrp` router; MrpModule wired (WmsModule for inventory lookup)
+- Procurement UI: `/mrp/procurement` (run MRP, requirements table, requisition approve/reject/adjust)
+- Seed: SKU-001 MAKE, 2-level BOM (SKU-SUB-001 → SKU-002 BUY), SKU-FAST-001 BUY with vendor lead times
+- 5 mrp unit tests + 6 mrp integration tests; full suite green (16 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 9 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 9 — MRP (Material Planning)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 10 — Procurement & Vendor Integration** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- MPS demand = all open product-linked sales lines; net demand nets WMS available + scheduled WOs
-- Aggregation strategies: WEEKLY, MONTHLY, BUILD_TO_ORDER (per product → category → GLOBAL)
-- Overload flagged via `mps.capacity.overloaded` event, not silently absorbed
-- SalesDemandSubscriber disabled in tests via SKIP_MPS_SUBSCRIBER=true
+- MRP explodes open work orders (non-CANCELLED/non-COMPLETED) through multi-level BOMs
+- MAKE products recurse; BUY leaf components generate requisitions
+- Need-by = WO scheduledStart − component leadTimeDays (Vendor.leadTimeDays fallback)
+- Requisitions idempotent on `(componentProductId, needByDate)` — re-run updates qty, no duplicates
+- Open PO netting stubbed as zero (`// Phase 10`)

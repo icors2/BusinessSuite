@@ -62,26 +62,34 @@ model AuditLog {
 }
 
 model Product {
-  id            String              @id @default(uuid())
-  sku           String              @unique
-  description   String
-  unitOfMeasure String
-  category      String?
-  listPrice     Decimal?            @db.Decimal(18, 2)
-  mpsStrategy   MpsStrategy?
-  active        Boolean             @default(true)
-  deletedAt     DateTime?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  documents     Document[]
-  inventory     InventoryQuantity[]
-  movements     InventoryMovement[]
-  quoteLines    QuoteLine[]
-  salesOrderLines SalesOrderLine[]
-  workOrders    WorkOrder[]
+  id                String              @id @default(uuid())
+  sku               String              @unique
+  description       String
+  unitOfMeasure     String
+  category          String?
+  listPrice         Decimal?            @db.Decimal(18, 2)
+  mpsStrategy       MpsStrategy?
+  procurementType   ProcurementType       @default(BUY)
+  preferredVendorId String?
+  leadTimeDays      Int                   @default(0)
+  active            Boolean               @default(true)
+  deletedAt         DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  documents         Document[]
+  inventory         InventoryQuantity[]
+  movements         InventoryMovement[]
+  quoteLines        QuoteLine[]
+  salesOrderLines   SalesOrderLine[]
+  workOrders        WorkOrder[]
+  bom               BillOfMaterials?
+  bomComponents     BomLine[]             @relation("BomComponent")
+  requisitions      PurchaseRequisition[]
+  preferredVendor   Vendor?               @relation("ProductPreferredVendor", fields: [preferredVendorId], references: [id], onDelete: SetNull)
 
   @@index([active])
   @@index([category])
+  @@index([preferredVendorId])
 }
 
 // ---------------------------------------------------------------------------
@@ -252,17 +260,20 @@ model Customer {
 }
 
 model Vendor {
-  id            String    @id @default(uuid())
-  name          String
-  email         String?
-  phone         String?
-  address       Json?
-  paymentTerms  String?
-  active        Boolean   @default(true)
-  deletedAt     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  bills         Bill[]
+  id                String                @id @default(uuid())
+  name              String
+  email             String?
+  phone             String?
+  address           Json?
+  paymentTerms      String?
+  leadTimeDays      Int                   @default(0)
+  active            Boolean               @default(true)
+  deletedAt         DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  bills             Bill[]
+  preferredProducts Product[]             @relation("ProductPreferredVendor")
+  requisitions      PurchaseRequisition[]
 
   @@index([active])
   @@index([name])
@@ -735,6 +746,76 @@ model MpsSetting {
   strategy  MpsStrategy
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Phase 9 — MRP (Material Requirements Planning)
+//
+// Multi-level BOM explosion from open work orders drives component net demand.
+// BUY components generate purchase requisitions with need-by dates back-
+// calculated from WO start and lead time. Requisitions are idempotent on
+// (componentProductId, needByDate).
+// ---------------------------------------------------------------------------
+
+enum ProcurementType {
+  MAKE
+  BUY
+}
+
+enum RequisitionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CONVERTED
+}
+
+model BillOfMaterials {
+  id        String    @id @default(uuid())
+  productId String    @unique
+  active    Boolean   @default(true)
+  version   Int       @default(1)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  product Product   @relation(fields: [productId], references: [id])
+  lines   BomLine[]
+
+  @@index([active])
+}
+
+model BomLine {
+  id                 String   @id @default(uuid())
+  bomId              String
+  componentProductId String
+  quantityPer        Decimal  @default(1) @db.Decimal(18, 4)
+  scrapFactor        Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt          DateTime @default(now())
+
+  bom       BillOfMaterials @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  component Product         @relation("BomComponent", fields: [componentProductId], references: [id])
+
+  @@index([bomId])
+  @@index([componentProductId])
+}
+
+model PurchaseRequisition {
+  id                 String            @id @default(uuid())
+  reqNumber          String            @unique
+  componentProductId String
+  quantity           Decimal           @default(0) @db.Decimal(18, 4)
+  needByDate         DateTime          @db.Date
+  status             RequisitionStatus @default(PENDING)
+  preferredVendorId  String?
+  demandRefs         Json?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  component       Product @relation(fields: [componentProductId], references: [id])
+  preferredVendor Vendor? @relation(fields: [preferredVendorId], references: [id], onDelete: SetNull)
+
+  @@unique([componentProductId, needByDate])
+  @@index([status])
+  @@index([componentProductId])
 }
 
 // ---------------------------------------------------------------------------

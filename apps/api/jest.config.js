@@ -22,6 +22,7 @@ module.exports = {
     '^cpq$': '<rootDir>/../../libs/cpq/src/index.ts',
     '^sales$': '<rootDir>/../../libs/sales/src/index.ts',
     '^mps$': '<rootDir>/../../libs/mps/src/index.ts',
+    '^mrp$': '<rootDir>/../../libs/mrp/src/index.ts',
     '^storage$': '<rootDir>/../../libs/shared/storage/src/index.ts',
     '^trpc$': '<rootDir>/../../libs/trpc/src/index.ts',
   },

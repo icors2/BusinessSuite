@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 8 complete — MPS engine, work orders, factory calendar, capacity overload detection |
+| **Repo status** | Phase 9 complete — MRP engine, BOM explosion, purchase requisitions |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,22 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 8 complete |
-| **Next phase** | **Phase 9 — MRP (Material Planning)** |
+| **Active phase** | None — Phase 9 complete |
+| **Next phase** | **Phase 10 — Procurement & Vendor Integration** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 9 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 9](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-9--mrp-material-planning--complete)
+
+- [x] Prisma schema: BillOfMaterials, BomLine, PurchaseRequisition; ProcurementType/RequisitionStatus enums; Product procurement fields; Vendor.leadTimeDays
+- [x] `libs/mrp` — multi-level BOM explosion (scrap factor, cycle guard), net demand, need-by back-calculation
+- [x] MrpService: runMrp (idempotent upsert), getRequirements, listRequisitions, reviewRequisition, upsertBom/getBom
+- [x] tRPC `mrp` router; MrpModule wired in API (WmsModule for inventory)
+- [x] Procurement UI: `/mrp/procurement` (run MRP, requirements, requisition review)
+- [x] Events: `mrp.run.completed`, `mrp.requisition.created`
+- [x] Unit + integration tests (multi-level BOM, scrap, net demand, need-by, idempotent re-run, Viewer block)
+- [x] Seed: SKU-001 MAKE, 2-level BOM, BUY components with lead time + preferred vendor
 
 ### Phase 8 Definition of Done
 
@@ -174,6 +187,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Sales UI | `apps/web/src/pages/sales/*` | Created (Phase 7) |
 | MPS lib | `libs/mps` | Created (Phase 8) |
 | MPS UI | `apps/web/src/pages/mps/*` | Created (Phase 8) |
+| MRP lib | `libs/mrp` | Created (Phase 9) |
+| MRP UI | `apps/web/src/pages/mrp/*` | Created (Phase 9) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -185,7 +200,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Shared auth lib | `libs/shared/auth` | Created |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM, WMS, CPQ, Sales) |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM, WMS, CPQ, Sales, MPS, MRP) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
 | Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
@@ -308,7 +323,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 6 | CRM & CPQ — sales | **Complete** |
 | 7 | Sales order management & fulfillment | **Complete** |
 | 8 | MPS — production scheduling | **Complete** |
-| 9 | MRP — material planning | Not started |
+| 9 | MRP — material planning | **Complete** |
 | 10 | Procurement & vendor integration | Not started |
 | 11 | Workforce management (time & scheduling) | Not started |
 | 12 | MES — production execution | Not started |
@@ -365,6 +380,8 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `mps.workorder.scheduled` | mps | 8 | `{ workOrderId, woNumber, productId, quantity, periodKey, lineId }` |
 | `mps.workorder.rescheduled` | mps | 8 | `{ workOrderId, woNumber, previousStart, previousEnd, scheduledStart, scheduledEnd, lineId }` |
 | `mps.capacity.overloaded` | mps | 8 | `{ periodKey, lineId, lineCode, capacity, scheduled, utilization }` |
+| `mrp.run.completed` | mrp | 9 | `{ workOrdersProcessed, requisitionsCreated, requisitionsUpdated }` |
+| `mrp.requisition.created` | mrp | 9 | `{ requisitionId, reqNumber, componentProductId, quantity, needByDate }` |
 
 ---
 

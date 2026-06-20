@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 8 MPS (Production Scheduling) complete.
+Integrated manufacturing operations platform — Phase 9 MRP (Material Planning) complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 8 MPS (Production Schedul
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), and MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order) are seeded after migration.
+Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), and MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times) are seeded after migration.
 
 ## API endpoints
 
@@ -173,6 +173,20 @@ Master Production Schedule: demand aggregation, net demand, capacity-aware sched
 |-------|-------------|
 | `/mps/dashboard` | MPS dashboard (demand preview, work order timeline, overload warnings, reschedule) |
 
+### tRPC (MRP — Phase 9)
+
+Material Requirements Planning: multi-level BOM explosion, net demand, purchase requisitions.
+
+| Router | Procedures |
+|--------|------------|
+| `mrp` | runMrp, getRequirements, listRequisitions, getBom, reviewRequisition, upsertBom |
+
+## ERP Admin UI (MRP pages)
+
+| Route | Description |
+|-------|-------------|
+| `/mrp/procurement` | Procurement (run MRP, exploded requirements, suggested requisitions with approve/reject/adjust) |
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -248,6 +262,7 @@ libs/wms          Locations, bins, inventory quantities, movements
 libs/cpq          FabQuote engine, quotes, CPQ catalog, sales events
 libs/sales        Sales orders, WMS allocation, fulfillment, invoice-on-ship
 libs/mps          Master Production Schedule, work orders, factory calendar
+libs/mrp          Material Requirements Planning, BOM explosion, requisitions
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -288,4 +303,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 6 status:** Complete  
 **Phase 7 status:** Complete  
 **Phase 8 status:** Complete  
-**Next phase:** Phase 9 — MRP (Material Planning)
+**Phase 9 status:** Complete  
+**Next phase:** Phase 10 — Procurement & Vendor Integration

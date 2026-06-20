@@ -31,7 +31,8 @@
       "wms": ["./libs/wms/src/index.ts"],
       "cpq": ["./libs/cpq/src/index.ts"],
       "sales": ["./libs/sales/src/index.ts"],
-      "mps": ["./libs/mps/src/index.ts"]
+      "mps": ["./libs/mps/src/index.ts"],
+      "mrp": ["./libs/mrp/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

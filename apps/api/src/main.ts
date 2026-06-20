@@ -20,6 +20,7 @@ import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
+import { MrpService } from 'mrp';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -45,6 +46,7 @@ async function bootstrap() {
   const cpqCatalogService = app.get(CpqCatalogService);
   const salesOrderService = app.get(SalesOrderService);
   const mpsService = app.get(MpsService);
+  const mrpService = app.get(MrpService);
 
   const appRouter = createAppRouter({
     productService,
@@ -63,6 +65,7 @@ async function bootstrap() {
     cpqCatalogService,
     salesOrderService,
     mpsService,
+    mrpService,
   });
 
   app.use(

@@ -23,6 +23,7 @@ import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
+import { MrpService } from 'mrp';
 import { AppModule } from './app.module';
 
 const DATABASE_URL =
@@ -91,6 +92,7 @@ describe('Masterdata tRPC Integration', () => {
       cpqCatalogService: app.get(CpqCatalogService),
       salesOrderService: app.get(SalesOrderService),
       mpsService: app.get(MpsService),
+      mrpService: app.get(MrpService),
     });
 
     const adminLogin = await request(app.getHttpServer())

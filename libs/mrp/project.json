@@ -1,0 +1,27 @@
+{
+  "name": "mrp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/mrp/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/mrp",
+        "main": "libs/mrp/src/index.ts",
+        "tsConfig": "libs/mrp/tsconfig.lib.json",
+        "assets": ["libs/mrp/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/mrp/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

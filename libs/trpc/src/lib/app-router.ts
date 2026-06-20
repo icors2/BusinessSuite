@@ -11,6 +11,7 @@ import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
+import { MrpService } from 'mrp';
 import { createAccountRouter } from './routers/account.router';
 import { createBillRouter } from './routers/bill.router';
 import { createDocumentRouter } from './routers/document.router';
@@ -18,6 +19,7 @@ import { createInventoryRouter } from './routers/inventory.router';
 import { createCpqCatalogRouter, createQuoteRouter } from './routers/quote.router';
 import { createSalesOrderRouter } from './routers/sales-order.router';
 import { createMpsRouter } from './routers/mps.router';
+import { createMrpRouter } from './routers/mrp.router';
 import { createInvoiceRouter } from './routers/invoice.router';
 import { createJournalRouter } from './routers/journal.router';
 import { createReportRouter } from './routers/report.router';
@@ -48,6 +50,7 @@ export interface AppRouterDependencies {
   cpqCatalogService: CpqCatalogService;
   salesOrderService: SalesOrderService;
   mpsService: MpsService;
+  mrpService: MrpService;
 }
 
 export function createAppRouter(deps: AppRouterDependencies) {
@@ -69,6 +72,7 @@ export function createAppRouter(deps: AppRouterDependencies) {
     cpqCatalog: createCpqCatalogRouter(deps.cpqCatalogService),
     salesOrder: createSalesOrderRouter(deps.salesOrderService),
     mps: createMpsRouter(deps.mpsService),
+    mrp: createMrpRouter(deps.mrpService),
   });
 }
 

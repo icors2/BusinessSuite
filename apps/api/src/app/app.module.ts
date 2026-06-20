@@ -13,6 +13,7 @@ import { WmsModule } from 'wms';
 import { CpqModule } from 'cpq';
 import { SalesModule } from 'sales';
 import { MpsModule } from 'mps';
+import { MrpModule } from 'mrp';
 import { AppController } from './app.controller';
 import { DocumentsController } from './documents.controller';
 
@@ -33,6 +34,7 @@ const config = loadAppConfig();
     CpqModule,
     SalesModule,
     MpsModule,
+    MrpModule,
   ],
   controllers: [AppController, DocumentsController],
 })

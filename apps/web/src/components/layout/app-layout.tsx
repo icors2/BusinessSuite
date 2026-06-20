@@ -20,6 +20,7 @@ const navItems = [
   { to: '/cpq/catalog', label: 'Catalog' },
   { to: '/sales/orders', label: 'Orders' },
   { to: '/mps/dashboard', label: 'MPS' },
+  { to: '/mrp/procurement', label: 'Procurement' },
 ];
 
 export function AppLayout() {

@@ -20,6 +20,7 @@ import { CpqCatalogPage } from '../pages/cpq/catalog';
 import { SalesOrdersPage } from '../pages/sales/orders';
 import { SalesOrderDetailPage } from '../pages/sales/order-detail';
 import { MpsDashboardPage } from '../pages/mps/dashboard';
+import { MrpProcurementPage } from '../pages/mrp/procurement';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -60,6 +61,7 @@ export function App() {
         <Route path="sales/orders" element={<SalesOrdersPage />} />
         <Route path="sales/orders/:id" element={<SalesOrderDetailPage />} />
         <Route path="mps/dashboard" element={<MpsDashboardPage />} />
+        <Route path="mrp/procurement" element={<MrpProcurementPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>
