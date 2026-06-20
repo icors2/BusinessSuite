@@ -12,44 +12,41 @@
 
 ## Current Focus
 
-Phase 0 — Infrastructure Foundation **complete**.
+Phase 0.5 — White-Glove Physical SOP **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 0.5._
+_None — ready for Phase 1._
 
 ---
 
 ## Recent Progress
 
-- Implemented full Phase 0: Nx monorepo, NestJS API, 6 shared libraries
-- Docker Compose (Postgres, Redis, MinIO, API), Dockerfile, `.env.example`
-- Redis Streams Event Bus, audit logging, health watchdog, JWT auth + RBAC
-- Prisma schema + migration + seed (Admin/Manager roles)
-- Backup/restore scripts and runbook
-- GitHub Actions CI pipeline
-- Unit + integration tests (build and test pass locally)
-- Updated `.brain/MEMORY.md` and marked Phase 0 complete in build prompts
+- Authored [docs/field-deployment-sop.md](../docs/field-deployment-sop.md) — field technician SOP for on-site installs
+- Covered UniFi + Omada network setup (Office / Shop IoT / Guest VLAN isolation)
+- Server hardwiring, cable labeling, UPS standards
+- Site provisioning documented with Phase 1+ TODO for automated registry token
+- Printable pre-flight and server-readiness checklists tied to `/api/health`
+- Marked Phase 0.5 complete in MEMORY.md and build prompts doc
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 0.5 — White-Glove Physical SOP** (documentation only)
-2. Then **Phase 1 — ERP Core (Master Data)**
-3. Verify full stack locally: start Docker Desktop → `docker compose up -d` → hit `/api/health`
+1. Start **Phase 1 — ERP Core (Master Data)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+2. Phase 1+ will implement site provisioning / registry token endpoint referenced in field SOP Section 4
 
 ---
 
 ## Open Items / Blockers
 
-- Docker Desktop was not running during implementation — user should verify `docker compose up` locally
+- Site provisioning API deferred to Phase 1+ (documented in field SOP and MEMORY.md)
 
 ---
 
 ## Session Notes
 
-- Architectural decisions locked: Redis Streams, JWT, self-hosted Docker deploy
-- Prisma 6.x used (Prisma 7 has breaking datasource config)
+- Phase 0.5 is documentation-only — no application code changes
+- SOP written for general IT competency, not deep networking expertise

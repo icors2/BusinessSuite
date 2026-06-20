@@ -117,6 +117,10 @@ libs/shared/
 
 See [docs/backup-restore-runbook.md](docs/backup-restore-runbook.md).
 
+## Field deployment (on-site installs)
+
+See [docs/field-deployment-sop.md](docs/field-deployment-sop.md) for field technician SOP covering network setup, server wiring, and site verification.
+
 - **RPO:** ≤ 24 hours (nightly backups)
 - **RTO:** ≤ 4 hours
 

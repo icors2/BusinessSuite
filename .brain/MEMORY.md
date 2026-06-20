@@ -23,9 +23,17 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 0 complete |
-| **Next phase** | **Phase 0.5 — White-Glove Physical SOP** |
+| **Active phase** | None — Phase 0.5 complete |
+| **Next phase** | **Phase 1 — ERP Core (Master Data)** |
 | **Last updated** | 2026-06-19 |
+
+### Phase 0.5 Definition of Done
+
+Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0.5](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-05--white-glove-physical-sop)
+
+- [x] SOP document exists and is reviewable by a non-engineer technician
+- [x] Includes a printable/checkable onsite checklist
+- [x] Includes server readiness verification steps tied to Phase 0's `/health` endpoint
 
 ### Phase 0 Definition of Done
 
@@ -42,7 +50,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 
 ### Blockers / Open Questions
 
-_None._
+- **Site provisioning API (Phase 1+):** Automated registry-token / `POST /api/provision/register` not built in Phase 0. Field SOP documents manual interim process — see [docs/field-deployment-sop.md](../docs/field-deployment-sop.md) Section 4.
 
 ---
 
@@ -67,6 +75,7 @@ _None._
 | Env files | `.env.example` | Created |
 | Backup scripts | `scripts/backup.sh`, `scripts/restore.sh` | Created |
 | Backup runbook | `docs/backup-restore-runbook.md` | Created |
+| Field deployment SOP | `docs/field-deployment-sop.md` | Created |
 | Agent memory (this file) | `.brain/MEMORY.md` | Active |
 | Session log | `.brain/SESSION.md` | Active |
 
@@ -143,7 +152,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | Phase | Module / Deliverable | Status |
 |-------|---------------------|--------|
 | 0 | Infrastructure — Nx, Docker, auth, Event Bus, audit, health, CI/CD | **Complete** |
-| 0.5 | White-glove physical SOP (documentation only) | Not started |
+| 0.5 | White-glove physical SOP (documentation only) | **Complete** |
 | 1 | ERP Core — master data (Product, Customer, Vendor) | Not started |
 | 2 | Data migration & legacy cutover | Not started |
 | 3 | Finance & accounting | Not started |

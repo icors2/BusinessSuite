@@ -125,7 +125,7 @@ README documents how to run everything locally.
 
 ---
 
-## Phase 0.5 — White-Glove Physical SOP
+## Phase 0.5 — White-Glove Physical SOP ✅ COMPLETE
 
 **Prompt:**
 ```
