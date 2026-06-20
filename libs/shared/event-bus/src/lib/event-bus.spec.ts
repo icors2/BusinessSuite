@@ -6,18 +6,18 @@ const REDIS_URL = process.env['REDIS_URL'] ?? 'redis://localhost:6379';
 async function isRedisAvailable(): Promise<boolean> {
   const client = new Redis(REDIS_URL, {
     maxRetriesPerRequest: 1,
-    connectTimeout: 1000,
-    lazyConnect: true,
+    connectTimeout: 2000,
+    commandTimeout: 2000,
   });
 
   try {
-    await client.connect();
-    await client.ping();
+    const pong = await client.ping();
     await client.quit();
-    return true;
-  } catch {
+    return pong === 'PONG';
+  } catch (error) {
+    console.warn('Redis unavailable for integration tests:', error);
     try {
-      await client.quit();
+      await client.disconnect();
     } catch {
       // ignore
     }
@@ -26,7 +26,7 @@ async function isRedisAvailable(): Promise<boolean> {
 }
 
 describe('RedisStreamEventBus', () => {
-  let bus: RedisStreamEventBus;
+  let bus: RedisStreamEventBus | undefined;
   let redisAvailable = false;
 
   beforeAll(async () => {
@@ -34,7 +34,7 @@ describe('RedisStreamEventBus', () => {
     if (redisAvailable) {
       bus = new RedisStreamEventBus(REDIS_URL);
     }
-  });
+  }, 15000);
 
   afterAll(async () => {
     if (bus) {
@@ -45,9 +45,8 @@ describe('RedisStreamEventBus', () => {
   it(
     'publishes and receives events in a round-trip',
     async () => {
-      if (!redisAvailable) {
-        console.warn('Skipping event-bus integration test: Redis unavailable');
-        return;
+      if (!redisAvailable || !bus) {
+        throw new Error('Redis is required for event-bus round-trip test');
       }
 
       const topic = `test.event.published.${Date.now()}`;
@@ -83,6 +82,6 @@ describe('RedisStreamEventBus', () => {
         version: 1,
       });
     },
-    10000,
+    15000,
   );
 });

@@ -4,6 +4,7 @@ import {
   HealthCheckService,
   HealthCheckResult,
 } from '@nestjs/terminus';
+import { Public } from 'auth';
 import {
   HealthAlertService,
   MinioHealthIndicator,
@@ -21,6 +22,7 @@ export class HealthController {
     private readonly alerts: HealthAlertService,
   ) {}
 
+  @Public()
   @Get()
   @HealthCheck()
   async check(): Promise<HealthCheckResult> {

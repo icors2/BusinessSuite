@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { AppConfig } from 'config';
 import { PrismaService } from 'database';
 import { AuditService } from 'audit';
 import { AuthenticatedUser, JwtPayload } from './auth.types';
+import { APP_CONFIG } from './auth.constants';
 
 export interface RegisterInput {
   email: string;
@@ -32,7 +34,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly config: AppConfig,
+    @Inject(APP_CONFIG) private readonly config: AppConfig,
     private readonly auditService: AuditService,
   ) {}
 

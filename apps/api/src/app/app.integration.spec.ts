@@ -4,21 +4,21 @@ import request from 'supertest';
 import { PrismaClient } from '@prisma/client';
 import { AppModule } from './app.module';
 
-const DATABASE_URL = process.env['DATABASE_URL'];
+const DATABASE_URL =
+  process.env['DATABASE_URL'] ??
+  'postgresql://anc:anc@localhost:5432/anc_suite?schema=public';
 
 async function isDatabaseAvailable(): Promise<boolean> {
-  if (!DATABASE_URL) {
-    return false;
-  }
-
-  const prisma = new PrismaClient({ datasources: { db: { url: DATABASE_URL } } });
+  const prisma = new PrismaClient({
+    datasources: { db: { url: DATABASE_URL } },
+  });
 
   try {
-    await prisma.$connect();
-    await prisma.$queryRaw`SELECT 1`;
+    await prisma.$queryRawUnsafe('SELECT 1');
     await prisma.$disconnect();
     return true;
-  } catch {
+  } catch (error) {
+    console.warn('Database unavailable for integration tests:', error);
     try {
       await prisma.$disconnect();
     } catch {

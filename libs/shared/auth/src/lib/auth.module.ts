@@ -8,8 +8,9 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard, RolesGuard } from './guards';
+import { APP_CONFIG } from './auth.constants';
 
-export const APP_CONFIG = Symbol('APP_CONFIG');
+export { APP_CONFIG };
 
 @Module({})
 export class AuthModule {
