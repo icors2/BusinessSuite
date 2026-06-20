@@ -21,6 +21,8 @@ import { SalesOrdersPage } from '../pages/sales/orders';
 import { SalesOrderDetailPage } from '../pages/sales/order-detail';
 import { MpsDashboardPage } from '../pages/mps/dashboard';
 import { MrpProcurementPage } from '../pages/mrp/procurement';
+import { PurchaseOrdersPage } from '../pages/procurement/purchase-orders';
+import { VendorScorecardPage } from '../pages/procurement/scorecard';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -62,6 +64,8 @@ export function App() {
         <Route path="sales/orders/:id" element={<SalesOrderDetailPage />} />
         <Route path="mps/dashboard" element={<MpsDashboardPage />} />
         <Route path="mrp/procurement" element={<MrpProcurementPage />} />
+        <Route path="procurement/purchase-orders" element={<PurchaseOrdersPage />} />
+        <Route path="procurement/scorecard" element={<VendorScorecardPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

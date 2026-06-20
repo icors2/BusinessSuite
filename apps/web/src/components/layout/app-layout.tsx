@@ -21,6 +21,8 @@ const navItems = [
   { to: '/sales/orders', label: 'Orders' },
   { to: '/mps/dashboard', label: 'MPS' },
   { to: '/mrp/procurement', label: 'Procurement' },
+  { to: '/procurement/purchase-orders', label: 'Purchase Orders' },
+  { to: '/procurement/scorecard', label: 'Scorecard' },
 ];
 
 export function AppLayout() {

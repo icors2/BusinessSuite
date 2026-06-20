@@ -252,6 +252,7 @@ async function main(): Promise<void> {
   await seedSales(prisma, customerId);
   await seedMps(prisma);
   await seedMrp(prisma);
+  await seedProcurement(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -942,6 +943,100 @@ async function seedMrp(client: PrismaClient): Promise<void> {
           },
         ],
       },
+    },
+  });
+}
+
+/** Phase 10 — sample PO from approved requisition with receipt for scorecard. */
+async function seedProcurement(client: PrismaClient): Promise<void> {
+  const sentinel = 'PO-2026-SEED1';
+  const existing = await client.purchaseOrder.findUnique({
+    where: { poNumber: sentinel },
+  });
+  if (existing) return;
+
+  const vendor = await client.vendor.findFirst({
+    where: { name: 'Global Supplies Co', deletedAt: null },
+  });
+  const product = await client.product.findUnique({
+    where: { sku: 'SKU-002' },
+  });
+  if (!vendor || !product) return;
+
+  let requisition = await client.purchaseRequisition.findFirst({
+    where: {
+      componentProductId: product.id,
+      status: 'APPROVED',
+      purchaseOrderLine: null,
+    },
+  });
+
+  if (!requisition) {
+    requisition = await client.purchaseRequisition.create({
+      data: {
+        reqNumber: 'PR-2026-SEED-PO',
+        componentProductId: product.id,
+        quantity: 25,
+        needByDate: new Date(),
+        status: 'APPROVED',
+        preferredVendorId: vendor.id,
+      },
+    });
+  }
+
+  const expectedDelivery = new Date();
+  expectedDelivery.setUTCDate(expectedDelivery.getUTCDate() + 7);
+  const unitPrice = product.listPrice ? Number(product.listPrice) : 79.5;
+  const lineTotal = unitPrice * 25;
+
+  const po = await client.purchaseOrder.create({
+    data: {
+      poNumber: sentinel,
+      vendorId: vendor.id,
+      status: 'ISSUED',
+      expectedDeliveryDate: expectedDelivery,
+      subtotal: lineTotal,
+      total: lineTotal,
+      lines: {
+        create: [
+          {
+            productId: product.id,
+            requisitionId: requisition.id,
+            description: product.description,
+            quantity: 25,
+            unitPrice,
+            lineTotal,
+            expectedDeliveryDate: expectedDelivery,
+            qtyReceived: 25,
+          },
+        ],
+      },
+    },
+    include: { lines: true },
+  });
+
+  await client.purchaseRequisition.update({
+    where: { id: requisition.id },
+    data: { status: 'CONVERTED' },
+  });
+
+  const line = po.lines[0];
+  const receivedAt = new Date(expectedDelivery);
+  receivedAt.setUTCDate(receivedAt.getUTCDate() - 1);
+
+  await client.poReceipt.create({
+    data: {
+      poLineId: line.id,
+      quantity: 25,
+      receivedAt,
+    },
+  });
+
+  await client.vendorAcknowledgment.create({
+    data: {
+      poId: po.id,
+      confirmedDeliveryDate: expectedDelivery,
+      note: 'Seed vendor acknowledgment',
     },
   });
 }

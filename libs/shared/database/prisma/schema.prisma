@@ -85,6 +85,8 @@ model Product {
   bom               BillOfMaterials?
   bomComponents     BomLine[]             @relation("BomComponent")
   requisitions      PurchaseRequisition[]
+  purchaseOrderLines PurchaseOrderLine[]
+  asnLines          AsnLine[]
   preferredVendor   Vendor?               @relation("ProductPreferredVendor", fields: [preferredVendorId], references: [id], onDelete: SetNull)
 
   @@index([active])
@@ -274,6 +276,7 @@ model Vendor {
   bills             Bill[]
   preferredProducts Product[]             @relation("ProductPreferredVendor")
   requisitions      PurchaseRequisition[]
+  purchaseOrders    PurchaseOrder[]
 
   @@index([active])
   @@index([name])
@@ -812,10 +815,135 @@ model PurchaseRequisition {
 
   component       Product @relation(fields: [componentProductId], references: [id])
   preferredVendor Vendor? @relation(fields: [preferredVendorId], references: [id], onDelete: SetNull)
+  purchaseOrderLine PurchaseOrderLine?
 
   @@unique([componentProductId, needByDate])
   @@index([status])
   @@index([componentProductId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 10 — Procurement & Vendor Integration
+//
+// Approved requisitions consolidate into purchase orders by vendor. Staff-on-
+// behalf acknowledgment/ASN intake; receiveAgainstPo records PoReceipt and
+// delegates on-hand increment to WMS.
+// ---------------------------------------------------------------------------
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ISSUED
+  ACKNOWLEDGED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CLOSED
+  CANCELLED
+}
+
+enum AsnStatus {
+  SUBMITTED
+  IN_TRANSIT
+  ARRIVED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id                   String              @id @default(uuid())
+  poNumber             String              @unique
+  vendorId             String
+  status               PurchaseOrderStatus @default(DRAFT)
+  orderDate            DateTime            @default(now()) @db.Date
+  expectedDeliveryDate DateTime?           @db.Date
+  notes                String?
+  demandRefs           Json?
+  subtotal             Decimal             @default(0) @db.Decimal(18, 2)
+  total                Decimal             @default(0) @db.Decimal(18, 2)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  vendor           Vendor                @relation(fields: [vendorId], references: [id])
+  lines            PurchaseOrderLine[]
+  acknowledgments  VendorAcknowledgment[]
+  asns             AdvanceShipmentNotice[]
+
+  @@index([status])
+  @@index([vendorId])
+}
+
+model PurchaseOrderLine {
+  id                   String   @id @default(uuid())
+  poId                 String
+  productId            String
+  requisitionId        String?  @unique
+  description          String
+  quantity             Decimal  @default(0) @db.Decimal(18, 4)
+  unitPrice            Decimal? @db.Decimal(18, 2)
+  lineTotal            Decimal? @db.Decimal(18, 2)
+  expectedDeliveryDate DateTime? @db.Date
+  qtyReceived          Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt            DateTime @default(now())
+
+  po          PurchaseOrder        @relation(fields: [poId], references: [id], onDelete: Cascade)
+  product     Product              @relation(fields: [productId], references: [id])
+  requisition PurchaseRequisition? @relation(fields: [requisitionId], references: [id], onDelete: SetNull)
+  receipts    PoReceipt[]
+
+  @@index([poId])
+}
+
+model PoReceipt {
+  id         String   @id @default(uuid())
+  poLineId   String
+  quantity   Decimal  @default(0) @db.Decimal(18, 4)
+  receivedAt DateTime @default(now())
+  movementId String?
+  createdAt  DateTime @default(now())
+
+  poLine PurchaseOrderLine @relation(fields: [poLineId], references: [id], onDelete: Cascade)
+
+  @@index([poLineId])
+}
+
+model VendorAcknowledgment {
+  id                    String    @id @default(uuid())
+  poId                  String
+  confirmedDeliveryDate DateTime? @db.Date
+  note                  String?
+  acknowledgedAt        DateTime  @default(now())
+  createdAt             DateTime  @default(now())
+
+  po PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+
+  @@index([poId])
+}
+
+model AdvanceShipmentNotice {
+  id              String    @id @default(uuid())
+  poId            String
+  status          AsnStatus @default(SUBMITTED)
+  shipDate        DateTime? @db.Date
+  expectedArrival DateTime? @db.Date
+  carrier         String?
+  trackingNumber  String?
+  createdAt       DateTime  @default(now())
+
+  po    PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+  lines AsnLine[]
+
+  @@index([poId])
+}
+
+model AsnLine {
+  id        String   @id @default(uuid())
+  asnId     String
+  productId String
+  quantity  Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt DateTime @default(now())
+
+  asn     AdvanceShipmentNotice @relation(fields: [asnId], references: [id], onDelete: Cascade)
+  product Product               @relation(fields: [productId], references: [id])
+
+  @@index([asnId])
 }
 
 // ---------------------------------------------------------------------------

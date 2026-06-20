@@ -8,7 +8,7 @@
     "build:web": "nx build web",
     "serve": "nx serve api",
     "serve:web": "nx serve web",
-    "test": "nx run-many -t test --projects=config,database,event-bus,audit,health,auth,masterdata,migration,finance,plm,wms,cpq,sales,mps,mrp,api",
+    "test": "nx run-many -t test --projects=config,database,event-bus,audit,health,auth,masterdata,migration,finance,plm,wms,cpq,sales,mps,mrp,procurement,api",
     "lint": "nx run-many -t lint --all",
     "migrate:run": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/migrate.ts run",
     "migrate:ingest": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/migrate.ts ingest",

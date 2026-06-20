@@ -23,6 +23,7 @@ module.exports = {
     '^sales$': '<rootDir>/../../libs/sales/src/index.ts',
     '^mps$': '<rootDir>/../../libs/mps/src/index.ts',
     '^mrp$': '<rootDir>/../../libs/mrp/src/index.ts',
+    '^procurement$': '<rootDir>/../../libs/procurement/src/index.ts',
     '^storage$': '<rootDir>/../../libs/shared/storage/src/index.ts',
     '^trpc$': '<rootDir>/../../libs/trpc/src/index.ts',
   },

@@ -12,38 +12,37 @@
 
 ## Current Focus
 
-Phase 9 — MRP (Material Planning) **complete**.
+Phase 10 — Procurement & Vendor Integration **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 10 (Procurement & Vendor Integration)._
+_None — ready for Phase 11 (Workforce Management)._
 
 ---
 
 ## Recent Progress
 
-- Prisma MRP schema: BillOfMaterials, BomLine, PurchaseRequisition; migration `20260620115456_add_mrp`
-- Created `libs/mrp` — MrpService, explosion/net-demand/requisitions helpers, EVENTS.md
-- tRPC `mrp` router; MrpModule wired (WmsModule for inventory lookup)
-- Procurement UI: `/mrp/procurement` (run MRP, requirements table, requisition approve/reject/adjust)
-- Seed: SKU-001 MAKE, 2-level BOM (SKU-SUB-001 → SKU-002 BUY), SKU-FAST-001 BUY with vendor lead times
-- 5 mrp unit tests + 6 mrp integration tests; full suite green (16 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 9 ✅ COMPLETE)
+- Prisma procurement schema: PurchaseOrder, lines, PoReceipt, VendorAcknowledgment, ASN; migration `20260620122441_add_procurement`
+- Created `libs/procurement` — consolidation, scorecard, ProcurementService, EVENTS.md
+- tRPC `procurement` router; ProcurementModule wired (WmsModule)
+- UI: `/procurement/purchase-orders` + `/procurement/scorecard`
+- Seed: PO-2026-SEED1 with sample PoReceipt for scorecard
+- 5 procurement unit tests + 6 procurement integration tests; full suite green (17 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 10 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 10 — Procurement & Vendor Integration** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 11 — Workforce Management** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- MRP explodes open work orders (non-CANCELLED/non-COMPLETED) through multi-level BOMs
-- MAKE products recurse; BUY leaf components generate requisitions
-- Need-by = WO scheduledStart − component leadTimeDays (Vendor.leadTimeDays fallback)
-- Requisitions idempotent on `(componentProductId, needByDate)` — re-run updates qty, no duplicates
-- Open PO netting stubbed as zero (`// Phase 10`)
+- Approved requisitions consolidate into one PO per vendor
+- Vendor ack/ASN is staff-on-behalf via editorProcedure (EDI/portal plug-in noted in service)
+- receiveAgainstPo creates PoReceipt + delegates on-hand to InventoryService.receive
+- Scorecard: on-time rate from receipt date vs expected; qty accuracy from qtyReceived vs ordered

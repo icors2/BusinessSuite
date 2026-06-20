@@ -32,7 +32,8 @@
       "cpq": ["./libs/cpq/src/index.ts"],
       "sales": ["./libs/sales/src/index.ts"],
       "mps": ["./libs/mps/src/index.ts"],
-      "mrp": ["./libs/mrp/src/index.ts"]
+      "mrp": ["./libs/mrp/src/index.ts"],
+      "procurement": ["./libs/procurement/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

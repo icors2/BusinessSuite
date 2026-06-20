@@ -14,6 +14,7 @@ import { CpqModule } from 'cpq';
 import { SalesModule } from 'sales';
 import { MpsModule } from 'mps';
 import { MrpModule } from 'mrp';
+import { ProcurementModule } from 'procurement';
 import { AppController } from './app.controller';
 import { DocumentsController } from './documents.controller';
 
@@ -35,6 +36,7 @@ const config = loadAppConfig();
     SalesModule,
     MpsModule,
     MrpModule,
+    ProcurementModule,
   ],
   controllers: [AppController, DocumentsController],
 })

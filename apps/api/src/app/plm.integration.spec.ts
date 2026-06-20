@@ -23,6 +23,7 @@ import { CpqCatalogService, QuoteService } from 'cpq';
 import { SalesOrderService } from 'sales';
 import { MpsService } from 'mps';
 import { MrpService } from 'mrp';
+import { ProcurementService } from 'procurement';
 import { StorageService } from 'storage';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -102,6 +103,7 @@ describe('PLM Integration', () => {
       salesOrderService: app.get(SalesOrderService),
       mpsService: app.get(MpsService),
       mrpService: app.get(MrpService),
+      procurementService: app.get(ProcurementService),
     });
 
     const adminLogin = await request(app.getHttpServer())

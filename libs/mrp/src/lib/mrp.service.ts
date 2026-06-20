@@ -432,14 +432,19 @@ export class MrpService {
   private async nextReqNumber(): Promise<string> {
     const year = new Date().getFullYear();
     const prefix = `PR-${year}-`;
-    const latest = await this.prisma.purchaseRequisition.findFirst({
+    const existing = await this.prisma.purchaseRequisition.findMany({
       where: { reqNumber: { startsWith: prefix } },
-      orderBy: { reqNumber: 'desc' },
+      select: { reqNumber: true },
     });
-    const seq = latest
-      ? Number(latest.reqNumber.slice(prefix.length)) + 1
-      : 1;
-    return `${prefix}${String(seq).padStart(4, '0')}`;
+    let maxSeq = 0;
+    for (const row of existing) {
+      const suffix = row.reqNumber.slice(prefix.length);
+      const seq = Number(suffix);
+      if (Number.isFinite(seq) && seq > maxSeq) {
+        maxSeq = seq;
+      }
+    }
+    return `${prefix}${String(maxSeq + 1).padStart(4, '0')}`;
   }
 
   private mapRequisition(
