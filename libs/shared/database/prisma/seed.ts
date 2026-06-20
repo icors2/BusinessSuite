@@ -35,6 +35,12 @@ async function main(): Promise<void> {
     create: { name: 'Supervisor' },
   });
 
+  const inspectorRole = await prisma.role.upsert({
+    where: { name: 'Inspector' },
+    update: {},
+    create: { name: 'Inspector' },
+  });
+
   const passwordHash = await bcrypt.hash('Admin123!', 12);
 
   const adminUser = await prisma.user.upsert({
@@ -101,6 +107,20 @@ async function main(): Promise<void> {
       passwordHash: supervisorPasswordHash,
       roles: {
         create: [{ roleId: supervisorRole.id }],
+      },
+    },
+  });
+
+  const inspectorPasswordHash = await bcrypt.hash('Inspector123!', 12);
+
+  await prisma.user.upsert({
+    where: { email: 'inspector@arcncode.local' },
+    update: {},
+    create: {
+      email: 'inspector@arcncode.local',
+      passwordHash: inspectorPasswordHash,
+      roles: {
+        create: [{ roleId: inspectorRole.id }],
       },
     },
   });
@@ -295,10 +315,18 @@ async function main(): Promise<void> {
   await seedProcurement(prisma);
   await seedWorkforce(prisma);
   await seedMes(prisma);
+  await seedQms(prisma);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
-    roles: [adminRole.name, managerRole.name, viewerRole.name],
+    roles: [
+      adminRole.name,
+      managerRole.name,
+      viewerRole.name,
+      operatorRole.name,
+      supervisorRole.name,
+      inspectorRole.name,
+    ],
   });
 }
 
@@ -1235,6 +1263,68 @@ async function seedMes(client: PrismaClient): Promise<void> {
       durationMinutes: 25,
       quantityCompleted: 10,
       quantityScrapped: 0,
+    },
+  });
+}
+
+/** Phase 13 — inspection template and passing record on seeded work order. */
+async function seedQms(client: PrismaClient): Promise<void> {
+  const existing = await client.inspectionTemplate.findUnique({
+    where: { code: 'TMPL-FINAL' },
+  });
+  if (existing) return;
+
+  const admin = await client.user.findUnique({
+    where: { email: 'admin@arcncode.local' },
+  });
+  const workOrder = await client.workOrder.findFirst({
+    where: { woNumber: { contains: 'SEED' } },
+  });
+  if (!admin || !workOrder) return;
+
+  const template = await client.inspectionTemplate.create({
+    data: {
+      code: 'TMPL-FINAL',
+      name: 'Final Inspection',
+      description: 'Standard final inspection checklist',
+      active: true,
+      criteria: {
+        create: [
+          {
+            sequence: 1,
+            label: 'Visual inspection',
+            type: 'PASS_FAIL',
+          },
+          {
+            sequence: 2,
+            label: 'Critical dimension',
+            type: 'MEASUREMENT',
+            expectedMin: 9.5,
+            expectedMax: 10.5,
+            unit: 'mm',
+          },
+        ],
+      },
+    },
+    include: { criteria: true },
+  });
+
+  const passFail = template.criteria.find((c) => c.sequence === 1)!;
+  const measure = template.criteria.find((c) => c.sequence === 2)!;
+
+  await client.inspectionRecord.create({
+    data: {
+      templateId: template.id,
+      workOrderId: workOrder.id,
+      inspectorUserId: admin.id,
+      result: 'PASS',
+      notes: 'Seed passing inspection',
+      results: {
+        create: [
+          { criterionId: passFail.id, passed: true },
+          { criterionId: measure.id, measuredValue: 10 },
+        ],
+      },
     },
   });
 }

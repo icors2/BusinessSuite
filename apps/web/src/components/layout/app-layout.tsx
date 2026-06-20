@@ -30,6 +30,9 @@ const navItems = [
   { to: '/mes/supervisor', label: 'Floor' },
   { to: '/mes/scheduling', label: 'Scheduling' },
   { to: '/mes/placard', label: 'Placard' },
+  { to: '/qms/inspection', label: 'Inspect' },
+  { to: '/qms/checklist-builder', label: 'Checklists' },
+  { to: '/qms/non-conformance', label: 'Non-Conformance' },
 ];
 
 export function AppLayout() {

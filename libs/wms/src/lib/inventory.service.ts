@@ -170,6 +170,11 @@ export class InventoryService {
   async pick(input: PickInput, actorId?: string) {
     const product = await this.resolveProduct(input);
     const bin = await this.resolveBin(input);
+    if (bin.onHold) {
+      throw new BadRequestException(
+        'Bin is on quality hold — pick blocked',
+      );
+    }
     const qty = toDecimal(input.quantity);
     const allowNegative = input.allowNegative ?? false;
 
@@ -230,6 +235,11 @@ export class InventoryService {
   async ship(input: ShipInput, actorId?: string) {
     const product = await this.resolveProduct(input);
     const bin = await this.resolveBin(input);
+    if (bin.onHold) {
+      throw new BadRequestException(
+        'Bin is on quality hold — ship blocked',
+      );
+    }
     const qty = toDecimal(input.quantity);
     const allowNegative = input.allowNegative ?? false;
 

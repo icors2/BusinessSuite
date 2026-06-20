@@ -28,6 +28,7 @@ import {
 } from 'procurement';
 import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
+import { QmsService } from 'qms';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -116,6 +117,7 @@ describe('Procurement tRPC Integration', () => {
       procurementService: app.get(ProcurementService),
       workforceService: app.get(WorkforceService),
       mesService: app.get(MesService),
+      qmsService: app.get(QmsService),
     });
 
     const adminLogin = await import('supertest').then((m) =>

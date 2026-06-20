@@ -24,6 +24,7 @@ import { MrpService } from 'mrp';
 import { ProcurementService } from 'procurement';
 import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
+import { QmsService } from 'qms';
 import { createAppRouter, createContextFromRequest } from 'trpc';
 import { AppModule } from './app/app.module';
 
@@ -53,6 +54,7 @@ async function bootstrap() {
   const procurementService = app.get(ProcurementService);
   const workforceService = app.get(WorkforceService);
   const mesService = app.get(MesService);
+  const qmsService = app.get(QmsService);
 
   const appRouter = createAppRouter({
     productService,
@@ -75,6 +77,7 @@ async function bootstrap() {
     procurementService,
     workforceService,
     mesService,
+    qmsService,
   });
 
   app.use(

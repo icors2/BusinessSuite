@@ -89,6 +89,8 @@ model Product {
   purchaseOrderLines PurchaseOrderLine[]
   asnLines          AsnLine[]
   preferredVendor   Vendor?               @relation("ProductPreferredVendor", fields: [preferredVendorId], references: [id], onDelete: SetNull)
+  inspectionTemplates InspectionTemplate[]
+  nonConformances   NonConformanceRecord[]
 
   @@index([active])
   @@index([category])
@@ -132,6 +134,7 @@ model Bin {
   code        String   @unique
   description String?
   active      Boolean  @default(true)
+  onHold      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -140,9 +143,11 @@ model Bin {
   movementsAt        InventoryMovement[] @relation("MovementBin")
   movementsFrom      InventoryMovement[] @relation("MovementFromBin")
   movementsTo        InventoryMovement[] @relation("MovementToBin")
+  nonConformances    NonConformanceRecord[]
 
   @@index([locationId])
   @@index([active])
+  @@index([onHold])
 }
 
 model InventoryQuantity {
@@ -734,6 +739,7 @@ model WorkOrder {
   strategy       MpsStrategy
   periodKey      String
   demandRefs     Json?
+  onHold         Boolean         @default(false)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 
@@ -742,11 +748,14 @@ model WorkOrder {
   timeEntries TimeEntry[]
   operations WorkOrderOperation[]
   verification WorkOrderVerification?
+  inspections InspectionRecord[]
+  nonConformances NonConformanceRecord[]
 
   @@index([status])
   @@index([productId])
   @@index([periodKey])
   @@index([scheduledStart])
+  @@index([onHold])
 }
 
 model MpsSetting {
@@ -1107,6 +1116,7 @@ model WorkOrderOperation {
   workOrder   WorkOrder    @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   workstation Workstation? @relation(fields: [workstationId], references: [id], onDelete: SetNull)
   cycles      CycleRecord[]
+  inspections InspectionRecord[]
 
   @@unique([workOrderId, sequence])
   @@index([workOrderId])
@@ -1145,6 +1155,154 @@ model WorkOrderVerification {
   workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
 
   @@index([verifiedByUserId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 13 — QMS (Quality Management)
+// ---------------------------------------------------------------------------
+
+enum InspectionCriterionType {
+  PASS_FAIL
+  MEASUREMENT
+}
+
+enum InspectionResult {
+  PASS
+  FAIL
+}
+
+enum NonConformanceSource {
+  INSPECTION
+  SCRAP
+}
+
+enum NonConformanceSeverity {
+  MINOR
+  MAJOR
+  HOLD
+}
+
+enum NonConformanceStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+}
+
+enum Disposition {
+  USE_AS_IS
+  REWORK
+  SCRAP
+  RETURN_TO_VENDOR
+}
+
+model InspectionTemplate {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  description   String?
+  productId     String?
+  operationName String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  product     Product?              @relation(fields: [productId], references: [id], onDelete: SetNull)
+  criteria    InspectionCriterion[]
+  inspections InspectionRecord[]
+
+  @@index([productId])
+  @@index([active])
+}
+
+model InspectionCriterion {
+  id          String                  @id @default(uuid())
+  templateId  String
+  sequence    Int
+  label       String
+  type        InspectionCriterionType
+  expectedMin Decimal?                @db.Decimal(18, 4)
+  expectedMax Decimal?                @db.Decimal(18, 4)
+  unit        String?
+  createdAt   DateTime                @default(now())
+
+  template InspectionTemplate         @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  results  InspectionCriterionResult[]
+
+  @@unique([templateId, sequence])
+  @@index([templateId])
+}
+
+model InspectionRecord {
+  id                  String           @id @default(uuid())
+  templateId          String
+  workOrderId         String?
+  operationId         String?
+  inspectorUserId     String
+  inspectorEmployeeId String?
+  result              InspectionResult
+  notes               String?
+  completedAt         DateTime         @default(now())
+  createdAt           DateTime         @default(now())
+
+  template        InspectionTemplate          @relation(fields: [templateId], references: [id])
+  workOrder       WorkOrder?                  @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
+  operation       WorkOrderOperation?         @relation(fields: [operationId], references: [id], onDelete: SetNull)
+  results         InspectionCriterionResult[]
+  nonConformances NonConformanceRecord[]
+
+  @@index([templateId])
+  @@index([workOrderId])
+  @@index([operationId])
+  @@index([inspectorUserId])
+}
+
+model InspectionCriterionResult {
+  id             String   @id @default(uuid())
+  inspectionId   String
+  criterionId    String
+  passed         Boolean?
+  measuredValue  Decimal? @db.Decimal(18, 4)
+  photoObjectKey String?
+  photoFileName  String?
+  notes          String?
+
+  inspection InspectionRecord    @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  criterion  InspectionCriterion @relation(fields: [criterionId], references: [id], onDelete: Cascade)
+
+  @@unique([inspectionId, criterionId])
+  @@index([inspectionId])
+}
+
+model NonConformanceRecord {
+  id                String                 @id @default(uuid())
+  ncNumber          String                 @unique
+  source            NonConformanceSource
+  inspectionId      String?
+  workOrderId       String?
+  binId             String?
+  productId         String?
+  severity          NonConformanceSeverity
+  status            NonConformanceStatus   @default(OPEN)
+  holdActive        Boolean                @default(false)
+  description       String
+  quantityScrapped  Decimal?               @db.Decimal(18, 4)
+  disposition       Disposition?
+  dispositionNotes  String?
+  raisedByUserId    String
+  resolvedByUserId  String?
+  resolvedAt        DateTime?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  inspection InspectionRecord? @relation(fields: [inspectionId], references: [id], onDelete: SetNull)
+  workOrder  WorkOrder?        @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
+  bin        Bin?              @relation(fields: [binId], references: [id], onDelete: SetNull)
+  product    Product?          @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([workOrderId])
+  @@index([binId])
+  @@index([holdActive])
 }
 
 // ---------------------------------------------------------------------------

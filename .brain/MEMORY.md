@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 12 complete — MES workstations, operations, cycles, verification, real-time gateway |
+| **Repo status** | Phase 13 complete — QMS inspections, non-conformance, hold enforcement on MES/WMS |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,24 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 12 complete |
-| **Next phase** | **Phase 13 — QMS (Quality Management)** |
+| **Active phase** | None — Phase 13 complete |
+| **Next phase** | **Phase 14 — CMMS (Maintenance Management)** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 13 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 13](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-13--qms-quality-management--complete)
+
+- [x] Prisma schema: InspectionTemplate, InspectionCriterion, InspectionRecord, InspectionCriterionResult, NonConformanceRecord; QMS enums; WorkOrder.onHold + Bin.onHold
+- [x] `libs/qms` — criterion evaluation, NC numbering, EVENTS.md
+- [x] QmsService: template CRUD, completeInspection (auto-NC on FAIL), raiseNonConformance, reportScrap, disposition with hold clear
+- [x] Hold enforcement: MES startOperation/verifyWorkOrder + WMS pick/ship reject when onHold
+- [x] Inspector RBAC (`inspectorProcedure`); disposition via `supervisorProcedure`
+- [x] tRPC `qms` router; QmsInspectionController for MinIO photo upload
+- [x] UI: `/qms/inspection`, `/qms/checklist-builder`, `/qms/non-conformance`
+- [x] Events: `qms.inspection.completed`, `qms.nonconformance.raised`, `qms.nonconformance.resolved`, `qms.scrap.reported`
+- [x] Unit + integration tests (PASS/FAIL inspection, hold blocks MES/WMS, disposition clears hold, RBAC)
+- [x] Seed: TMPL-FINAL template, passing inspection on seeded WO; Inspector role + user
 
 ### Phase 12 Definition of Done
 
@@ -236,6 +251,9 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | MES lib | `libs/mes` | Created (Phase 12) |
 | MES UI | `apps/web/src/pages/mes/*` | Created (Phase 12) |
 | MES verification REST | `apps/api/src/app/mes-verification.controller.ts` | Created (Phase 12) |
+| QMS lib | `libs/qms` | Created (Phase 13) |
+| QMS UI | `apps/web/src/pages/qms/*` | Created (Phase 13) |
+| QMS inspection REST | `apps/api/src/app/qms-inspection.controller.ts` | Created (Phase 13) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -334,7 +352,8 @@ Do not start UI work until the service layer has passing tests.
 - **Phase 0 roles:** Admin, Manager (seeded in `prisma/seed.ts`)
 - **Phase 1 role:** Viewer (read-only; authenticated reads, no writes)
 - **Phase 12 roles:** Operator (start/stop operations), Supervisor (verify work orders)
-- **Write gating:** Admin and Manager for master data mutations (tRPC `editorProcedure`); Operator+ for floor actions (`operatorProcedure`); Supervisor+ for verification (`supervisorProcedure`)
+- **Phase 13 role:** Inspector (complete inspections, report scrap/NC); disposition remains Supervisor/Admin
+- **Write gating:** Admin and Manager for master data mutations (tRPC `editorProcedure`); Operator+ for floor actions (`operatorProcedure`); Inspector+ for inspections (`inspectorProcedure`); Supervisor+ for verification/disposition (`supervisorProcedure`)
 - **Extension rule:** New personas extend the role table — do not create parallel permission systems
 
 ### Testing
@@ -376,7 +395,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 10 | Procurement & vendor integration | **Complete** |
 | 11 | Workforce management (time & scheduling) | **Complete** |
 | 12 | MES — production execution | **Complete** |
-| 13 | QMS — quality management | Not started |
+| 13 | QMS — quality management | **Complete** |
 | 14 | CMMS — maintenance management | Not started |
 | 15 | Returns & RMA management | Not started |
 | 16 | Analytics & AI | Not started |
@@ -441,6 +460,10 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `mes.operation.completed` | mes | 12 | `{ cycleId, operationId, workOrderId, durationMinutes, quantityCompleted }` |
 | `mes.cycle.recorded` | mes | 12 | `{ cycleId, operationId, employeeId, durationMinutes, quantityCompleted, quantityScrapped }` |
 | `mes.workorder.verified` | mes | 12 | `{ workOrderId, verifiedByUserId, photoObjectKey }` |
+| `qms.inspection.completed` | qms | 13 | `{ inspectionId, templateId, workOrderId?, result }` |
+| `qms.nonconformance.raised` | qms | 13 | `{ nonConformanceId, ncNumber, severity, holdActive, workOrderId?, binId? }` |
+| `qms.nonconformance.resolved` | qms | 13 | `{ nonConformanceId, ncNumber, disposition, workOrderId?, binId? }` |
+| `qms.scrap.reported` | qms | 13 | `{ nonConformanceId, quantityScrapped, workOrderId?, binId? }` |
 
 ---
 

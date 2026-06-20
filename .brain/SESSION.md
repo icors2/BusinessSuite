@@ -12,37 +12,36 @@
 
 ## Current Focus
 
-Phase 12 — MES (Production Execution) **complete**.
+Phase 13 — QMS (Quality Management) **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 13 (QMS)._
+_None — ready for Phase 14 (CMMS)._
 
 ---
 
 ## Recent Progress
 
-- Prisma MES schema: Workstation, WorkOrderOperation, CycleRecord, WorkOrderVerification; migration `20260620125310_add_mes`
-- Created `libs/mes` — cycle/placard pure functions, MesService, MesGateway (Socket.IO `/mes`), EVENTS.md
-- tRPC `mes` router with operatorProcedure/supervisorProcedure; MesVerificationController for photo upload
-- UI: operator-console, supervisor (live dashboard), scheduling board, placard print view
-- Seed: WS-LASER, 2 ops on seeded WO, closed cycle for EMP-0001; Operator/Supervisor users
-- 7 mes unit tests + 8 mes integration tests; full suite green (19 projects)
-- API Jest: `SKIP_MES_GATEWAY=true` + 60s timeout to avoid Redis subscriber bootstrap hangs
+- Prisma QMS schema: InspectionTemplate/Criterion/Record/Result, NonConformanceRecord; WorkOrder.onHold + Bin.onHold; migration `20260620132945_add_qms`
+- Created `libs/qms` — evaluation, NC numbering, QmsService, EVENTS.md
+- Inspector RBAC + hold enforcement in MES (start/verify) and WMS (pick/ship)
+- tRPC `qms` router; QmsInspectionController for criterion photos
+- UI: checklist-builder, inspection tablet, non-conformance disposition
+- Seed: TMPL-FINAL, passing inspection; inspector@arcncode.local
+- 6 qms unit tests + 7 qms integration tests; full suite green (20 projects)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 13 — QMS (Quality Management)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 14 — CMMS (Maintenance Management)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- startOperation requires open TimeEntry (Phase 11 clock-in); operator attributed from employeeId/badge
-- verifyWorkOrder blocked until all operations COMPLETED; sets WO AWAITING_VERIFICATION → VERIFIED
-- Real-time: MesGateway subscribes to `mes.*` on Redis event bus and emits `mes.event` to Socket.IO clients
-- Placards: server-rendered HTML with dependency-free Code128 SVG encoding woNumber
+- HOLD severity sets denormalized onHold on WorkOrder/Bin; cleared only when all open NC holds resolved
+- Failed inspections auto-raise NC with HOLD severity linked to work order
+- Bin is inventory hold target (no lot model) — documented in libs/qms README

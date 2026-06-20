@@ -18,3 +18,13 @@ export function canOperate(roles: string[]): boolean {
 export function canVerify(roles: string[]): boolean {
   return roles.some((role) => ['Admin', 'Supervisor'].includes(role));
 }
+
+export function canInspect(roles: string[]): boolean {
+  return roles.some((role) =>
+    ['Admin', 'Manager', 'Supervisor', 'Inspector'].includes(role),
+  );
+}
+
+export function canDisposition(roles: string[]): boolean {
+  return roles.some((role) => ['Admin', 'Supervisor'].includes(role));
+}

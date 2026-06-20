@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 12 MES (Production Execution) complete.
+Integrated manufacturing operations platform — Phase 13 QMS (Quality Management) complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 12 MES (Production Execut
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times), procurement seed data (issued PO PO-2026-SEED1 with sample receipt for scorecard), workforce seed data (EMP-0001, DAY shift, assignment, closed time entry on seeded work order), and MES seed data (WS-LASER workstation, 2 sequential operations on seeded WO, closed cycle for EMP-0001) are seeded after migration.
+Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line), MPS seed data (LINE-MAIN production line, 30-day factory calendar, sample work order), MRP seed data (SKU-001 MAKE with 2-level BOM, BUY components with lead times), procurement seed data (issued PO PO-2026-SEED1 with sample receipt for scorecard), workforce seed data (EMP-0001, DAY shift, assignment, closed time entry on seeded work order), MES seed data (WS-LASER workstation, 2 sequential operations on seeded WO, closed cycle for EMP-0001), and QMS seed data (TMPL-FINAL checklist, passing inspection on seeded WO) are seeded after migration.
 
 ## API endpoints
 
@@ -237,6 +237,24 @@ Shop floor execution: workstations, sequential work-order operations, cycle reco
 
 Real-time updates use a NestJS Socket.IO gateway (`/mes` namespace) fed by `mes.*` events on the Redis event bus.
 
+### tRPC (QMS — Phase 13)
+
+Quality management: configurable inspection templates, inspector-completed checklists with photo-per-criterion evidence, non-conformance records with hold flags that block MES/WMS until disposition.
+
+| Router | Procedures |
+|--------|------------|
+| `qms` | upsertTemplate, addCriterion, completeInspection, raiseNonConformance, reportScrap, disposition, listTemplates, getTemplate, listInspections, getInspection, listNonConformances, getNonConformance |
+
+## ERP Admin UI (QMS pages)
+
+| Route | Description |
+|-------|-------------|
+| `/qms/inspection` | Tablet inspector UI — complete pass/fail + measured checklists |
+| `/qms/checklist-builder` | Admin template builder (pass/fail + measurement criteria) |
+| `/qms/non-conformance` | NC list with HOLD badges + supervisor disposition workflow |
+
+Hold behavior: `HOLD` severity sets `WorkOrder.onHold` and/or `Bin.onHold`; MES blocks start/verify and WMS blocks pick/ship until disposition clears all open holds.
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -316,6 +334,7 @@ libs/mrp          Material Requirements Planning, BOM explosion, requisitions
 libs/procurement  Purchase orders, vendor intake, receive-against-PO, scorecards
 libs/workforce    Employees, shifts, time clock, labor cost roll-up
 libs/mes          Workstations, operations, cycles, verification, placards, Socket.IO gateway
+libs/qms          Inspection templates, records, non-conformance, hold enforcement
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -323,7 +342,7 @@ libs/shared/
   event-bus       Redis Streams pub/sub
   audit           Audit logging to Postgres
   health          /health watchdog
-  auth            JWT + RBAC (Admin, Manager, Viewer, Operator, Supervisor)
+  auth            JWT + RBAC (Admin, Manager, Viewer, Operator, Supervisor, Inspector)
   storage         MinIO/S3 object storage wrapper
 ```
 
@@ -360,4 +379,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 10 status:** Complete  
 **Phase 11 status:** Complete  
 **Phase 12 status:** Complete  
-**Next phase:** Phase 13 — QMS (Quality Management)
+**Phase 13 status:** Complete  
+**Next phase:** Phase 14 — CMMS (Maintenance Management)

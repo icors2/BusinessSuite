@@ -241,6 +241,11 @@ export class MesService {
     if (!operation) {
       throw new NotFoundException('Operation not found');
     }
+    if (operation.workOrder.onHold) {
+      throw new BadRequestException(
+        'Work order is on quality hold — cannot start operation',
+      );
+    }
     if (!canStartOperation(operation.status)) {
       throw new BadRequestException(
         `Cannot start operation in status ${operation.status}`,
@@ -407,6 +412,11 @@ export class MesService {
     });
     if (!wo) {
       throw new NotFoundException('Work order not found');
+    }
+    if (wo.onHold) {
+      throw new BadRequestException(
+        'Work order is on quality hold — cannot verify',
+      );
     }
     if (wo.verification) {
       throw new BadRequestException('Work order is already verified');

@@ -27,13 +27,12 @@ import { MesOperatorConsolePage } from '../pages/mes/operator-console';
 import { MesSupervisorPage } from '../pages/mes/supervisor';
 import { MesSchedulingPage } from '../pages/mes/scheduling';
 import { MesPlacardPage } from '../pages/mes/placard';
+import { QmsChecklistBuilderPage } from '../pages/qms/checklist-builder';
+import { QmsInspectionPage } from '../pages/qms/inspection';
+import { QmsNonConformancePage } from '../pages/qms/non-conformance';
 import { WorkforceSchedulePage } from '../pages/workforce/schedule';
 import { TimeClockPage } from '../pages/workforce/time-clock';
 import { LaborCostPage } from '../pages/workforce/labor-cost';
-import { MesOperatorConsolePage } from '../pages/mes/operator-console';
-import { MesSupervisorPage } from '../pages/mes/supervisor';
-import { MesSchedulingPage } from '../pages/mes/scheduling';
-import { MesPlacardPage } from '../pages/mes/placard';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -84,6 +83,9 @@ export function App() {
         <Route path="mes/supervisor" element={<MesSupervisorPage />} />
         <Route path="mes/scheduling" element={<MesSchedulingPage />} />
         <Route path="mes/placard" element={<MesPlacardPage />} />
+        <Route path="qms/inspection" element={<QmsInspectionPage />} />
+        <Route path="qms/checklist-builder" element={<QmsChecklistBuilderPage />} />
+        <Route path="qms/non-conformance" element={<QmsNonConformancePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

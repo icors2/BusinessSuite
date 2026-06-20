@@ -1,0 +1,27 @@
+{
+  "name": "qms",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/qms/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/qms",
+        "main": "libs/qms/src/index.ts",
+        "tsConfig": "libs/qms/tsconfig.lib.json",
+        "assets": ["libs/qms/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/qms/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}
