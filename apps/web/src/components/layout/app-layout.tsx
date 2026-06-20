@@ -18,6 +18,7 @@ const navItems = [
   { to: '/wms/inventory', label: 'Inventory' },
   { to: '/cpq/quotes', label: 'Quotes' },
   { to: '/cpq/catalog', label: 'Catalog' },
+  { to: '/sales/orders', label: 'Orders' },
 ];
 
 export function AppLayout() {

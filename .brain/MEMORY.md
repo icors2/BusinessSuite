@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | Phase 6 complete — CPQ quoting (FabQuote engine, product + fabricated lines, snapshot freeze, sales events) |
+| **Repo status** | Phase 7 complete — sales orders, WMS allocation, fulfillment, invoice-on-ship |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -23,9 +23,23 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 
 | Field | Value |
 |-------|-------|
-| **Active phase** | None — Phase 6 complete |
-| **Next phase** | **Phase 7 — Sales Order Management & Fulfillment** |
+| **Active phase** | None — Phase 7 complete |
+| **Next phase** | **Phase 8 — MPS (Production Scheduling)** |
 | **Last updated** | 2026-06-20 |
+
+### Phase 7 Definition of Done
+
+Full prompt: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 7](../Arc_N_Code_AI_Build_Prompts_v6.md#phase-7--sales-order-management--fulfillment--complete)
+
+- [x] Prisma schema: SalesOrder, SalesOrderLine, SalesOrderShipment; SalesOrderStatus/SalesOrderLineKind enums
+- [x] `libs/sales` — SalesOrderService (convertFromQuote idempotent, greedy WMS allocate, confirmShipment + invoice, cancel)
+- [x] QuoteAcceptedSubscriber listens for `sales.quote.accepted` (consumer group `sales-orders`)
+- [x] FABRICATED lines = make-to-order (`toProduce`); PRODUCT lines allocate from WMS
+- [x] tRPC `salesOrder` router; SalesModule wired in API
+- [x] Sales UI: orders list, order detail (allocate, ship, cancel), Convert-to-Order on accepted quotes
+- [x] Events: `sales.order.created/allocated/shipped/backordered`
+- [x] Unit + integration tests (full/partial allocation, invoice-on-ship, idempotent convert, Viewer block)
+- [x] Seed: SO-SEED-001 with allocated PRODUCT + MTO FABRICATED line
 
 ### Phase 6 Definition of Done
 
@@ -142,6 +156,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | WMS UI | `apps/web/src/pages/wms/*` | Created (Phase 5) |
 | CPQ lib | `libs/cpq` | Created (Phase 6) |
 | CPQ UI | `apps/web/src/pages/cpq/*` | Created (Phase 6) |
+| Sales lib | `libs/sales` | Created (Phase 7) |
+| Sales UI | `apps/web/src/pages/sales/*` | Created (Phase 7) |
 | Migration CLI | `scripts/migrate.ts` | Created (Phase 2) |
 | Legacy sample data | `data/legacy-samples/` | Created (Phase 2) |
 | Migration docs | `docs/migration-*.md` | Created (Phase 2) |
@@ -153,7 +169,7 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Shared auth lib | `libs/shared/auth` | Created |
 | Docker Compose | `docker-compose.yml` | Created |
 | Dockerfile | `Dockerfile` | Created |
-| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM, WMS, CPQ) |
+| Prisma schema | `libs/shared/database/prisma/schema.prisma` | Extended (master data, migration staging, finance, PLM, WMS, CPQ, Sales) |
 | CI pipeline | `.github/workflows/ci.yml` | Created |
 | Root README (local dev) | `README.md` | Updated |
 | Env files | `.env.example` | Created |
@@ -187,6 +203,8 @@ Full prompt and deliverables: [Arc_N_Code_AI_Build_Prompts_v6.md — Phase 0](..
 | Product list price | **`Product.listPrice` + Customer.priceTier** | 6 | Rule-based tier/volume/override for PRODUCT lines |
 | Fabricated line costing | **FabQuote engine via injected catalog** | 6 | fabInput JSON + costBreakdown; quantity-break unit price |
 | Quote status machine | **DRAFT→SENT→terminal; accept rejects expired** | 6 | pricingSnapshot frozen on send |
+| Sales order fulfillment | **allocate → ship → invoice (shipped qty only)** | 7 | WMS allocate/ship + Finance create+post; FABRICATED = MTO |
+| Quote-to-order conversion | **Event subscriber + manual tRPC convert (idempotent)** | 7 | One order per quoteId; frozen quoted pricing |
 | Finance as source of truth | **Services-only writes to ledger** | 3 | Other modules emit events; no direct ledger table writes |
 | Money storage | **Decimal(18,2) in DB; number in API** | 3 | tRPC JSON responses use plain numbers |
 | Posted journal immutability | **Reversing entries only** | 3 | `JournalService.reverse()` mirrors debits/credits |
@@ -269,7 +287,7 @@ Full prompts and Definition-of-Done checklists: [Arc_N_Code_AI_Build_Prompts_v6.
 | 4 | PLM & documents | **Complete** |
 | 5 | WMS — inventory | **Complete** |
 | 6 | CRM & CPQ — sales | **Complete** |
-| 7 | Sales order management & fulfillment | Not started |
+| 7 | Sales order management & fulfillment | **Complete** |
 | 8 | MPS — production scheduling | Not started |
 | 9 | MRP — material planning | Not started |
 | 10 | Procurement & vendor integration | Not started |
@@ -321,6 +339,10 @@ Cross-module event topics registered as phases complete. Module-specific details
 | `sales.quote.accepted` | cpq | 6 | `{ quoteId, quoteNumber, customerId, total, currency, lines[] }` |
 | `sales.quote.rejected` | cpq | 6 | `{ quoteId, quoteNumber, customerId }` |
 | `sales.quote.expired` | cpq | 6 | `{ quoteId, quoteNumber, customerId }` |
+| `sales.order.created` | sales | 7 | `{ orderId, orderNumber, quoteId, customerId, total }` |
+| `sales.order.allocated` | sales | 7 | `{ orderId, orderNumber, lines[] }` |
+| `sales.order.backordered` | sales | 7 | `{ orderId, orderNumber, lines[] with qtyBackordered }` |
+| `sales.order.shipped` | sales | 7 | `{ orderId, orderNumber, shipmentId, invoiceId, shippedLines[] }` |
 
 ---
 

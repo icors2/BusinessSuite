@@ -150,6 +150,13 @@ export function CpqQuoteEditorPage() {
     onSuccess: () => quoteQuery.refetch(),
   });
 
+  const convertMutation = trpc.salesOrder.convert.useMutation({
+    onSuccess: (order) => {
+      setMessage(`Order ${order.orderNumber} created`);
+      navigate(`/sales/orders/${order.id}`);
+    },
+  });
+
   const quote = quoteQuery.data;
   const isDraft = quote?.status === 'DRAFT';
 
@@ -531,6 +538,16 @@ export function CpqQuoteEditorPage() {
                       Reject
                     </Button>
                   </>
+                )}
+                {quote.status === 'ACCEPTED' && (
+                  <Button
+                    onClick={() =>
+                      convertMutation.mutate({ quoteId: quote.id })
+                    }
+                    disabled={convertMutation.isPending}
+                  >
+                    Convert to order
+                  </Button>
                 )}
               </CardContent>
             </Card>

@@ -19,6 +19,7 @@ import {
 import { DocumentService } from 'plm';
 import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
+import { SalesOrderService } from 'sales';
 import { EVENT_BUS, EventBus } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -89,6 +90,7 @@ describe('WMS tRPC Integration', () => {
       locationService: app.get(LocationService),
       quoteService: app.get(QuoteService),
       cpqCatalogService: app.get(CpqCatalogService),
+      salesOrderService: app.get(SalesOrderService),
     });
 
     const adminLogin = await import('supertest').then((m) =>

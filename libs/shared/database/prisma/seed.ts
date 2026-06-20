@@ -249,6 +249,7 @@ async function main(): Promise<void> {
 
   await seedFinance(prisma);
   await seedCpq(prisma, customerId);
+  await seedSales(prisma, customerId);
 
   console.log('Seed complete:', {
     adminUserId: adminUser.id,
@@ -616,6 +617,133 @@ async function seedCpq(client: PrismaClient, customerId: string): Promise<void> 
       subtotal: 237.45,
       discountTotal: 0,
       total: 237.45,
+    },
+  });
+}
+
+/** Phase 7 — sample sales order from accepted quote (product + fabricated MTO). */
+async function seedSales(
+  client: PrismaClient,
+  customerId: string,
+): Promise<void> {
+  const existing = await client.salesOrder.findUnique({
+    where: { orderNumber: 'SO-SEED-001' },
+  });
+  if (existing) return;
+
+  const product = await client.product.findUniqueOrThrow({
+    where: { sku: 'SKU-001' },
+  });
+
+  const bin = await client.bin.findUnique({ where: { code: 'A-01-01' } });
+  const inv = bin
+    ? await client.inventoryQuantity.findUnique({
+        where: {
+          productId_binId: { productId: product.id, binId: bin.id },
+        },
+      })
+    : null;
+  const onHand = inv ? Number(inv.onHand) : 0;
+  const allocated = inv ? Number(inv.allocated) : 0;
+  const available = Math.max(0, onHand - allocated);
+
+  const validUntil = new Date();
+  validUntil.setFullYear(validUntil.getFullYear() + 1);
+
+  const quote = await client.quote.upsert({
+    where: { quoteNumber: 'Q-SEED-SO-SOURCE' },
+    update: { status: 'ACCEPTED' },
+    create: {
+      quoteNumber: 'Q-SEED-SO-SOURCE',
+      customerId,
+      status: 'ACCEPTED',
+      validUntil,
+      currency: 'USD',
+      subtotal: 474.9,
+      total: 474.9,
+      lines: {
+        create: [
+          {
+            lineNumber: 1,
+            kind: 'PRODUCT',
+            productId: product.id,
+            description: product.description,
+            quantity: 10,
+            unitPrice: 47.49,
+            lineTotal: 474.9,
+          },
+          {
+            lineNumber: 2,
+            kind: 'FABRICATED',
+            description: 'Bracket assembly (make-to-order)',
+            quantity: 1,
+            unitPrice: 95,
+            lineTotal: 95,
+            fabInput: {
+              kind: 'plate',
+              name: 'Bracket',
+              material: 'S-P0063-3003',
+              length: 8,
+              width: 4,
+            },
+          },
+        ],
+      },
+    },
+  });
+
+  const qtyOrdered = 10;
+  const qtyAllocated = Math.min(qtyOrdered, available);
+  const qtyBackordered = Math.max(0, qtyOrdered - qtyAllocated);
+
+  const allocationDetails =
+    bin && qtyAllocated > 0
+      ? [{ binId: bin.id, binCode: bin.code, quantity: qtyAllocated }]
+      : [];
+
+  if (bin && qtyAllocated > 0) {
+    await client.inventoryQuantity.update({
+      where: {
+        productId_binId: { productId: product.id, binId: bin.id },
+      },
+      data: { allocated: { increment: qtyAllocated } },
+    });
+  }
+
+  await client.salesOrder.create({
+    data: {
+      orderNumber: 'SO-SEED-001',
+      quoteId: quote.id,
+      customerId,
+      status: qtyBackordered > 0 ? 'BACKORDERED' : 'ALLOCATED',
+      currency: 'USD',
+      subtotal: 569.9,
+      total: 569.9,
+      lines: {
+        create: [
+          {
+            lineNumber: 1,
+            kind: 'PRODUCT',
+            productId: product.id,
+            description: product.description,
+            unitPrice: 47.49,
+            qtyOrdered,
+            qtyAllocated,
+            qtyBackordered,
+            lineTotal: 474.9,
+            allocationDetails,
+          },
+          {
+            lineNumber: 2,
+            kind: 'FABRICATED',
+            description: 'Bracket assembly (make-to-order)',
+            unitPrice: 95,
+            qtyOrdered: 1,
+            toProduce: true,
+            lineTotal: 95,
+          },
+        ],
+      },
     },
   });
 }

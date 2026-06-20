@@ -12,37 +12,37 @@
 
 ## Current Focus
 
-Phase 6 — CRM & CPQ (Sales Quoting) **complete**.
+Phase 7 — Sales Order Management & Fulfillment **complete**.
 
 ---
 
 ## Active Task
 
-_None — ready for Phase 7 (Sales Order Management & Fulfillment)._
+_None — ready for Phase 8 (MPS — Production Scheduling)._
 
 ---
 
 ## Recent Progress
 
-- Prisma CPQ schema: Quote, QuoteLine, CpqMaterial, CpqCatalogPart, CpqSetting; migration `20260620060357_add_cpq_quoting`
-- Created `libs/cpq` — FabQuote engine (formulas, plate/tube/weldment/purchased), pricing, QuoteService, CatalogService, EVENTS.md
-- tRPC `quote` + `cpqCatalog` routers; CpqModule wired in API
-- CPQ UI: quotes list, quote editor (product + fabricated builder, print/CSV), digital catalog at `/cpq/*`
-- Seed: ~20 materials, catalog parts, rate card/pricing config, sample DRAFT quote Q-SEED-CPQ-001
-- 13 cpq unit tests + 3 cpq integration tests; full suite green (13 projects)
-- Updated MEMORY.md, README.md, build prompts doc (Phase 6 ✅ COMPLETE)
+- Prisma sales schema: SalesOrder, SalesOrderLine, SalesOrderShipment; migration `20260620111524_add_sales_orders`
+- Created `libs/sales` — SalesOrderService, QuoteAcceptedSubscriber, greedy allocation helper, EVENTS.md
+- tRPC `salesOrder` router; SalesModule wired (WmsModule + FinanceModule)
+- Sales UI: orders list, order detail (allocate/ship/cancel), Convert-to-Order on accepted quotes
+- Seed: SO-SEED-001 with allocated PRODUCT + MTO FABRICATED line
+- 12 sales unit tests + 5 sales integration tests; full suite green (14 projects)
+- Updated MEMORY.md, README.md, build prompts doc (Phase 7 ✅ COMPLETE)
 
 ---
 
 ## Next Steps
 
-1. Start **Phase 7 — Sales Order Management & Fulfillment** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
+1. Start **Phase 8 — MPS (Production Scheduling)** using [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md)
 
 ---
 
 ## Session Notes
 
-- Snapshot freeze on send: pricingSnapshot holds rate card, config, formula overrides, per-line prices
-- No Dynamics GP export (internal tool; ERP hand-off deferred)
-- Legacy tube drill/tap ÷0.5 quirk intentionally NOT reproduced
-- `sales.quote.accepted` payload includes lines[] for Phase 7 order creation
+- FABRICATED lines skip WMS allocation (`toProduce=true`); shippable manually
+- confirmShipment calls InvoiceService.create + post for shipped qty only
+- QuoteAcceptedSubscriber disabled in tests via SKIP_SALES_SUBSCRIBER=true
+- Re-allocation via salesOrder.allocate when backordered stock arrives

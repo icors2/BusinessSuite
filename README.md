@@ -1,6 +1,6 @@
 # Arc N Code Business Suite
 
-Integrated manufacturing operations platform — Phase 6 CRM & CPQ (Sales) complete.
+Integrated manufacturing operations platform — Phase 7 Sales Order Management & Fulfillment complete.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Integrated manufacturing operations platform — Phase 6 CRM & CPQ (Sales) compl
 | manager@arcncode.local | Manager123! | Manager |
 | viewer@arcncode.local | Viewer123! | Viewer (read-only) |
 
-Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), and CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001) are seeded after migration.
+Sample master data (products with list prices, customer with price tier, vendor), finance seed data (Chart of Accounts, sample AR/AP), a sample PLM document (metadata-only DRAFT revision on SKU-001), WMS seed data (MAIN warehouse, bins A-01-01/A-01-02 with on-hand for SKU-001/SKU-002), CPQ seed data (demo materials, catalog parts, rate card, sample draft quote Q-SEED-CPQ-001), and sales seed data (sample order SO-SEED-001 with allocated product + MTO fabricated line) are seeded after migration.
 
 ## API endpoints
 
@@ -144,6 +144,21 @@ FabQuote-derived costing engine + rule-based product pricing; quote lifecycle wi
 | `/cpq/quotes/:id` | Quote editor (product + fabricated lines, send/accept/reject, print/CSV) |
 | `/cpq/catalog` | Digital product catalog with live tier/volume pricing |
 
+### tRPC (Sales — Phase 7)
+
+Quote-to-order conversion, WMS allocation, shipment + Finance invoicing.
+
+| Router | Procedures |
+|--------|------------|
+| `salesOrder` | convert, get, list, allocate, confirmShipment, cancel |
+
+## ERP Admin UI (Sales pages)
+
+| Route | Description |
+|-------|-------------|
+| `/sales/orders` | Order list with status/backorder badges |
+| `/sales/orders/:id` | Order detail (allocation progress, ship, cancel, invoice links) |
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -217,6 +232,7 @@ libs/finance      Chart of Accounts, journal entries, AR/AP, payments, reports
 libs/plm          Document control, revision lifecycle, PLM events
 libs/wms          Locations, bins, inventory quantities, movements
 libs/cpq          FabQuote engine, quotes, CPQ catalog, sales events
+libs/sales        Sales orders, WMS allocation, fulfillment, invoice-on-ship
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader
@@ -255,4 +271,5 @@ See [Arc_N_Code_AI_Build_Prompts_v6.md](Arc_N_Code_AI_Build_Prompts_v6.md) for t
 **Phase 4 status:** Complete  
 **Phase 5 status:** Complete  
 **Phase 6 status:** Complete  
-**Next phase:** Phase 7 — Sales Order Management & Fulfillment
+**Phase 7 status:** Complete  
+**Next phase:** Phase 8 — MPS (Production Scheduling)

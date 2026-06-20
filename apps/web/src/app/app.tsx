@@ -17,6 +17,8 @@ import { WmsInventoryPage } from '../pages/wms/inventory';
 import { CpqQuotesPage } from '../pages/cpq/quotes';
 import { CpqQuoteEditorPage } from '../pages/cpq/quote-editor';
 import { CpqCatalogPage } from '../pages/cpq/catalog';
+import { SalesOrdersPage } from '../pages/sales/orders';
+import { SalesOrderDetailPage } from '../pages/sales/order-detail';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -54,6 +56,8 @@ export function App() {
         <Route path="cpq/quotes" element={<CpqQuotesPage />} />
         <Route path="cpq/quotes/:id" element={<CpqQuoteEditorPage />} />
         <Route path="cpq/catalog" element={<CpqCatalogPage />} />
+        <Route path="sales/orders" element={<SalesOrdersPage />} />
+        <Route path="sales/orders/:id" element={<SalesOrderDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

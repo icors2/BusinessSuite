@@ -11,6 +11,7 @@ import { PlmModule } from 'plm';
 import { StorageModule } from 'storage';
 import { WmsModule } from 'wms';
 import { CpqModule } from 'cpq';
+import { SalesModule } from 'sales';
 import { AppController } from './app.controller';
 import { DocumentsController } from './documents.controller';
 
@@ -29,6 +30,7 @@ const config = loadAppConfig();
     PlmModule,
     WmsModule,
     CpqModule,
+    SalesModule,
   ],
   controllers: [AppController, DocumentsController],
 })

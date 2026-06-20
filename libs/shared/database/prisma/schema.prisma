@@ -76,6 +76,7 @@ model Product {
   inventory     InventoryQuantity[]
   movements     InventoryMovement[]
   quoteLines    QuoteLine[]
+  salesOrderLines SalesOrderLine[]
 
   @@index([active])
   @@index([category])
@@ -242,6 +243,7 @@ model Customer {
   updatedAt       DateTime  @updatedAt
   invoices        Invoice[]
   quotes          Quote[]
+  salesOrders     SalesOrder[]
 
   @@index([active])
   @@index([name])
@@ -497,6 +499,7 @@ model Quote {
 
   customer Customer    @relation(fields: [customerId], references: [id])
   lines    QuoteLine[]
+  salesOrder SalesOrder?
 
   @@index([status])
   @@index([customerId])
@@ -564,6 +567,93 @@ model CpqSetting {
   key       String   @id
   value     Json
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Phase 7 — Sales Order Management & Fulfillment
+//
+// Sales orders convert from accepted quotes at frozen pricing. PRODUCT lines
+// allocate from WMS inventory; FABRICATED lines are make-to-order (toProduce).
+// Shipments trigger Finance invoicing for shipped quantity only.
+// ---------------------------------------------------------------------------
+
+enum SalesOrderStatus {
+  DRAFT
+  ALLOCATED
+  BACKORDERED
+  PARTIALLY_SHIPPED
+  SHIPPED
+  CANCELLED
+}
+
+enum SalesOrderLineKind {
+  PRODUCT
+  FABRICATED
+}
+
+model SalesOrder {
+  id                String           @id @default(uuid())
+  orderNumber       String           @unique
+  quoteId           String?          @unique
+  customerId        String
+  status            SalesOrderStatus @default(DRAFT)
+  requestedShipDate DateTime?
+  currency          String           @default("USD")
+  notes             String?
+  createdById       String?
+  subtotal          Decimal          @default(0) @db.Decimal(18, 2)
+  total             Decimal          @default(0) @db.Decimal(18, 2)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  customer  Customer             @relation(fields: [customerId], references: [id])
+  quote     Quote?               @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  lines     SalesOrderLine[]
+  shipments SalesOrderShipment[]
+
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model SalesOrderLine {
+  id                String             @id @default(uuid())
+  orderId           String
+  lineNumber        Int
+  kind              SalesOrderLineKind
+  productId         String?
+  description       String
+  unitPrice         Decimal            @default(0) @db.Decimal(18, 4)
+  qtyOrdered        Decimal            @default(0) @db.Decimal(18, 4)
+  qtyAllocated      Decimal            @default(0) @db.Decimal(18, 4)
+  qtyShipped        Decimal            @default(0) @db.Decimal(18, 4)
+  qtyBackordered    Decimal            @default(0) @db.Decimal(18, 4)
+  toProduce         Boolean            @default(false)
+  lineTotal         Decimal            @default(0) @db.Decimal(18, 2)
+  allocationDetails Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  order   SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@unique([orderId, lineNumber])
+  @@index([orderId])
+  @@index([productId])
+}
+
+model SalesOrderShipment {
+  id             String   @id @default(uuid())
+  orderId        String
+  shipmentNumber String
+  invoiceId      String?
+  shippedAt      DateTime @default(now())
+  lines          Json
+  createdAt      DateTime @default(now())
+
+  order SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
 }
 
 // ---------------------------------------------------------------------------

@@ -21,6 +21,7 @@ import { createAppRouter } from 'trpc';
 import { DocumentService } from 'plm';
 import { InventoryService, LocationService } from 'wms';
 import { CpqCatalogService, QuoteService } from 'cpq';
+import { SalesOrderService } from 'sales';
 import { AppModule } from './app.module';
 
 const DATABASE_URL =
@@ -79,6 +80,7 @@ describe('Finance tRPC Integration', () => {
       locationService: app.get(LocationService),
       quoteService: app.get(QuoteService),
       cpqCatalogService: app.get(CpqCatalogService),
+      salesOrderService: app.get(SalesOrderService),
     });
 
     const adminLogin = await request(app.getHttpServer())
