@@ -440,6 +440,12 @@ Full-stack Docker with preloaded demo data and in-app tutorials:
 ```bash
 docker compose -f docker-compose.demo.yml up --build -d
 # Web: http://localhost:8080
+
+# Stop (keep demo data)
+docker compose -f docker-compose.demo.yml down
+
+# Stop and wipe volumes (fresh seed on next start)
+docker compose -f docker-compose.demo.yml down -v
 ```
 
 **Run from GHCR (evaluators — any PC, no clone):**
@@ -448,6 +454,12 @@ docker compose -f docker-compose.demo.yml up --build -d
 curl -fsSL -o docker-compose.ghcr.yml \
   https://raw.githubusercontent.com/icors2/BusinessSuite/demo/docker-compose.ghcr.yml \
   && docker compose -f docker-compose.ghcr.yml up -d --pull always
+
+# Stop (keep demo data)
+docker compose -f docker-compose.ghcr.yml down
+
+# Stop and wipe volumes
+docker compose -f docker-compose.ghcr.yml down -v
 ```
 
 ## Backup & restore

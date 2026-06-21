@@ -213,6 +213,20 @@ docker compose -f docker-compose.ghcr.yml down
 docker compose -f docker-compose.ghcr.yml down -v
 ```
 
+**Windows PowerShell** (same commands):
+
+```powershell
+docker compose -f docker-compose.ghcr.yml down
+docker compose -f docker-compose.ghcr.yml down -v
+```
+
+**Local build** (`docker-compose.demo.yml`):
+
+```bash
+docker compose -f docker-compose.demo.yml down
+docker compose -f docker-compose.demo.yml down -v
+```
+
 ### Troubleshooting
 
 | Symptom | Likely cause | Fix |
@@ -283,7 +297,7 @@ Provide login credentials from the table in Part B.
 
 - JWT secrets in compose are **fixed demo values** — not safe for production
 - Demo includes predictable passwords — treat as **evaluation only**
-- Tear down the VM or run `docker compose down -v` after the session
+- Tear down the VM or run `docker compose -f docker-compose.ghcr.yml down -v` after the session
 - Prefer IP allowlisting or VPN over wide-open public access
 - Do not store real customer data in the demo stack
 
@@ -329,7 +343,11 @@ docker compose -f docker-compose.ghcr.yml down -v
 | Goal | Command |
 |------|---------|
 | **Evaluate / demo** (pull GHCR) | `docker compose -f docker-compose.ghcr.yml up -d --pull always` |
+| **Stop GHCR demo** (keep data) | `docker compose -f docker-compose.ghcr.yml down` |
+| **Reset GHCR demo** (wipe volumes) | `docker compose -f docker-compose.ghcr.yml down -v` |
 | **Develop demo stack** (build locally) | `docker compose -f docker-compose.demo.yml up --build -d` |
+| **Stop local demo** (keep data) | `docker compose -f docker-compose.demo.yml down` |
+| **Reset local demo** (wipe volumes) | `docker compose -f docker-compose.demo.yml down -v` |
 
 Use [`docker-compose.demo.yml`](../../docker-compose.demo.yml) when changing Dockerfiles or testing image builds on your machine. Use [`docker-compose.ghcr.yml`](../../docker-compose.ghcr.yml) for everyone else.
 
@@ -349,4 +367,14 @@ curl -fsSL -o docker-compose.ghcr.yml \
 # Open demo
 open http://localhost:8080   # macOS
 start http://localhost:8080  # Windows
+
+# Stop (keep demo data)
+docker compose -f docker-compose.ghcr.yml down
+
+# Stop and wipe volumes (fresh seed on next up)
+docker compose -f docker-compose.ghcr.yml down -v
+
+# Local build — stop / reset
+docker compose -f docker-compose.demo.yml down
+docker compose -f docker-compose.demo.yml down -v
 ```
