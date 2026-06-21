@@ -10,11 +10,16 @@ import {
 @Injectable()
 export class RedisStreamEventBus implements EventBus, OnModuleDestroy {
   private readonly logger = new Logger(RedisStreamEventBus.name);
+  /** Commands: XADD, XGROUP, XACK */
   private readonly redis: Redis;
+  /** Blocking reads only — avoids starving XGROUP during subscriber startup */
+  private readonly blockingRedis: Redis;
   private readonly stopHandlers = new Map<string, () => Promise<void>>();
 
   constructor(redisUrl: string) {
-    this.redis = new Redis(redisUrl, { maxRetriesPerRequest: null });
+    const options = { maxRetriesPerRequest: null } as const;
+    this.redis = new Redis(redisUrl, options);
+    this.blockingRedis = new Redis(redisUrl, options);
   }
 
   async publish<TPayload extends Record<string, unknown>>(
@@ -76,7 +81,7 @@ export class RedisStreamEventBus implements EventBus, OnModuleDestroy {
 
     const poll = async (): Promise<void> => {
       while (running) {
-        const results = await this.redis.xreadgroup(
+        const results = await this.blockingRedis.xreadgroup(
           'GROUP',
           consumerGroup,
           consumerName,
@@ -107,18 +112,25 @@ export class RedisStreamEventBus implements EventBus, OnModuleDestroy {
 
             const envelope = JSON.parse(rawData) as EventEnvelope<TPayload>;
 
-            if (envelope.topic === topic) {
-              await handler(envelope);
+            try {
+              if (envelope.topic === topic) {
+                await handler(envelope);
+              }
+            } catch (error) {
+              this.logger.error(
+                `Event bus handler error for topic ${topic} (message ${id})`,
+                error,
+              );
+            } finally {
+              await this.redis.xack(EVENT_BUS_STREAM_KEY, consumerGroup, id);
             }
-
-            await this.redis.xack(EVENT_BUS_STREAM_KEY, consumerGroup, id);
           }
         }
       }
     };
 
     void poll().catch((error) => {
-      this.logger.error(`Event bus subscriber error for topic ${topic}`, error);
+      this.logger.error(`Event bus poll loop stopped for topic ${topic}`, error);
     });
 
     const stop = async (): Promise<void> => {
@@ -133,6 +145,6 @@ export class RedisStreamEventBus implements EventBus, OnModuleDestroy {
     for (const stop of this.stopHandlers.values()) {
       await stop();
     }
-    await this.redis.quit();
+    await Promise.all([this.redis.quit(), this.blockingRedis.quit()]);
   }
 }

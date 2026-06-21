@@ -22,7 +22,7 @@ COPY --from=builder /app/dist/apps/api ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/libs/shared/database/prisma ./prisma
 COPY --from=builder /app/scripts/demo-entrypoint.sh /demo-entrypoint.sh
-RUN chmod +x /demo-entrypoint.sh
+RUN sed -i 's/\r$//' /demo-entrypoint.sh && chmod +x /demo-entrypoint.sh
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
@@ -32,7 +32,7 @@ ENV POSTGRES_USER=anc
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=10s --timeout=5s --retries=10 --start-period=60s \
+HEALTHCHECK --interval=10s --timeout=5s --retries=12 --start-period=90s \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
 ENTRYPOINT ["/demo-entrypoint.sh"]

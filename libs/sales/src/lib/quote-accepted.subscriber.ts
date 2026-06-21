@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { CPQ_EVENTS } from 'cpq';
 import { EVENT_BUS, EventBus, EventEnvelope } from 'event-bus';
 import { SalesOrderService } from './sales-order.service';
@@ -37,10 +37,20 @@ export class QuoteAcceptedSubscriber implements OnModuleInit {
         this.logger.log(
           `Converting accepted quote ${payload.quoteNumber} to sales order`,
         );
-        await this.salesOrderService.convertFromQuote(
-          { quoteId },
-          event.actorId,
-        );
+        try {
+          await this.salesOrderService.convertFromQuote(
+            { quoteId },
+            event.actorId,
+          );
+        } catch (error) {
+          if (error instanceof NotFoundException) {
+            this.logger.warn(
+              `Skipping stale sales.quote.accepted for missing quote ${quoteId}`,
+            );
+            return;
+          }
+          throw error;
+        }
       },
       { consumerGroup: 'sales-orders' },
     );

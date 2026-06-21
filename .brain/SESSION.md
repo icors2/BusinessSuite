@@ -12,26 +12,26 @@
 
 ## Current Focus
 
-Docker/deps/GHCR work shipped on `demo` (cae6e11); production fixes on `main` (3f5b8fa).
+Committing API startup fix + Jest/glob upgrades to `demo`; cherry-picking shared fixes to `main`.
 
 ---
 
 ## Active Task
 
-_None._
+_None — pushing commits._
 
 ---
 
 ## Recent Progress
 
-- Pushed `demo` cae6e11: Docker eslint fix, deps, GHCR guide + compose/scripts
-- Cherry-picked to `main` 3f5b8fa: `Dockerfile`, `.dockerignore`, `package*.json`, `ci.yml`
-- Evaluator one-liner can now fetch `docker-compose.ghcr.yml` from `origin/demo`
+- Event-bus: dual Redis connection, handler error ack, stale quote skip; demo entrypoint CRLF strip
+- Jest 29 → 30; `glob@13`, `test-exclude@7`, `@rollup/plugin-commonjs@28` overrides — no glob deprecation on `npm ci`
+- Removed duplicate `jest.config.cts` (Jest 30 requirement)
+- Demo stack healthy after fixes
 
 ---
 
 ## Session Notes
 
-- `event-bus:test` requires local Redis — fails without docker compose infra running
-- Demo data volumes preserved from prior session
-- Phase 18 + GHCR docs stay on `demo`; `main` gets prod Docker + deps only
+- `event-bus:test` requires local Redis
+- `whatwg-encoding` deprecation remains (dev-only via `@nx/web` → `http-server`)

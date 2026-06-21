@@ -36,7 +36,7 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 - [x] `seed-demo.integration.spec.ts`; docs in `docs/demo/`
 - [x] Long-lived `demo` branch; GitHub label `demo`
 
-**Decisions:** Demo work on `demo` branch only (main production-focused); GHCR images `ghcr.io/icors2/businesssuite-{api,web}:demo`; base `seed.ts` unchanged for CI; demo seed calls `seedMain()` then enriches. **GHCR packages must be Public** for anonymous evaluator pulls — see `docs/demo/ghcr-deploy-guide.md`. Evaluator one-liner uses `docker-compose.ghcr.yml` (pull-only, no local build). **Security:** `npm overrides` + Prisma 6.19.3; CI `npm audit --omit=dev --audit-level=high`; Dockerfiles copy `eslint.config.mjs` for Nx build.
+**Decisions:** Demo work on `demo` branch only (main production-focused); GHCR images `ghcr.io/icors2/businesssuite-{api,web}:demo`; base `seed.ts` unchanged for CI; demo seed calls `seedMain()` then enriches. **GHCR packages must be Public** for anonymous evaluator pulls — see `docs/demo/ghcr-deploy-guide.md`. Evaluator one-liner uses `docker-compose.ghcr.yml` (pull-only, no local build). **Security:** `npm overrides` + Prisma 6.19.3; CI `npm audit --omit=dev --audit-level=high`; Dockerfiles copy `eslint.config.mjs` for Nx build. Jest 30 + `glob@13` overrides eliminate deprecated transitive glob 7/8/10. **Event bus:** RedisStreamEventBus uses separate connections for blocking XREADGROUP vs commands; demo entrypoint strips CRLF in Docker build.
 
 ### Phase 17 Definition of Done
 
