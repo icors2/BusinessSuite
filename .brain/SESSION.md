@@ -6,13 +6,13 @@
 
 ## Last Updated
 
-2026-06-21
+2026-06-20
 
 ---
 
 ## Current Focus
 
-Branch workflow realigned: **`main`** for development, **`demo`** for evaluation deploy.
+Seed split, Docker auth seed, admin module, and Docker seed-auth path fix — complete on `main` and merged to `demo`.
 
 ---
 
@@ -24,9 +24,9 @@ _None._
 
 ## Recent Progress
 
-- Pushed `demo` (`065c84e`): sidebar-07, shadcn UI, docker shutdown docs
-- Synced product code to `main` (`10cfbb4`): sidebar without demo-only tutorials
-- Merged `main` → `demo` to align branch workflow docs
+- **main** `f076aef`: Docker seed-auth emit path fix (`rootDir` in tsconfig.seed.build.json); README seed tiers + scripts docs
+- **main** `bd288a6`: seed split, Docker entrypoint auth seed, admin module, prod register guard
+- **demo** `316413a`: merged main; kept tutorials + `seed-demo.ts`; updated demo entrypoint ts-node paths
 
 ---
 
