@@ -38,7 +38,7 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={erpNavGroups} />
-        <NavProjects projects={quickLinks} />
+        {quickLinks.length > 0 ? <NavProjects projects={quickLinks} /> : null}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} onLogout={onLogout} />
