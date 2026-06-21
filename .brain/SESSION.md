@@ -6,41 +6,31 @@
 
 ## Last Updated
 
-2026-06-19
+2026-06-21
 
 ---
 
 ## Current Focus
 
-Phase 17 — Training, UAT & Change Management **complete**. All build phases (0–17) done.
+Production Docker build + dependency hardening landed on `main` (cherry-picked from `demo` cae6e11).
 
 ---
 
 ## Active Task
 
-_None — build complete._
+_None._
 
 ---
 
 ## Recent Progress
 
-- Created 14 module user guides in `docs/training/modules/`
-- Created 14 UAT scripts in `docs/uat/`
-- Created 10 persona onboarding guides in `docs/training/onboarding/`
-- Created support process + tickets log with sample ticket SUP-2026-0001
-- Created UAT master tracker and training index
-- Updated README, MEMORY, build prompts for Phase 17 completion
-
----
-
-## Next Steps
-
-_None — optional: execute live UAT sign-offs using tracker; operational deployment._
+- Pushed `demo` cae6e11: Docker eslint fix, deps, GHCR guide
+- Cherry-picked to `main`: `Dockerfile`, `.dockerignore`, `package*.json`, `ci.yml`
 
 ---
 
 ## Session Notes
 
-- Documentation-only phase; no application code changes
-- Guides strictly describe built routers/pages/RBAC from Phases 1–16
-- Demo logins: `<role>@arcncode.local` / `<Role>123!`
+- `event-bus:test` requires local Redis — fails without docker compose infra running
+- Demo data volumes preserved from prior session
+- Phase 18 + GHCR docs stay on `demo`; `main` gets prod Docker + deps only
