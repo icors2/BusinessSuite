@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { AuthService, LoginInput, RegisterInput } from './auth.service';
 import { Public, Roles } from './decorators';
 import { AuthenticatedUser } from './auth.types';
@@ -10,6 +17,11 @@ export class AuthController {
   @Public()
   @Post('register')
   register(@Body() body: RegisterInput) {
+    if (process.env['NODE_ENV'] === 'production') {
+      throw new ForbiddenException(
+        'Public registration is disabled. Contact an administrator.',
+      );
+    }
     return this.authService.register(body);
   }
 

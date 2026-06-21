@@ -5,5 +5,5 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["seed.ts", "seed-helpers.ts"]
+  "include": ["seed.ts", "seed-auth.ts", "seed-helpers.ts"]
 }

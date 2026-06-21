@@ -7,6 +7,7 @@ import {
   Factory,
   FileText,
   RotateCcw,
+  Shield,
   ShieldCheck,
   ShoppingCart,
   Users,
@@ -157,6 +158,15 @@ export const erpNavGroups: NavGroup[] = [
       { title: 'Forecast', url: '/analytics/forecast' },
     ],
   },
+  {
+    title: 'Admin',
+    url: '/admin/users',
+    icon: Shield,
+    items: [
+      { title: 'Users', url: '/admin/users' },
+      { title: 'Employees', url: '/admin/employees' },
+    ],
+  },
 ];
 
 export const quickLinks: QuickLink[] = [];
@@ -207,6 +217,9 @@ export const routeLabels: Record<string, string> = {
   returns: 'Returns',
   queue: 'Queue',
   analytics: 'Analytics',
+  admin: 'Admin',
+  users: 'Users',
+  employees: 'Employees',
   ask: 'Ask',
   bottlenecks: 'Bottlenecks',
   forecast: 'Forecast',
