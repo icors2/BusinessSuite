@@ -50,10 +50,19 @@ Integrated manufacturing operations platform — **Phase 18 Demo & Tutorial** on
    # Web: http://localhost:4200 (proxies /api and /trpc to port 3000)
    ```
 
-7. **Full stack (including API container)**
+7. **Full stack in Docker (API + Web UI + infrastructure)**
    ```bash
-   docker compose up -d
+   docker compose up -d --build
    ```
+   | Service | URL |
+   |---------|-----|
+   | **Web UI** | http://localhost:8080 |
+   | **API** | http://localhost:3000/api |
+   | **Health** | http://localhost:3000/api/health |
+
+   Nginx in the `web` container serves the built React app and proxies `/api`, `/trpc`, and `/mes` to the `api` service.
+
+   For **hot-reload UI development**, keep using step 6 (`npm run serve:web` on port 4200) with infrastructure from step 3.
 
 ## Seeded users (development)
 
@@ -373,7 +382,7 @@ npm run migrate:rollback  -- --batch <batchId>
 | `npm run migrate:run` | Ingest + reconcile a legacy migration batch |
 | `npm run migrate:promote` | Promote a reviewed batch into production |
 | `npm run migrate:rollback` | Undo a promoted batch |
-| `npm run docker:up` | Start full Docker stack |
+| `npm run docker:up` | Start full Docker stack (Postgres, Redis, MinIO, API, Web UI on :8080) |
 | `npm run backup` | Encrypted Postgres backup |
 
 ## Architecture
