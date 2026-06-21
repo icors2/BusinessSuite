@@ -12,7 +12,7 @@
 
 ## Current Focus
 
-Production Docker build + dependency hardening landed on `main` (cherry-picked from `demo` cae6e11).
+API/event-bus fix + Jest 30/glob 13 on `main` (cherry-picked from demo 7442fdf).
 
 ---
 
@@ -24,13 +24,12 @@ _None._
 
 ## Recent Progress
 
-- Pushed `demo` cae6e11: Docker eslint fix, deps, GHCR guide
-- Cherry-picked to `main`: `Dockerfile`, `.dockerignore`, `package*.json`, `ci.yml`
+- Cherry-picked to `main`: event-bus dual Redis, quote subscriber, Jest 30, glob overrides, jest.config.cts cleanup
+- `demo` 7442fdf also includes Dockerfile.api.demo CRLF/healthcheck fixes
 
 ---
 
 ## Session Notes
 
-- `event-bus:test` requires local Redis — fails without docker compose infra running
-- Demo data volumes preserved from prior session
-- Phase 18 + GHCR docs stay on `demo`; `main` gets prod Docker + deps only
+- `event-bus:test` requires local Redis
+- `whatwg-encoding` deprecation remains (dev-only via `@nx/web` → `http-server`)

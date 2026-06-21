@@ -51,7 +51,7 @@
     "@swc/helpers": "~0.5.18",
     "@tailwindcss/postcss": "^4.3.1",
     "@types/bcrypt": "^6.0.0",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.0.0",
@@ -66,9 +66,9 @@
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
-    "jest": "^29.7.0",
-    "jest-environment-node": "^29.7.0",
-    "jest-util": "^29.7.0",
+    "jest": "^30.4.2",
+    "jest-environment-node": "^30.4.1",
+    "jest-util": "^30.4.1",
     "jsonc-eslint-parser": "^2.1.0",
     "nx": "23.0.0",
     "postcss": "^8.5.15",
@@ -136,6 +136,9 @@
     "multer": "2.2.0",
     "js-yaml": ">=4.1.2",
     "http-proxy-middleware": ">=3.0.6",
-    "uuid": ">=11.1.1"
+    "uuid": ">=11.1.1",
+    "glob": "^13.0.6",
+    "test-exclude": "^7.0.2",
+    "@rollup/plugin-commonjs": "^28.0.9"
   }
 }
