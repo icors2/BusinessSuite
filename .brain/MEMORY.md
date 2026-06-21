@@ -25,7 +25,24 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 |-------|-------|
 | **Active phase** | None — Phase 18 complete on `demo` branch |
 | **Next phase** | None |
-| **Last updated** | 2026-06-21 |
+| **Last updated** | 2026-06-20 |
+
+### Seed tiers (main + demo)
+
+| Script | Runs | Used by |
+|--------|------|---------|
+| `prisma:seed:auth` | 8 roles + README login users (`seed-auth.ts`) | Docker `main` API entrypoint (idempotent) |
+| `prisma:seed` | Auth + full dev sample data (`seedMain()` in `seed.ts`) | Local dev, CI |
+| `prisma:seed:demo` | `seedMain()` + evaluator scenarios (`seed-demo.ts`, demo branch only) | `docker-compose.demo.yml` |
+
+Docker main stack: `scripts/entrypoint.sh` runs migrate + compiled `seed-auth.js` unless `SKIP_AUTH_SEED=true`. Full sample data remains manual via `npm run prisma:seed`.
+
+### Admin module (main + demo)
+
+- `libs/admin` — `AdminService` (user CRUD, password reset, deactivate; employee ops delegate to `WorkforceService`)
+- tRPC `admin` router with `adminProcedure` (Admin role only)
+- Web UI: `/admin/users`, `/admin/employees`; `canAdmin()` + `RequireAdmin` guard
+- `POST /auth/register` blocked when `NODE_ENV=production`; prod user creation via admin module only
 
 ### Phase 18 Definition of Done
 

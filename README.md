@@ -33,8 +33,15 @@ Integrated manufacturing operations platform — **all phases complete** (Phase 
    ```bash
    npm run prisma:generate
    npm run prisma:migrate:deploy
-   npm run prisma:seed
+   npm run prisma:seed          # auth + full dev sample data (recommended for local dev)
    ```
+
+   For **login users only** (no products, orders, etc.):
+   ```bash
+   npm run prisma:seed:auth
+   ```
+
+   See [Database seeding](#database-seeding) for all seed tiers and when to use each.
 
 5. **Run API**
    ```bash
@@ -72,7 +79,38 @@ Integrated manufacturing operations platform — **all phases complete** (Phase 
    npm run prisma:seed
    ```
 
+   On the **`demo`** branch only, evaluator scenarios use `npm run prisma:seed:demo` or `docker compose -f docker-compose.demo.yml up -d --build` (see [docs/demo/](docs/demo/)).
+
    For **hot-reload UI development**, keep using step 6 (`npm run serve:web` on port 4200) with infrastructure from step 3.
+
+## Database seeding
+
+Three seed tiers — do not conflate them:
+
+| Tier | Script | What it loads | When to use |
+|------|--------|---------------|-------------|
+| **Auth only** | `npm run prisma:seed:auth` | 8 RBAC roles + README login users | Docker `main` API startup (automatic); fresh prod installs; minimal DB |
+| **Full dev** | `npm run prisma:seed` | Auth + products, finance, WMS, MES, CPQ, etc. (`seedMain()` in `seed.ts`) | Local development; CI integration tests |
+| **Demo** | `npm run prisma:seed:demo` | Full dev + cross-module evaluator scenarios (`seed-demo.ts`) | **`demo` branch only** — `docker-compose.demo.yml` / GHCR `:demo` images |
+
+**Prerequisites:** `DATABASE_URL` must be set (via `.env` or environment). Run migrations first:
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate:deploy   # apply pending migrations (CI, Docker, prod-like)
+# or
+npm run prisma:migrate          # create + apply migrations during schema development
+```
+
+**Docker main stack:** the API entrypoint runs migrate + auth seed on every start. Set `SKIP_AUTH_SEED=true` on the `api` service when users are managed externally (e.g. SSO). Full sample data is never loaded automatically — run `npm run prisma:seed` manually against the same database if needed.
+
+**Source files:**
+
+| File | Purpose |
+|------|---------|
+| `libs/shared/database/prisma/seed-auth.ts` | `seedAuth()` — idempotent roles + users |
+| `libs/shared/database/prisma/seed.ts` | `seedMain()` — auth + dev sample data |
+| `libs/shared/database/prisma/seed-demo.ts` | Demo enrichment (demo branch only) |
 
 ## Seeded users (development)
 
@@ -97,7 +135,7 @@ Sample master data (products with list prices, customer with price tier, vendor)
 |--------|------|------|-------------|
 | GET | `/api` | Public | Service info |
 | GET | `/api/health` | Public | DB/Redis/MinIO health |
-| POST | `/api/auth/register` | Public | Register user |
+| POST | `/api/auth/register` | Public (dev only) | Register user — **disabled when `NODE_ENV=production`**; use Admin module in prod |
 | POST | `/api/auth/login` | Public | Login, returns JWT |
 | POST | `/api/auth/refresh` | Public | Refresh tokens |
 | GET | `/api/auth/admin-only` | Admin | Role-gated test |
@@ -334,6 +372,21 @@ Event ingestion, deterministic natural-language querying, MES bottleneck detecti
 | `/analytics/bottlenecks` | WIP pileup by workstation (Supervisor+) |
 | `/analytics/forecast` | Inventory depletion/reorder projections (Editor+ recompute) |
 
+### tRPC (Admin)
+
+User and employee management — **Admin role only**. Production user creation goes through this module instead of `/api/auth/register`.
+
+| Router | Procedures |
+|--------|------------|
+| `admin` | listRoles, listUsers, createUser, updateUserRoles, deactivateUser, resetPassword, listEmployees, createEmployee, updateEmployee |
+
+## ERP Admin UI (Admin pages)
+
+| Route | Description |
+|-------|-------------|
+| `/admin/users` | User list, create, role assignment, password reset, deactivate |
+| `/admin/employees` | Employee list, create, edit (delegates to workforce numbering/badge logic) |
+
 ## Data migration (Phase 2)
 
 CLI ETL from legacy exports into the Master Data schema. Staging-first,
@@ -379,6 +432,8 @@ npm run migrate:rollback  -- --batch <batchId>
 
 ## Scripts
 
+### Build & run
+
 | Script | Description |
 |--------|-------------|
 | `npm run build` | Build API |
@@ -387,14 +442,38 @@ npm run migrate:rollback  -- --batch <batchId>
 | `npm run serve:web` | Run ERP Admin UI (Vite, port 4200) |
 | `npm run test` | Run all tests |
 | `npm run lint` | ESLint all projects |
-| `npm run prisma:migrate` | Create/apply dev migrations |
-| `npm run prisma:seed` | Seed roles, users, and full dev sample data |
-| `npm run prisma:seed:auth` | Seed roles and login users only |
+| `npm run typecheck` | TypeScript check across the monorepo |
+
+### Database (Prisma)
+
+| Script | Description |
+|--------|-------------|
+| `npm run prisma:generate` | Generate Prisma client from schema |
+| `npm run prisma:migrate` | Create and apply dev migrations (`migrate dev`) |
+| `npm run prisma:migrate:deploy` | Apply pending migrations without prompts (CI, Docker, prod-like) |
+| `npm run prisma:seed:auth` | Seed **roles + login users only** (idempotent; Docker main startup) |
+| `npm run prisma:seed` | Seed auth + **full dev sample data** (products, finance, WMS, MES, …) |
+| `npm run prisma:seed:demo` | Seed full dev + **evaluator demo scenarios** (**`demo` branch only**) |
+
+### Legacy migration (ETL)
+
+| Script | Description |
+|--------|-------------|
 | `npm run migrate:run` | Ingest + reconcile a legacy migration batch |
+| `npm run migrate:ingest` | Ingest legacy export into staging tables |
+| `npm run migrate:reconcile` | Reconcile a batch (conflicts, missing fields) |
 | `npm run migrate:promote` | Promote a reviewed batch into production |
 | `npm run migrate:rollback` | Undo a promoted batch |
+
+### Docker & backup
+
+| Script | Description |
+|--------|-------------|
 | `npm run docker:up` | Start full Docker stack (Postgres, Redis, MinIO, API, Web UI on :8080) |
+| `npm run docker:down` | Stop the main Docker stack |
+| `npm run docker:logs` | Follow API container logs |
 | `npm run backup` | Encrypted Postgres backup |
+| `npm run restore` | Restore from encrypted backup |
 
 ## Architecture
 
@@ -418,6 +497,7 @@ libs/qms          Inspection templates, records, non-conformance, hold enforceme
 libs/cmms         Assets, PM trigger rules, maintenance work orders, cycle subscriber
 libs/returns      RMA lifecycle, return window, WMS receive, QMS NC, credit memo refund
 libs/analytics    Event ingestion, NLQ, bottleneck detection, inventory forecasting
+libs/admin        User CRUD, employee admin, Admin-only tRPC (delegates employees to workforce)
 scripts/migrate.ts  Migration CLI entrypoint
 libs/shared/
   config          Typed environment loader

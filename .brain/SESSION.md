@@ -6,13 +6,13 @@
 
 ## Last Updated
 
-2026-06-21
+2026-06-20
 
 ---
 
 ## Current Focus
 
-Branch workflow realigned: **`main`** for development, **`demo`** for evaluation deploy.
+Seed split, Docker auth seed, and Admin module — complete on `main` and merged to `demo`.
 
 ---
 
@@ -24,10 +24,9 @@ _None._
 
 ## Recent Progress
 
-- Committed + pushed `demo` (`065c84e`): sidebar-07 layout, shadcn UI, docker shutdown docs
-- Synced to `main`: sidebar layout (no tutorials), MES fix, scan-input fix, Radix deps
-- Removed `prisma:seed:demo` script from `main` (no seed-demo.ts on main)
-- Updated `.brain/MEMORY.md` with main → demo merge workflow
+- **main** `bd288a6`: seed split (`seed-auth.ts` + `seedMain()`), Docker entrypoint auth seed, admin module (backend + UI + tests), prod register guard
+- **demo** `316413a`: merged main; kept tutorials + `seed-demo.ts`; updated demo entrypoint ts-node paths
+- Tests: `nx test admin` (5 unit), admin integration (3), API + web builds pass
 
 ---
 
