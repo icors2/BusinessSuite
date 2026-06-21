@@ -11,7 +11,7 @@ npx prisma migrate deploy --schema=./prisma/schema.prisma
 
 if [ "${SKIP_DEMO_SEED:-false}" != "true" ]; then
   echo "Seeding demo data..."
-  npx ts-node --compiler-options '{"module":"CommonJS"}' ./prisma/seed-demo.ts || {
+  npx ts-node -P ./prisma/tsconfig.seed.json ./prisma/seed-demo.ts || {
     echo "Demo seed failed — continuing if database already populated"
   }
 fi

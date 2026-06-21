@@ -39,7 +39,8 @@
       "qms": ["./libs/qms/src/index.ts"],
       "cmms": ["./libs/cmms/src/index.ts"],
       "returns": ["./libs/returns/src/index.ts"],
-      "analytics": ["./libs/analytics/src/index.ts"]
+      "analytics": ["./libs/analytics/src/index.ts"],
+      "admin": ["./libs/admin/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

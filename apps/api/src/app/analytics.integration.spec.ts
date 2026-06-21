@@ -29,6 +29,7 @@ import { QmsService } from 'qms';
 import { CmmsService } from 'cmms';
 import { ReturnsService } from 'returns';
 import { ALL_INGESTED_TOPICS, AnalyticsService } from 'analytics';
+import { AdminService } from 'admin';
 import { EVENT_BUS } from 'event-bus';
 import { createAppRouter } from 'trpc';
 import { AppModule } from './app.module';
@@ -115,6 +116,7 @@ describe('Analytics tRPC Integration', () => {
       cmmsService: app.get(CmmsService),
       returnsService: app.get(ReturnsService),
       analyticsService,
+      adminService: app.get(AdminService),
     });
 
     const login = async (email: string, password: string) => {

@@ -1,0 +1,9 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": ["seed.ts", "seed-auth.ts", "seed-demo.ts", "seed-helpers.ts"]
+}

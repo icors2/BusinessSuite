@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function canAdmin(roles: string[]): boolean {
+  return roles.includes('Admin');
+}
+
 export function canEdit(roles: string[]): boolean {
   return roles.some((role) => role === 'Admin' || role === 'Manager');
 }

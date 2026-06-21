@@ -27,6 +27,7 @@ import { WorkforceService } from 'workforce';
 import { MesService } from 'mes';
 import { CmmsService } from 'cmms';
 import { ReturnsService } from 'returns';
+import { AdminService } from 'admin';
 import { AnalyticsService } from 'analytics';
 import { QmsService } from 'qms';
 import { EVENT_BUS, EventBus } from 'event-bus';
@@ -113,6 +114,7 @@ describe('MPS tRPC Integration', () => {
       cmmsService: app.get(CmmsService),
       returnsService: app.get(ReturnsService),
       analyticsService: app.get(AnalyticsService),
+      adminService: app.get(AdminService),
     });
 
     const adminLogin = await import('supertest').then((m) =>

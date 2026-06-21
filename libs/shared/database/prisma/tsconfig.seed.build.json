@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.seed.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["seed-auth.ts"]
+}

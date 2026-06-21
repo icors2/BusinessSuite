@@ -124,3 +124,18 @@ export const supervisorProcedure = publicProcedure.use(isSupervisor);
 export const inspectorProcedure = publicProcedure.use(isInspector);
 export const technicianProcedure = publicProcedure.use(isTechnician);
 export const supportProcedure = publicProcedure.use(isSupport);
+
+const isAdmin = t.middleware(({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Authentication required' });
+  }
+  if (!ctx.user.roles.includes('Admin')) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Admin role required',
+    });
+  }
+  return next({ ctx: { ...ctx, user: ctx.user } });
+});
+
+export const adminProcedure = publicProcedure.use(isAdmin);

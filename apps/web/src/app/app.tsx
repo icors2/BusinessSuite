@@ -43,6 +43,8 @@ import { WorkforceSchedulePage } from '../pages/workforce/schedule';
 import { TimeClockPage } from '../pages/workforce/time-clock';
 import { LaborCostPage } from '../pages/workforce/labor-cost';
 import { TutorialsPage } from '../pages/tutorials';
+import { AdminUsersPage } from '../pages/admin/users';
+import { AdminEmployeesPage } from '../pages/admin/employees';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const session = getSession();
@@ -106,6 +108,8 @@ export function App() {
         <Route path="analytics/bottlenecks" element={<AnalyticsBottlenecksPage />} />
         <Route path="analytics/forecast" element={<AnalyticsForecastPage />} />
         <Route path="tutorials" element={<TutorialsPage />} />
+        <Route path="admin/users" element={<AdminUsersPage />} />
+        <Route path="admin/employees" element={<AdminEmployeesPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>

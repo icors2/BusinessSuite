@@ -62,6 +62,16 @@ Integrated manufacturing operations platform — **Phase 18 Demo & Tutorial** on
 
    Nginx in the `web` container serves the built React app and proxies `/api`, `/trpc`, and `/mes` to the `api` service.
 
+   The API container runs migrations and **auth-only seed** (8 roles + README login users). It does not load full dev sample data or demo scenarios.
+
+   Optional: set `SKIP_AUTH_SEED=true` on the `api` service when users are managed externally.
+
+   For **full dev sample data** (products, finance, WMS, etc.) after the stack is up:
+   ```bash
+   cp .env.example .env   # if not already done
+   npm run prisma:seed
+   ```
+
    For **hot-reload UI development**, keep using step 6 (`npm run serve:web` on port 4200) with infrastructure from step 3.
 
 ## Seeded users (development)
@@ -378,7 +388,8 @@ npm run migrate:rollback  -- --batch <batchId>
 | `npm run test` | Run all tests |
 | `npm run lint` | ESLint all projects |
 | `npm run prisma:migrate` | Create/apply dev migrations |
-| `npm run prisma:seed` | Seed Admin/Manager roles and users |
+| `npm run prisma:seed` | Seed roles, users, and full dev sample data |
+| `npm run prisma:seed:auth` | Seed roles and login users only |
 | `npm run migrate:run` | Ingest + reconcile a legacy migration batch |
 | `npm run migrate:promote` | Promote a reviewed batch into production |
 | `npm run migrate:rollback` | Undo a promoted batch |
