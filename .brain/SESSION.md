@@ -12,24 +12,21 @@
 
 ## Current Focus
 
-Committing Docker/deps/GHCR fixes to `demo`; cherry-picking production fixes to `main`.
+Docker/deps/GHCR work shipped on `demo` (cae6e11); production fixes on `main` (3f5b8fa).
 
 ---
 
 ## Active Task
 
-- Commit + push `demo`
-- Cherry-pick shared files (`Dockerfile`, `.dockerignore`, `package*.json`, `ci.yml`) to `main` + push
+_None._
 
 ---
 
 ## Recent Progress
 
-- Fixed Docker builds: copy `eslint.config.mjs` in all Dockerfiles + `.dockerignore`
-- Added npm overrides; Prisma 6.19.3; **0 vulnerabilities** on `npm audit`
-- CI audit gate: `npm audit --omit=dev --audit-level=high`
-- GHCR deploy guide, `docker-compose.ghcr.yml`, run scripts (demo-only)
-- Docker demo build smoke test passed (api + web)
+- Pushed `demo` cae6e11: Docker eslint fix, deps, GHCR guide + compose/scripts
+- Cherry-picked to `main` 3f5b8fa: `Dockerfile`, `.dockerignore`, `package*.json`, `ci.yml`
+- Evaluator one-liner can now fetch `docker-compose.ghcr.yml` from `origin/demo`
 
 ---
 
