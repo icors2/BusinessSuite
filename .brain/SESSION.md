@@ -12,7 +12,7 @@
 
 ## Current Focus
 
-API/event-bus fix + Jest 30/glob 13 on `main` (cherry-picked from demo 7442fdf).
+Branch workflow realigned: **`main`** for development, **`demo`** for evaluation deploy.
 
 ---
 
@@ -24,12 +24,19 @@ _None._
 
 ## Recent Progress
 
-- Cherry-picked to `main`: event-bus dual Redis, quote subscriber, Jest 30, glob overrides, jest.config.cts cleanup
-- `demo` 7442fdf also includes Dockerfile.api.demo CRLF/healthcheck fixes
+- Committed + pushed `demo` (`065c84e`): sidebar-07 layout, shadcn UI, docker shutdown docs
+- Synced to `main`: sidebar layout (no tutorials), MES fix, scan-input fix, Radix deps
+- Removed `prisma:seed:demo` script from `main` (no seed-demo.ts on main)
+- Updated `.brain/MEMORY.md` with main → demo merge workflow
 
 ---
 
-## Session Notes
+## Branch Workflow
 
-- `event-bus:test` requires local Redis
-- `whatwg-encoding` deprecation remains (dev-only via `@nx/web` → `http-server`)
+1. Develop on **`main`**
+2. Merge **`main`** → **`demo`**
+3. Push **`demo`** to trigger GHCR publish
+
+Demo-only on `demo`: seed-demo, tutorials, docker-compose.demo.yml, docs/demo/, GHCR workflow
+
+---
