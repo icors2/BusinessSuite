@@ -430,12 +430,24 @@ Full-stack Docker with preloaded demo data and in-app tutorials:
 | Resource | Location |
 |----------|----------|
 | Demo quick start | [docs/demo/README.md](docs/demo/README.md) |
+| **GHCR deploy guide** | [docs/demo/ghcr-deploy-guide.md](docs/demo/ghcr-deploy-guide.md) |
 | Demo data catalog | [docs/demo/demo-data-catalog.md](docs/demo/demo-data-catalog.md) |
-| Compose file | [docker-compose.demo.yml](docker-compose.demo.yml) |
+| Compose (local build) | [docker-compose.demo.yml](docker-compose.demo.yml) |
+| Compose (GHCR pull) | [docker-compose.ghcr.yml](docker-compose.ghcr.yml) |
+
+**Local build (developers):**
 
 ```bash
 docker compose -f docker-compose.demo.yml up --build -d
 # Web: http://localhost:8080
+```
+
+**Run from GHCR (evaluators — any PC, no clone):**
+
+```bash
+curl -fsSL -o docker-compose.ghcr.yml \
+  https://raw.githubusercontent.com/icors2/BusinessSuite/demo/docker-compose.ghcr.yml \
+  && docker compose -f docker-compose.ghcr.yml up -d --pull always
 ```
 
 ## Backup & restore

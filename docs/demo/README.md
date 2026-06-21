@@ -27,13 +27,16 @@ Sign in with demo users (`<Role>123!`):
 
 Open **Tutorials** in the header or visit `/tutorials` for guided tours of all 14 modules.
 
-## GHCR images
+## Run from GHCR (any PC — no build)
 
-Published from the `demo` branch via GitHub Actions (`.github/workflows/demo-publish.yml`):
+Full setup guide: **[ghcr-deploy-guide.md](./ghcr-deploy-guide.md)** (maintainer setup, evaluator one-liner, remote VM).
+
+**One command** (Linux/macOS/Git Bash):
 
 ```bash
-docker compose -f docker-compose.demo.yml pull
-docker compose -f docker-compose.demo.yml up -d
+curl -fsSL -o docker-compose.ghcr.yml \
+  https://raw.githubusercontent.com/icors2/BusinessSuite/demo/docker-compose.ghcr.yml \
+  && docker compose -f docker-compose.ghcr.yml up -d --pull always
 ```
 
 | Image | Tag |
@@ -41,7 +44,9 @@ docker compose -f docker-compose.demo.yml up -d
 | `ghcr.io/icors2/businesssuite-api` | `demo` |
 | `ghcr.io/icors2/businesssuite-web` | `demo` |
 
-Make packages public in GitHub Packages settings for anonymous pulls, or `docker login ghcr.io` first.
+Helper scripts: [`scripts/run-demo-ghcr.sh`](../../scripts/run-demo-ghcr.sh) · [`scripts/run-demo-ghcr.ps1`](../../scripts/run-demo-ghcr.ps1)
+
+Compose file (pull-only): [`docker-compose.ghcr.yml`](../../docker-compose.ghcr.yml)
 
 ## Demo seed (development)
 
@@ -69,5 +74,6 @@ Phase 18 lives on the long-lived **`demo`** branch. Production `main` is unchang
 
 ## Related docs
 
+- [GHCR deploy guide](./ghcr-deploy-guide.md)
 - [Training guides](../training/README.md)
 - [UAT scripts](../uat/uat-master-tracker.md)

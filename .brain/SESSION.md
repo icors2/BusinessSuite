@@ -6,38 +6,35 @@
 
 ## Last Updated
 
-2026-06-20
+2026-06-21
 
 ---
 
 ## Current Focus
 
-Phase 18 — Demo & Tutorial **shipped** on `demo` branch (`9cfd5eb` + mes build fix).
+Committing Docker/deps/GHCR fixes to `demo`; cherry-picking production fixes to `main`.
 
 ---
 
 ## Active Task
 
-_None._
+- Commit + push `demo`
+- Cherry-pick shared files (`Dockerfile`, `.dockerignore`, `package*.json`, `ci.yml`) to `main` + push
 
 ---
 
 ## Recent Progress
 
-- Pushed `demo` branch; tagged `demo-v0.1.0`
-- Fixed `mes.gateway.ts` TS4111 blocking Docker API image build
-- GHCR Demo Publish workflow re-triggered on push
-
----
-
-## Next Steps
-
-_Verify GHCR images publish; optional local `docker compose -f docker-compose.demo.yml up --build` smoke._
+- Fixed Docker builds: copy `eslint.config.mjs` in all Dockerfiles + `.dockerignore`
+- Added npm overrides; Prisma 6.19.3; **0 vulnerabilities** on `npm audit`
+- CI audit gate: `npm audit --omit=dev --audit-level=high`
+- GHCR deploy guide, `docker-compose.ghcr.yml`, run scripts (demo-only)
+- Docker demo build smoke test passed (api + web)
 
 ---
 
 ## Session Notes
 
-- Demo seed idempotent; guard on SO-DEMO-001 SHIPPED
-- Web on :8080, API on :3000 in demo compose
-- CI seed unchanged — demo seed is separate script
+- `event-bus:test` requires local Redis — fails without docker compose infra running
+- Demo data volumes preserved from prior session
+- Phase 18 + GHCR docs stay on `demo`; `main` gets prod Docker + deps only

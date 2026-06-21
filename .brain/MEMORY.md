@@ -11,7 +11,7 @@
 | **Product** | Arc N Code Business Suite — integrated manufacturing operations platform |
 | **Audience** | Manufacturing businesses; deployed on-site with field technician setup |
 | **Architecture** | Single Nx monorepo, NestJS modular monolith, phased delivery (Phases 0–17) |
-| **Repo status** | **Phase 18 complete on `demo` branch** — E2E demo seed, Docker/GHCR stack, interactive tutorials |
+| **Repo status** | **Phase 18 complete on `demo` branch** — E2E demo seed, Docker/GHCR stack, interactive tutorials. **`main`** has prod Docker/eslint + dependency hardening (cherry-picked 2026-06-21). |
 | **Primary build spec** | [Arc_N_Code_AI_Build_Prompts_v6.md](../Arc_N_Code_AI_Build_Prompts_v6.md) |
 | **Agent rules** | [.cursor/.cursorrules.md](../.cursor/.cursorrules.md) |
 
@@ -25,7 +25,7 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 |-------|-------|
 | **Active phase** | None — Phase 18 complete on `demo` branch |
 | **Next phase** | None |
-| **Last updated** | 2026-06-19 |
+| **Last updated** | 2026-06-21 |
 
 ### Phase 18 Definition of Done
 
@@ -36,7 +36,7 @@ Build one phase at a time, in order. Do not skip ahead. Start a fresh session pe
 - [x] `seed-demo.integration.spec.ts`; docs in `docs/demo/`
 - [x] Long-lived `demo` branch; GitHub label `demo`
 
-**Decisions:** Demo work on `demo` branch only (main production-focused); GHCR images `ghcr.io/icors2/businesssuite-{api,web}:demo`; base `seed.ts` unchanged for CI; demo seed calls `seedMain()` then enriches.
+**Decisions:** Demo work on `demo` branch only (main production-focused); GHCR images `ghcr.io/icors2/businesssuite-{api,web}:demo`; base `seed.ts` unchanged for CI; demo seed calls `seedMain()` then enriches. **GHCR packages must be Public** for anonymous evaluator pulls — see `docs/demo/ghcr-deploy-guide.md`. Evaluator one-liner uses `docker-compose.ghcr.yml` (pull-only, no local build). **Security:** `npm overrides` + Prisma 6.19.3; CI `npm audit --omit=dev --audit-level=high`; Dockerfiles copy `eslint.config.mjs` for Nx build.
 
 ### Phase 17 Definition of Done
 
